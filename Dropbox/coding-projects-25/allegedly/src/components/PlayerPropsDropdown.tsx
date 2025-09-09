@@ -454,7 +454,24 @@ export default function PlayerPropsDropdown({
                     
                     {/* Player Props */}
                     <div className="space-y-1 p-2">
-                      {groupedByPlayer[playerName].map(prop => (
+                      {groupedByPlayer[playerName]
+                        .sort((a, b) => {
+                          // Put TD props at the bottom
+                          const aIsTD = a.category === 'player_1st_td' || a.category === 'player_anytime_td';
+                          const bIsTD = b.category === 'player_1st_td' || b.category === 'player_anytime_td';
+                          
+                          if (aIsTD && !bIsTD) return 1;
+                          if (!aIsTD && bIsTD) return -1;
+                          
+                          // Within TD props, put first TD before anytime TD
+                          if (aIsTD && bIsTD) {
+                            if (a.category === 'player_1st_td') return -1;
+                            if (b.category === 'player_1st_td') return 1;
+                          }
+                          
+                          return 0;
+                        })
+                        .map(prop => (
                         <div key={prop.id} className="border border-gray-100 rounded p-2">
                           <div className="text-xs text-gray-600 mb-2">
                             {prop.category.replace('player_', '').replace('_', ' ').toUpperCase()}{prop.line > 0 ? ` - ${prop.line}` : ''}

@@ -414,7 +414,7 @@ class OddsApiService {
   /**
    * Evaluate bet results based on live game data
    */
-  evaluateBetResult(bet: any, liveScore: LiveGameScore, playerStats: PlayerStats[]): 'won' | 'lost' | 'push' | 'pending' => {
+  evaluateBetResult(bet: any, liveScore: LiveGameScore, playerStats: PlayerStats[]): 'won' | 'lost' | 'push' | 'pending' {
     if (!liveScore.completed) {
       return 'pending';
     }
