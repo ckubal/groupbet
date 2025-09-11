@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react';
 import { Game } from '@/lib/database';
 import GameCardHorizontal from '@/components/GameCardHorizontal';
 import { oddsApi, getMockNFLGames } from '@/lib/odds-api';
-import { Wifi, WifiOff, Clock, ChevronDown, ChevronRight, Vote, CheckCircle } from 'lucide-react';
+import { Wifi, WifiOff, Clock, ChevronDown, ChevronRight, Search, CheckCircle, Zap, Activity } from 'lucide-react';
 import { PlayerProp } from '@/components/PlayerPropsDropdown';
-import UserSelector from '@/components/UserSelector';
+import { useUser } from '@/lib/user-context';
 import TabLayout from '@/components/TabLayout';
 
 interface UserSelection {
@@ -17,31 +17,15 @@ interface UserSelection {
   createdAt: Date;
 }
 
-const friendGroup = [
-  { id: 'charlie', name: 'Charlie' },
-  { id: 'rosen', name: 'Rosen' },
-  { id: 'will', name: 'Will' },
-  { id: 'do', name: 'D.O.' },
-  { id: 'pat', name: 'Pat' },
-];
-
 export default function VotingPage() {
+  const { currentUser, groupMembers, requireAuth } = useUser();
   const [games, setGames] = useState<Game[]>([]);
   const [selections, setSelections] = useState<UserSelection[]>([]);
   const [playerProps, setPlayerProps] = useState<PlayerProp[]>([]);
-  const [currentUserId, setCurrentUserId] = useState('');
   const [loading, setLoading] = useState(true);
   const [usingApiData, setUsingApiData] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
-
-  // Load cached user ID on page load
-  useEffect(() => {
-    const cachedUserId = localStorage.getItem('allegedly-user-id');
-    if (cachedUserId && friendGroup.some(user => user.id === cachedUserId)) {
-      setCurrentUserId(cachedUserId);
-    }
-  }, []);
 
   useEffect(() => {
     const loadGames = async () => {
@@ -75,7 +59,9 @@ export default function VotingPage() {
       } catch (error) {
         console.warn('Failed to load from The Odds API, using mock data:', error);
         setApiError(error instanceof Error ? error.message : 'Unknown error');
-        setGames(getMockNFLGames());
+        const mockGames = getMockNFLGames();
+        console.log('Loading mock games:', mockGames);
+        setGames(mockGames);
         setUsingApiData(false);
       } finally {
         // Load saved selections
@@ -110,57 +96,48 @@ export default function VotingPage() {
   }, [playerProps]);
 
   const handleSelection = (gameId: string, betType: 'spread' | 'total' | 'moneyline', selection: string) => {
-    if (!currentUserId) {
-      alert('Please select your name from the dropdown before making picks!');
-      return;
-    }
+    requireAuth(() => {
+      if (!currentUser) return;
+      
+      if (!selection) {
+        // Deselect
+        setSelections(prev => prev.filter(s => 
+          !(s.userId === currentUser.id && s.gameId === gameId && s.betType === betType)
+        ));
+        return;
+      }
 
-    if (!selection) {
-      // Deselect
-      setSelections(prev => prev.filter(s => 
-        !(s.userId === currentUserId && s.gameId === gameId && s.betType === betType)
-      ));
-      return;
-    }
+      const updatedSelections = selections.filter(s => 
+        !(s.userId === currentUser.id && s.gameId === gameId && s.betType === betType)
+      );
 
-    const updatedSelections = selections.filter(s => 
-      !(s.userId === currentUserId && s.gameId === gameId && s.betType === betType)
-    );
+      const newSelection: UserSelection = {
+        userId: currentUser.id,
+        gameId,
+        betType,
+        selection: selection as 'home' | 'away' | 'over' | 'under',
+        createdAt: new Date(),
+      };
 
-    const newSelection: UserSelection = {
-      userId: currentUserId,
-      gameId,
-      betType,
-      selection: selection as 'home' | 'away' | 'over' | 'under',
-      createdAt: new Date(),
-    };
-
-    setSelections([...updatedSelections, newSelection]);
+      setSelections([...updatedSelections, newSelection]);
+    });
   };
 
   const handlePlayerPropSelection = (prop: PlayerProp) => {
-    if (!currentUserId) {
-      alert('Please select your name from the dropdown before making picks!');
-      return;
-    }
-
-    const existingIndex = playerProps.findIndex(p => p.id === prop.id);
-    
-    if (existingIndex >= 0) {
-      setPlayerProps(prev => prev.filter((_, index) => index !== existingIndex));
-    } else {
-      setPlayerProps(prev => [...prev, prop]);
-    }
-  };
-
-  const handleUserChange = (userId: string) => {
-    setCurrentUserId(userId);
-    localStorage.setItem('allegedly-user-id', userId);
+    requireAuth(() => {
+      const existingIndex = playerProps.findIndex(p => p.id === prop.id);
+      
+      if (existingIndex >= 0) {
+        setPlayerProps(prev => prev.filter((_, index) => index !== existingIndex));
+      } else {
+        setPlayerProps(prev => [...prev, prop]);
+      }
+    });
   };
 
   const getUserSelections = (gameId: string) => {
     const gameSelections = selections.filter(s => 
-      s.userId === currentUserId && s.gameId === gameId
+      s.userId === currentUser?.id && s.gameId === gameId
     );
 
     return {
@@ -256,17 +233,23 @@ export default function VotingPage() {
   const groupedGames = groupGamesChronologically(games);
   
   // Calculate user stats
-  const userVoteCount = selections.filter(s => s.userId === currentUserId).length;
+  const userVoteCount = selections.filter(s => s.userId === currentUser?.id).length;
   const userPropCount = playerProps.length;
   const totalVoteCount = userVoteCount + userPropCount;
 
   if (loading) {
     return (
       <TabLayout>
-        <div className="flex items-center justify-center py-12">
+        <div className="flex items-center justify-center py-24">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <div className="text-gray-600">Loading games...</div>
+            <div className="relative mb-8">
+              <div className="animate-spin rounded-full h-16 w-16 border-2 border-accent-blue/20 border-t-accent-blue mx-auto"></div>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Zap size={20} className="text-accent-blue animate-pulse" />
+              </div>
+            </div>
+            <div className="text-gray-300 font-medium tracking-wide">initializing neural networks...</div>
+            <div className="text-gray-500 text-sm mt-2">analyzing betting patterns</div>
           </div>
         </div>
       </TabLayout>
@@ -275,31 +258,36 @@ export default function VotingPage() {
 
   return (
     <TabLayout>
-      {/* User Selection & Data Source */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-        <UserSelector
-          currentUserId={currentUserId}
-          onUserChange={handleUserChange}
-          users={friendGroup}
-        />
+      {/* User & Data Source */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mb-8 sm:mb-12 px-4">
+        <div className="glass rounded-2xl px-3 sm:px-4 py-2 border border-white/10 w-full sm:w-auto">
+          <div className="flex items-center gap-2 justify-center sm:justify-start">
+            <Activity size={16} className="text-accent-purple" />
+            <span className="text-gray-200 font-medium text-xs sm:text-sm">
+              {currentUser ? `studying as ${currentUser.name}` : 'observing mode'}
+            </span>
+          </div>
+        </div>
         
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-white shadow-md border">
-          {usingApiData ? (
-            <>
-              <Wifi size={16} className="text-green-600" />
-              <span className="text-green-700 font-medium">Live Data</span>
-            </>
-          ) : (
-            <>
-              <WifiOff size={16} className="text-orange-600" />
-              <span className="text-orange-700 font-medium">Demo Data</span>
-            </>
-          )}
+        <div className="glass rounded-2xl px-3 sm:px-4 py-2 border border-white/10 w-full sm:w-auto">
+          <div className="flex items-center gap-2 justify-center sm:justify-start">
+            {usingApiData ? (
+              <>
+                <Wifi size={16} className="text-accent-green" />
+                <span className="text-gray-200 font-medium text-xs sm:text-sm">live neural feed</span>
+              </>
+            ) : (
+              <>
+                <WifiOff size={16} className="text-accent-pink" />
+                <span className="text-gray-200 font-medium text-xs sm:text-sm">simulation mode</span>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Games by Time Slot */}
-      <div className="space-y-8">
+      <div className="space-y-12">
         {groupedGames.map((gameGroup) => {
           const nextGameGroupKey = getNextGameGroupKey();
           const isNextGame = gameGroup.key === nextGameGroupKey;
@@ -312,29 +300,31 @@ export default function VotingPage() {
           return (
             <section key={gameGroup.key}>
               {/* Section Header */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-8">
                 <button
                   onClick={() => toggleSection(gameGroup.key)}
-                  className={`inline-flex items-center gap-3 px-6 py-3 rounded-lg transition-all ${
+                  className={`glass-hover interactive rounded-3xl px-8 py-4 transition-all ${
                     isNextGame 
-                      ? 'bg-green-100 text-green-800 border-2 border-green-300' 
-                      : 'bg-white text-gray-800 border border-gray-200 hover:bg-gray-50'
+                      ? 'glass border-neon-green text-accent-green glow-green' 
+                      : 'glass border-white/10 text-gray-200 hover:border-accent-blue/30'
                   }`}
                 >
-                  {isNextGame ? (
-                    <Clock size={20} className="text-green-600" />
-                  ) : shouldBeVisible ? (
-                    <ChevronDown size={20} className="text-gray-600" />
-                  ) : (
-                    <ChevronRight size={20} className="text-gray-600" />
-                  )}
-                  <div>
-                    <h2 className="text-xl font-bold mb-1">
-                      {gameGroup.label}
-                      {isNextGame && <span className="ml-2 text-sm font-normal">(Next Up)</span>}
-                    </h2>
-                    <div className="text-sm opacity-80">
-                      {gameDate} • {gameGroup.games.length} game{gameGroup.games.length !== 1 ? 's' : ''}
+                  <div className="flex items-center gap-4">
+                    {isNextGame ? (
+                      <Clock size={22} className="text-accent-green" />
+                    ) : shouldBeVisible ? (
+                      <ChevronDown size={22} className="text-gray-400" />
+                    ) : (
+                      <ChevronRight size={22} className="text-gray-400" />
+                    )}
+                    <div className="text-left">
+                      <h2 className="text-xl font-bold mb-1 tracking-wide">
+                        {gameGroup.label.toLowerCase()}
+                        {isNextGame && <span className="ml-3 text-sm font-normal text-accent-green/80">[active]</span>}
+                      </h2>
+                      <div className="text-sm text-gray-400 font-medium">
+                        {gameDate} • {gameGroup.games.length} game{gameGroup.games.length !== 1 ? 's' : ''}
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -344,17 +334,20 @@ export default function VotingPage() {
               {shouldBeVisible && (
                 gameGroup.key.includes('monday') ? (
                   /* Monday Night Football Dropdown */
-                  <div className="max-w-md mx-auto">
-                    <details className="bg-white rounded-lg shadow-md border border-gray-200">
-                      <summary className="cursor-pointer p-4 hover:bg-gray-50 rounded-lg">
+                  <div className="max-w-4xl mx-auto">
+                    <details className="data-panel rounded-3xl overflow-hidden">
+                      <summary className="cursor-pointer p-6 glass-hover interactive">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-gray-800">
-                            {gameGroup.games.length} Monday Game{gameGroup.games.length !== 1 ? 's' : ''}
-                          </span>
-                          <ChevronDown size={20} className="text-gray-600" />
+                          <div className="flex items-center gap-3">
+                            <div className="w-3 h-3 rounded-full bg-accent-purple animate-pulse"></div>
+                            <span className="font-semibold text-gray-200 tracking-wide">
+                              {gameGroup.games.length} monday game{gameGroup.games.length !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                          <ChevronDown size={20} className="text-accent-purple" />
                         </div>
                       </summary>
-                      <div className="p-4 pt-0 space-y-4">
+                      <div className="p-6 pt-0 space-y-6 border-t border-white/10">
                         {gameGroup.games.map(game => (
                           <GameCardHorizontal
                             key={game.id}
@@ -372,17 +365,20 @@ export default function VotingPage() {
                 ) : (
                   /* Regular Games Grid */
                   <div className="space-y-4">
-                    {gameGroup.games.map(game => (
-                      <GameCardHorizontal
-                        key={game.id}
-                        game={game}
-                        userSelections={getUserSelections(game.id)}
-                        onSelection={handleSelection}
-                        selectionCounts={getSelectionCounts(game.id)}
-                        selectedPlayerProps={getGamePlayerProps(game.id)}
-                        onPlayerPropSelection={handlePlayerPropSelection}
-                      />
-                    ))}
+                    {gameGroup.games.map(game => {
+                      console.log('Rendering game:', game);
+                      return (
+                        <GameCardHorizontal
+                          key={game.id}
+                          game={game}
+                          userSelections={getUserSelections(game.id)}
+                          onSelection={handleSelection}
+                          selectionCounts={getSelectionCounts(game.id)}
+                          selectedPlayerProps={getGamePlayerProps(game.id)}
+                          onPlayerPropSelection={handlePlayerPropSelection}
+                        />
+                      );
+                    })}
                   </div>
                 )
               )}
@@ -392,47 +388,48 @@ export default function VotingPage() {
       </div>
 
       {/* Floating Footer with Vote Count */}
-      {currentUserId && totalVoteCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Vote className="text-blue-600" size={20} />
-                <span className="font-semibold text-gray-800">
-                  {totalVoteCount} total picks
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="text-green-600" size={16} />
-                  <span className="text-gray-600">
-                    {userVoteCount} games • {userPropCount} props
-                  </span>
+      {currentUser && totalVoteCount > 0 && (
+        <div className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 z-50">
+          <div className="max-w-4xl mx-auto">
+            <div className="glass rounded-3xl border border-white/10 backdrop-blur-2xl p-3 sm:p-4 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2 rounded-xl bg-accent-blue/20 border border-accent-blue/30">
+                    <Search className="text-accent-blue" size={16} />
+                  </div>
+                  <div>
+                    <div className="font-bold text-gray-100 text-sm sm:text-lg">
+                      {totalVoteCount} neural selections
+                    </div>
+                    <div className="text-xs text-gray-400 hidden sm:block">
+                      {userVoteCount} games • {userPropCount} props
+                    </div>
+                  </div>
                 </div>
                 
                 <details className="relative">
-                  <summary className="cursor-pointer text-blue-600 hover:text-blue-700">
-                    View Details
+                  <summary className="cursor-pointer interactive glass-hover px-3 sm:px-4 py-2 rounded-2xl border border-accent-blue/30 text-accent-blue hover:border-accent-blue">
+                    <span className="text-xs sm:text-sm font-semibold">analyze</span>
                   </summary>
-                  <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[300px] max-h-[400px] overflow-y-auto">
-                    <h4 className="font-semibold text-gray-800 mb-3">Your Picks</h4>
+                  <div className="absolute bottom-full right-0 mb-4 data-panel rounded-2xl p-4 min-w-[320px] max-h-[400px] overflow-y-auto">
+                    <h4 className="font-bold text-gray-200 mb-4 text-sm tracking-wide">neural analysis</h4>
                     
                     {/* Game Picks */}
-                    <div className="space-y-2 text-xs">
+                    <div className="space-y-3 text-xs">
                       {games.map(game => {
-                        const gameSelections = selections.filter(s => s.userId === currentUserId && s.gameId === game.id);
+                        const gameSelections = selections.filter(s => s.userId === currentUser?.id && s.gameId === game.id);
                         if (gameSelections.length === 0) return null;
                         
                         return (
-                          <div key={game.id} className="border-b pb-2">
-                            <div className="font-medium text-gray-700">
-                              {game.awayTeam} @ {game.homeTeam}
+                          <div key={game.id} className="glass rounded-xl p-3 border border-white/10">
+                            <div className="font-semibold text-gray-200 mb-2">
+                              {game.awayTeam.toLowerCase()} @ {game.homeTeam.toLowerCase()}
                             </div>
-                            <div className="text-gray-600 space-y-1 mt-1">
+                            <div className="space-y-1">
                               {gameSelections.map(sel => (
-                                <div key={`${sel.gameId}-${sel.betType}`}>
-                                  {sel.betType}: {sel.selection}
+                                <div key={`${sel.gameId}-${sel.betType}`} className="flex justify-between">
+                                  <span className="text-gray-400">{sel.betType}:</span>
+                                  <span className="text-accent-blue font-medium">{sel.selection}</span>
                                 </div>
                               ))}
                             </div>
@@ -443,11 +440,13 @@ export default function VotingPage() {
                     
                     {/* Player Props */}
                     {playerProps.length > 0 && (
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="font-medium text-gray-700 mb-2">Player Props</div>
-                        <div className="space-y-1 text-xs text-gray-600">
+                      <div className="mt-4 pt-4 border-t border-white/10">
+                        <div className="font-semibold text-gray-200 mb-3 text-sm">player algorithms</div>
+                        <div className="space-y-2 text-xs">
                           {playerProps.map(prop => (
-                            <div key={prop.id}>{prop.description}</div>
+                            <div key={prop.id} className="glass rounded-lg p-2 border border-white/10 text-gray-300">
+                              {prop.description.toLowerCase()}
+                            </div>
                           ))}
                         </div>
                       </div>

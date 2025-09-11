@@ -375,23 +375,35 @@ export default function PlayerPropsDropdown({
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-colors"
+        className="w-full flex items-center justify-between p-3 glass rounded-2xl border border-white/10 hover:border-accent-blue/30 transition-all"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)'
+        }}
       >
         <div className="flex items-center gap-2">
-          <User size={16} className="text-gray-600" />
-          <span className="text-sm font-medium text-gray-700">
-            Player Props {selectedProps.length > 0 && `(${selectedProps.length})`}
+          <User size={16} className="text-accent-blue" />
+          <span className="text-sm font-medium text-gray-300">
+            player props {selectedProps.length > 0 && `(${selectedProps.length})`}
           </span>
         </div>
         {isOpen ? (
-          <ChevronUp size={16} className="text-gray-600" />
+          <ChevronUp size={16} className="text-gray-300" />
         ) : (
-          <ChevronDown size={16} className="text-gray-600" />
+          <ChevronDown size={16} className="text-gray-300" />
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-10 max-h-96 overflow-hidden">
+        <div 
+          className="absolute top-full left-0 right-0 mt-1 glass rounded-2xl border border-white/10 z-10 max-h-96 overflow-hidden shadow-2xl"
+          style={{
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+        >
           {/* Category Filter */}
           <div className="p-3 border-b border-gray-200 bg-gray-50">
             <div className="flex flex-wrap gap-1">
