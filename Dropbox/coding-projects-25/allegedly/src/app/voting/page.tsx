@@ -207,10 +207,10 @@ export default function VotingPage() {
     const now = new Date();
     const groupedGames = groupGamesChronologically(games);
     
+    // Find the next group with games that haven't started yet
     for (const group of groupedGames) {
       const hasUpcomingGames = group.games.some(game => {
-        const gameEndTime = new Date(game.gameTime.getTime() + 3 * 60 * 60 * 1000);
-        return now < gameEndTime;
+        return now < game.gameTime; // Game hasn't started yet
       });
       
       if (hasUpcomingGames) {
@@ -218,6 +218,7 @@ export default function VotingPage() {
       }
     }
     
+    // If no upcoming games, show the next chronological group
     return groupedGames[0]?.key || '';
   };
 

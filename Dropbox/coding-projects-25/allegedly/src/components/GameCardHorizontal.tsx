@@ -428,11 +428,11 @@ export default function GameCardHorizontal({
       <div className="border-t border-white/10 px-6 py-4">
         <button
           onClick={() => setShowPlayerProps(!showPlayerProps)}
-          className="w-full text-center text-sm text-gray-400 hover:text-accent-blue transition-colors flex items-center justify-center gap-2 bg-transparent border-none"
-          style={{ background: 'none', border: 'none', padding: '0' }}
+          className="w-full text-center text-sm hover:text-accent-blue transition-colors flex items-center justify-center gap-2 bg-transparent border-none"
+          style={{ background: 'none', border: 'none', padding: '0', color: '#9ca3af' }}
         >
-          <span className="tracking-wide">player props</span>
-          <div className={`text-xs transform transition-transform ${showPlayerProps ? 'rotate-180' : ''}`}>
+          <span className="tracking-wide" style={{ color: '#9ca3af' }}>player props</span>
+          <div className={`text-xs transform transition-transform ${showPlayerProps ? 'rotate-180' : ''}`} style={{ color: '#9ca3af' }}>
             ▼
           </div>
         </button>
