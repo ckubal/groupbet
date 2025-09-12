@@ -1,53 +1,52 @@
-# Allegedly 🏈
-## NFL Betting Group Coordination App
+# GroupBet 🏈
+## NFL Betting Coordination App
 
-A Progressive Web App built to help coordinate NFL betting within a group of friends, replacing text message coordination with real-time voting, bet tracking, and automatic settlements.
+A modern NFL betting coordination app with futuristic glassmorphism UI design. Help your group make informed betting decisions through voting, consensus analysis, and streamlined bet placement.
 
 ## ✨ Features
 
-### 🟢 Phase 1 (LIVE)
-- **Game Display**: View NFL games organized by time slots (Thursday, Sunday early/late, Monday)
-- **Real-time Selection**: Select your picks from both sides of each bet (spread, totals, moneylines)
-- **Group Alignment**: See which games have the most group consensus
-- **Responsive Design**: Works on all devices as a Progressive Web App
+### 🎨 Modern UI Design
+- **Glassmorphism Interface**: Dark theme with blur effects and transparency
+- **Horizontal Game Cards**: Intuitive betting layout with team-focused design
+- **Mobile-First**: Responsive design optimized for all devices
+- **Action-Oriented**: Focus on what to bet, not just analysis
 
-### 🟡 Phase 2 (In Development)
-- **Bet Tracking**: Log actual bets with participant tracking
-- **Slip Parsing**: Auto-parse Bovada and Str8Play betting slips from text
-- **Live Score Integration**: Real-time game scores and bet performance
-- **Smart Bet Entry**: Pre-fill odds from API, manual editing supported
+### 🗳️ Group Voting & Consensus
+- **Study Phase**: Vote on spreads, totals, and moneylines for upcoming games
+- **Player Props**: Expandable sections with over/under betting options
+- **Floating Tracker**: Real-time pick counter with progress to next phase
+- **Time-Based Organization**: Games grouped by Thursday, Sunday, Monday slots
 
-### ⚪ Phase 3 (Planned)
-- **Automatic Settlement**: Weekend settlement calculations with debt simplification
-- **Screenshot OCR**: Parse betting slips from screenshots
-- **Push Notifications**: Game start times and bet updates
-- **Historical Tracking**: Season-long performance and statistics
+### 🎯 Smart Bet Placement
+- **Consensus-Based Recommendations**: Shows strongest group picks first (Unanimous → Strong → Majority)
+- **Expandable Bet Cards**: Click to configure amount, odds, participants
+- **Bet Placer Selection**: Choose who places each bet
+- **Participant Management**: Select who's in on each wager
+- **Editable Odds**: Adjust if sportsbook odds differ
 
 ## 🚀 Tech Stack
 
-- **Frontend**: Next.js 15 + TypeScript + Tailwind CSS
-- **Backend**: Firebase (Firestore + Auth + Functions)
-- **PWA**: Service Worker + Manifest for native app experience  
-- **Real-time**: Firestore real-time subscriptions
-- **Parsing**: Custom regex parsers for Bovada/Str8Play
-- **Icons**: Lucide React + Heroicons
-- **Build**: Turbopack for fast development
+- **Framework**: Next.js 14 + React + TypeScript
+- **Styling**: Tailwind CSS with custom glassmorphism effects
+- **Icons**: Lucide React
+- **Data**: The Odds API (with mock data fallback)
+- **State**: Local storage for persistence
 
 ## 📦 Getting Started
 
 ### Prerequisites
 - Node.js 18+ 
 - npm or yarn
-- Firebase project (for production)
 
 ### Installation
 
 ```bash
-# Clone and install
-npm install
+# Clone the repository
+git clone https://github.com/ckubal/groupbet.git
+cd groupbet
 
-# Copy environment template
-cp .env.local.example .env.local
+# Install dependencies
+npm install
 
 # Start development server
 npm run dev
@@ -55,185 +54,69 @@ npm run dev
 
 Visit [http://localhost:3000](http://localhost:3000)
 
-### Environment Setup
+### Environment Setup (Optional)
 
-Create `.env.local` with your Firebase configuration:
-
-```bash
-NEXT_PUBLIC_FIREBASE_API_KEY=your_api_key
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-NEXT_PUBLIC_FIREBASE_APP_ID=your_app_id
-ODDS_API_KEY=your_odds_api_key
-```
-
-## 🧪 Testing
-
-### Betting Slip Parsers
-Our parsers support Bovada and Str8Play formats:
+For live NFL data, create `.env.local`:
 
 ```bash
-# Run all parser tests
-npm test
-
-# Test with real slip data
-node -e "
-const { testWithRealData } = require('./docs/betting-parser-tests.js');
-testWithRealData('paste your slip text here');
-"
+NEXT_PUBLIC_ODDS_API_KEY=your_odds_api_key
 ```
 
-**Parser Features:**
-- ✅ Auto-detects platform (Bovada vs Str8Play)
-- ✅ Handles single bets, parlays, and player props
-- ✅ Calculates payouts from American odds
-- ✅ Validates against current odds (when integrated with API)
-- ✅ 12/12 test cases passing
+The app works with mock data by default if no API key is provided.
 
-## 📱 PWA Features
+## 🎮 How to Use
 
-- **Installable**: Add to home screen on mobile devices
-- **Offline Support**: Core functionality works without internet
-- **Fast Loading**: Optimized with Next.js and Turbopack
-- **Mobile Optimized**: Touch-friendly interface design
+### 1. Study Phase (`/voting`)
+- Select your user from the dropdown
+- Vote on spreads, totals, and moneylines for upcoming games
+- Expand "player props" for additional betting options
+- Track your picks with the floating counter
+
+### 2. Alignment & Betting (`/consensus`)
+- View group consensus picks organized by strength
+- Click bet cards to expand and configure:
+  - Set bet amount (default: $100)
+  - Choose who's placing the bet
+  - Select participants
+  - Edit odds if needed
+- Place bets with one click
+
+### 3. Navigation
+- **Study**: Vote on games and build consensus
+- **Alignment & Bets**: Place actual bets based on group picks
+- **Live Tracking**: Monitor active bets (coming soon)
+- **Settlement**: Weekend payout calculations (coming soon)
 
 ## 🗂️ Project Structure
 
 ```
-allegedly/
+groupbet/
 ├── src/
-│   ├── app/           # Next.js app router pages
-│   ├── components/    # Reusable UI components  
-│   ├── lib/          # Utilities and services
-│   └── types/        # TypeScript type definitions
-├── docs/             # Planning docs and original parsers
-├── public/           # Static assets and PWA manifest
-└── README.md
+│   ├── app/           # Next.js pages (voting, consensus, live, settlement)
+│   ├── components/    # UI components (GameCardHorizontal, BetPlacer, etc.)
+│   └── lib/          # Utilities and API integration
+├── public/           # Static assets
+└── CLAUDE.md        # Development documentation
 ```
-
-### Key Files
-- `src/lib/betting-slip-parsers.js` - Bovada/Str8Play parsers
-- `src/lib/database.ts` - Firebase database service
-- `src/components/GameCard.tsx` - Individual game voting component
-- `src/components/AlignmentView.tsx` - Group consensus display
-- `src/app/games/page.tsx` - Main voting interface
-
-## 🔥 Firebase Setup
-
-### 1. Create Firebase Project
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create new project
-3. Enable Firestore Database
-4. Enable Authentication
-5. Copy config to `.env.local`
-
-### 2. Firestore Collections
-The app uses these collections:
-- `users` - Group member profiles
-- `games` - NFL game data with odds
-- `votes` - User votes on games
-- `bets` - Actual wagers placed
-- `settlements` - Weekly payout calculations
-
-### 3. Security Rules
-```javascript
-// Firestore rules (basic example)
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}
-```
-
-## 📊 Data Sources
-
-### Current (Mock Data)
-Phase 1 uses mock NFL game data for development and testing.
-
-### Planned Integrations
-- **The Odds API** - Real-time NFL odds and lines
-- **ESPN API** - Live scores and game status
-- **Firebase Functions** - Scheduled data updates
 
 ## 🔧 Development Scripts
 
 ```bash
-# Development
-npm run dev          # Start dev server with Turbopack
+npm run dev          # Start development server
 npm run build        # Production build
-npm run start        # Start production server
-npm run lint         # ESLint code checking
-npm test            # Run betting parser tests
+npm run typecheck    # TypeScript checking
+npm run lint         # Code linting
 ```
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+The app is ready for deployment on Vercel, Netlify, or any Node.js hosting platform.
+
 ```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-
-# Add environment variables in Vercel dashboard
-```
-
-### Manual Deployment
-```bash
-# Build for production
 npm run build
-
-# Deploy to your hosting platform
+npm start
 ```
-
-## 🤝 Contributing
-
-### Phase 2 Priorities
-1. **Odds API Integration** - Replace mock data with real odds
-2. **Bet Entry Form** - Smart form with slip parsing
-3. **Live Score Updates** - Real-time game tracking
-4. **User Authentication** - Firebase Auth integration
-
-### Phase 3 Priorities  
-1. **Settlement Engine** - Automated payout calculations
-2. **OCR Integration** - Screenshot betting slip parsing
-3. **Push Notifications** - Game and bet alerts
-4. **Analytics Dashboard** - Performance tracking
-
-## 📋 Current Status
-
-**✅ Completed:**
-- Next.js app with PWA support
-- Game display with time slot organization  
-- Real-time selection system (both sides of each bet)
-- Group consensus ranking
-- Betting slip parsers (text-based)
-- Firebase integration ready
-- Responsive mobile-first design
-
-**🚧 In Progress:**
-- Odds API integration
-- User authentication
-- Bet tracking interface
-
-**📅 Next Sprint:**
-- Firebase project setup
-- Real NFL odds data
-- Bet entry form with parsing
-
-## 📞 Support
-
-For questions about the codebase or betting slip parsing:
-- Check `docs/` folder for planning documentation
-- Run `npm test` to verify parser functionality
-- Review Firebase setup in `src/lib/firebase.ts`
 
 ---
 
-**Note**: This app is for coordination among friends and does not involve real money transactions. All financial tracking is IOU-based between group members.
+**GroupBet** - Modern NFL betting coordination with style ⚡
