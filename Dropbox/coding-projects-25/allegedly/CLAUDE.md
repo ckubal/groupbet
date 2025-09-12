@@ -1,7 +1,7 @@
-# NFL Betting Coordination App - "Allegedly"
+# GroupBet - NFL Betting Coordination App
 
 ## Project Overview
-A comprehensive NFL betting coordination app designed for a friend group to coordinate picks, track consensus, place actual bets, and manage settlements. The app helps groups make more informed betting decisions while maintaining transparency around performance and financial settlements.
+This is "GroupBet" - an NFL betting coordination app with futuristic glassmorphism UI design. The app helps groups coordinate betting decisions through voting, consensus analysis, and bet tracking.
 
 ## Architecture & Tech Stack
 - **Framework**: Next.js 14 (React with TypeScript)
@@ -144,17 +144,20 @@ npm run type-check # Run TypeScript type checking (if available)
 - `/src/lib/` - Utilities and API services
 - `/src/app/` - Next.js app router pages
 
-## GitHub Repository Setup
+## Git Repository
+- **Repository**: https://github.com/ckubal/groupbet
+- **User**: ckubal
+- **Email**: ckubal+gh@gmail.com
 
 ### Initial Setup
-1. Create a new repository on GitHub (private recommended)
+1. Repository will be created on GitHub as "groupbet"
 2. Initialize git in the project:
    ```bash
    git init
    git add .
-   git commit -m "Initial commit"
+   git commit -m "Initial commit: GroupBet glassmorphism betting app"
    git branch -M main
-   git remote add origin https://github.com/yourusername/allegedly.git
+   git remote add origin https://github.com/ckubal/groupbet.git
    git push -u origin main
    ```
 
@@ -257,5 +260,111 @@ All major features have been implemented and tested with mock data. The app grac
 - Persistent user identification
 - Real-time data updates
 
+## Latest Development Session - September 11, 2025
+
+### Glassmorphism UI Redesign - Complete ✅
+
+**Objective**: Transform the betting interface with a modern glassmorphism aesthetic featuring horizontal game card layouts.
+
+**Key Changes Implemented**:
+
+#### 1. Complete Visual Redesign
+- **Dark glassmorphism theme** with backdrop blur effects throughout
+- **Bold accent colors**: Electric blue (#00d4ff), neon green (#00ff88), purple (#8b5cf6), pink (#ff006e) 
+- **All lowercase text** styling across the entire interface
+- **Generous rounded corners** (12-24px) for modern geometric feel
+- **Minority Report-style** futuristic interface with floating glass panels
+
+#### 2. Horizontal Game Card Layout (`GameCardHorizontal.tsx`)
+- **Complete component redesign** from vertical to horizontal layout
+- **Teams section on left** with team logos and home/away indicators
+- **Three betting columns on right**: Spread, Total, Moneyline arranged horizontally
+- **Glass panel styling** with transparency and backdrop blur
+- **Inline CSS styling** to override specificity conflicts
+- **Mobile-responsive grid** that stacks vertically on smaller screens
+
+#### 3. Technical Implementation Details
+- **CSS Custom Properties** added to `globals.css` for consistent theming
+- **Glass effect utilities** with backdrop-filter and rgba backgrounds  
+- **Betting button styling** with hover states and selection indicators
+- **Fixed CSS specificity issues** by using inline styles for critical components
+- **Updated PlayerPropsDropdown** to match glassmorphism aesthetic
+
+#### 4. Files Modified
+- `/src/app/globals.css` - Foundation dark theme with glass effects
+- `/src/components/GameCardHorizontal.tsx` - Main horizontal layout component  
+- `/src/components/TabLayout.tsx` - Glass navigation panels
+- `/src/components/PlayerPropsDropdown.tsx` - Glassmorphism dropdown styling
+- `/src/app/group/[groupId]/layout.tsx` - Fixed Next.js 15 async params
+- `/src/app/consensus/page.tsx` - Fixed TypeScript type predicate
+
+#### 5. Problem-Solving Process
+1. **Initial layout issues** - Components floating/overlapping with poor mobile spacing
+2. **CSS not applying** - Used debug red borders to identify rendering issues  
+3. **Specificity conflicts** - Resolved with inline styling for critical glass effects
+4. **Betting odds missing** - Fixed by implementing consistent button styling functions
+5. **Next.js 15 compatibility** - Updated async/await params handling
+
+#### 6. Final Result
+- ✅ Horizontal layout working correctly with all betting columns visible
+- ✅ Glass panel aesthetic with proper transparency and blur effects
+- ✅ Mobile-responsive design with appropriate stacking
+- ✅ All betting odds displaying properly (-2.5/-110, o 51.5/-110, +120/-140)
+- ✅ Consistent glassmorphism theme throughout interface
+- ✅ Lowercase text styling maintained across all components
+
+**Commit**: `9160f5b` - "Implement horizontal glassmorphism game card layout"
+
+## Latest Development Session - January 2, 2025
+
+### UI Refinements & Bet Placement Redesign - Complete ✅
+
+**Objective**: Fix layout issues, improve text readability, and redesign the alignment page for action-oriented bet placement.
+
+**Key Changes Implemented**:
+
+#### 1. Layout and Spacing Fixes
+- **Fixed team column width** - Changed from `1fr` to `120px` for proper sizing
+- **Centered team names** - Teams now centered with padding from left border
+- **Reduced spacing** - Minimized gap between team names and betting columns
+- **Player props toggle** - Changed from button to subtle text link with dropdown caret
+
+#### 2. Text Readability Improvements
+- **Fixed player props text color** - Changed from black to white/gray for dark backgrounds
+- **Ensured all text is readable** - White text on dark glassmorphism backgrounds throughout
+- **Proper contrast ratios** - Gray text (#d1d5db) for secondary information
+
+#### 3. Complete Alignment Page Redesign
+- **Created new `BetPlacer.tsx` component** - Action-oriented UI for bet placement
+- **Shows only next game segment** - Focused view on upcoming games only
+- **Expandable bet cards** with configuration:
+  - Amount input with dollar sign icon
+  - Odds editing capability
+  - Bet placer selection (who's placing the bet)
+  - Participants selection (who's in on the bet)
+  - One-click "Place Bet" button
+- **Visual feedback** - Green checkmark when bet is placed
+- **Bet organization** - Unanimous → Strong Consensus → Majority
+
+#### 4. Information Architecture
+- **Removed complex analysis** - Focus on "what to bet" not "why"
+- **Clear bet recommendations** - Shows exact picks based on group consensus
+- **Simplified workflow** - Expand → Configure → Place → Track
+- **Consistent glassmorphism** - Dark theme with blur effects throughout
+
+#### 5. Files Modified
+- `/src/components/GameCardHorizontal.tsx` - Fixed layout and text colors
+- `/src/components/BetPlacer.tsx` - New action-oriented bet placement component
+- `/src/app/consensus/page.tsx` - Redesigned to use BetPlacer component
+- `/CLAUDE.md` - Updated documentation for GroupBet
+
+#### 6. Key Design Principles Reinforced
+- **Text must be readable** - No black text on dark backgrounds
+- **Action-oriented UI** - Show what to do, not just data
+- **Consistent spacing** - Proper padding and margins
+- **Mobile-first** - Responsive design that works everywhere
+
+**Repository Setup**: Ready to push to https://github.com/ckubal/groupbet
+
 ---
-*Last Updated: 2025-09-09 - Phase 2 Complete with Settlement & Ledger Systems*
+*Last Updated: 2025-01-02 - UI Refinements & Bet Placement Redesign Complete*

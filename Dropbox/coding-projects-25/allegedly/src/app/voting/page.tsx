@@ -391,69 +391,50 @@ export default function VotingPage() {
         })}
       </div>
 
-      {/* Floating Footer with Vote Count */}
+      {/* Prominent Floating Footer */}
       {currentUserId && totalVoteCount > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-          <div className="max-w-6xl mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Vote className="text-blue-600" size={20} />
-                <span className="font-semibold text-gray-800">
-                  {totalVoteCount} total picks
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <CheckCircle className="text-green-600" size={16} />
-                  <span className="text-gray-600">
-                    {userVoteCount} games • {userPropCount} props
-                  </span>
+        <div className="fixed bottom-6 left-6 right-6 z-50">
+          <div className="max-w-4xl mx-auto">
+            <div 
+              className="glass rounded-3xl backdrop-blur-2xl border border-white/20 shadow-2xl p-6"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)'
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 rounded-2xl bg-accent-blue/20 border border-accent-blue/30">
+                    <Vote className="text-accent-blue" size={24} />
+                  </div>
+                  <div>
+                    <div className="text-white text-xl font-bold">
+                      {totalVoteCount} picks made
+                    </div>
+                    <div className="text-gray-400 text-sm">
+                      {userVoteCount} games • {userPropCount} props
+                    </div>
+                  </div>
                 </div>
                 
-                <details className="relative">
-                  <summary className="cursor-pointer text-blue-600 hover:text-blue-700">
-                    View Details
-                  </summary>
-                  <div className="absolute bottom-full right-0 mb-2 bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[300px] max-h-[400px] overflow-y-auto">
-                    <h4 className="font-semibold text-gray-800 mb-3">Your Picks</h4>
-                    
-                    {/* Game Picks */}
-                    <div className="space-y-2 text-xs">
-                      {games.map(game => {
-                        const gameSelections = selections.filter(s => s.userId === currentUserId && s.gameId === game.id);
-                        if (gameSelections.length === 0) return null;
-                        
-                        return (
-                          <div key={game.id} className="border-b pb-2">
-                            <div className="font-medium text-gray-700">
-                              {game.awayTeam} @ {game.homeTeam}
-                            </div>
-                            <div className="text-gray-600 space-y-1 mt-1">
-                              {gameSelections.map(sel => (
-                                <div key={`${sel.gameId}-${sel.betType}`}>
-                                  {sel.betType}: {sel.selection}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                    
-                    {/* Player Props */}
-                    {playerProps.length > 0 && (
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="font-medium text-gray-700 mb-2">Player Props</div>
-                        <div className="space-y-1 text-xs text-gray-600">
-                          {playerProps.map(prop => (
-                            <div key={prop.id}>{prop.description}</div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </details>
+                <div className="flex items-center gap-4">
+                  <button 
+                    className="px-6 py-3 text-sm text-gray-300 hover:text-white transition-colors"
+                    onClick={() => {
+                      // Toggle details or show summary
+                    }}
+                  >
+                    view details
+                  </button>
+                  
+                  <a 
+                    href="/consensus"
+                    className="px-8 py-4 bg-accent-green hover:bg-accent-green/90 text-white font-bold text-lg rounded-2xl transition-all shadow-lg hover:shadow-accent-green/20"
+                  >
+                    next →
+                  </a>
+                </div>
               </div>
             </div>
           </div>

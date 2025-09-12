@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Game } from '@/lib/database';
 import { oddsApi, getMockNFLGames } from '@/lib/odds-api';
-import ConsensusAnalysis from '@/components/ConsensusAnalysis';
+import BetPlacer from '@/components/BetPlacer';
 import ActualBetsTracker, { ActualBet } from '@/components/ActualBetsTracker';
-import HeadToHeadBetCreator from '@/components/HeadToHeadBetCreator';
 import TabLayout from '@/components/TabLayout';
-import { Target, DollarSign, Plus, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Target, DollarSign, TrendingUp, TrendingDown, Minus, Zap } from 'lucide-react';
 
 interface UserSelection {
   userId: string;
@@ -17,12 +16,18 @@ interface UserSelection {
   createdAt: Date;
 }
 
-interface BetDetails {
-  consensusId: string; // gameId-betType
+interface PlacedBet {
+  id: string;
+  gameId: string;
+  betType: 'spread' | 'total' | 'moneyline';
+  selection: string;
+  description: string;
   amount: number;
-  participants: string[];
+  odds: number;
   betPlacer: string;
+  participants: string[];
   isPlaced: boolean;
+  createdAt: Date;
 }
 
 const friendGroup = [
@@ -37,11 +42,9 @@ export default function ConsensusPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [selections, setSelections] = useState<UserSelection[]>([]);
   const [actualBets, setActualBets] = useState<ActualBet[]>([]);
-  const [betDetails, setBetDetails] = useState<BetDetails[]>([]);
+  const [placedBets, setPlacedBets] = useState<PlacedBet[]>([]);
   const [currentUserId, setCurrentUserId] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showH2HModal, setShowH2HModal] = useState(false);
-  const [selectedGameForH2H, setSelectedGameForH2H] = useState<Game | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,9 +93,9 @@ export default function ConsensusPage() {
           setActualBets(JSON.parse(savedBets));
         }
 
-        const savedBetDetails = localStorage.getItem('allegedly-bet-details');
-        if (savedBetDetails) {
-          setBetDetails(JSON.parse(savedBetDetails));
+        const savedPlacedBets = localStorage.getItem('allegedly-placed-bets');
+        if (savedPlacedBets) {
+          setPlacedBets(JSON.parse(savedPlacedBets));
         }
 
         setLoading(false);
@@ -109,10 +112,12 @@ export default function ConsensusPage() {
     }
   }, [actualBets]);
 
-  // Save bet details to localStorage
+  // Save placed bets to localStorage
   useEffect(() => {
-    localStorage.setItem('allegedly-bet-details', JSON.stringify(betDetails));
-  }, [betDetails]);
+    if (placedBets.length > 0) {
+      localStorage.setItem('allegedly-placed-bets', JSON.stringify(placedBets));
+    }
+  }, [placedBets]);
 
   const handleAddActualBet = (betData: Omit<ActualBet, 'id' | 'createdAt'>) => {
     const newBet: ActualBet = {
@@ -134,15 +139,30 @@ export default function ConsensusPage() {
     setActualBets(prev => prev.filter(bet => bet.id !== betId));
   };
 
-  const openH2HModal = (game: Game) => {
-    setSelectedGameForH2H(game);
-    setShowH2HModal(true);
+  const handlePlaceBet = (betData: Omit<PlacedBet, 'id' | 'createdAt'>) => {
+    const newBet: PlacedBet = {
+      ...betData,
+      id: `placed-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      createdAt: new Date(),
+    };
+    
+    setPlacedBets(prev => [...prev, newBet]);
+  };
+
+  const handleUpdatePlacedBet = (betId: string, updates: Partial<PlacedBet>) => {
+    setPlacedBets(prev => prev.map(bet => 
+      bet.id === betId ? { ...bet, ...updates } : bet
+    ));
+  };
+
+  const handleDeletePlacedBet = (betId: string) => {
+    setPlacedBets(prev => prev.filter(bet => bet.id !== betId));
   };
 
   // Calculate weekly stats
   const getWeeklyStats = () => {
-    const totalBetsFromConsensus = betDetails.length;
-    const totalAmountFromConsensus = betDetails.reduce((sum, bet) => sum + bet.amount, 0);
+    const totalBetsFromConsensus = placedBets.length;
+    const totalAmountFromConsensus = placedBets.reduce((sum, bet) => sum + bet.amount, 0);
     
     const actualBetsThisWeek = actualBets.filter(bet => {
       // Filter for current week - you might want to adjust this logic based on your week definition
@@ -191,13 +211,67 @@ export default function ConsensusPage() {
 
   const weeklyStats = getWeeklyStats();
 
+  const getNextGameGroupKey = () => {
+    const now = new Date();
+    const groupedGames = groupGamesChronologically(games);
+    
+    for (const group of groupedGames) {
+      const hasUpcomingGames = group.games.some(game => {
+        const gameEndTime = new Date(game.gameTime.getTime() + 3 * 60 * 60 * 1000);
+        return now < gameEndTime;
+      });
+      
+      if (hasUpcomingGames) {
+        return group.key;
+      }
+    }
+    
+    return groupedGames[0]?.key || '';
+  };
+
+  const groupGamesChronologically = (games: Game[]) => {
+    const sortedGames = [...games].sort((a, b) => a.gameTime.getTime() - b.gameTime.getTime());
+    const grouped: { key: string; label: string; games: Game[]; gameTime: Date }[] = [];
+    
+    sortedGames.forEach(game => {
+      const dateStr = game.gameTime.toISOString().split('T')[0];
+      const groupKey = `${dateStr}-${game.timeSlot}`;
+      
+      let existingGroup = grouped.find(g => g.key === groupKey);
+      if (!existingGroup) {
+        const sectionLabels = {
+          'thursday': '🌙 Thursday Night Football',
+          'sunday-early': '☀️ Sunday Morning Games', 
+          'sunday-late': '🌤️ Sunday Afternoon Games',
+          'sunday-night': '🌙 Sunday Night Football',
+          'monday': '🌙 Monday Night Football'
+        };
+        
+        existingGroup = {
+          key: groupKey,
+          label: sectionLabels[game.timeSlot] || game.timeSlot,
+          games: [],
+          gameTime: game.gameTime
+        };
+        grouped.push(existingGroup);
+      }
+      existingGroup.games.push(game);
+    });
+    
+    return grouped.sort((a, b) => a.gameTime.getTime() - b.gameTime.getTime());
+  };
+
+  const groupedGames = groupGamesChronologically(games);
+  const nextGameGroupKey = getNextGameGroupKey();
+  const nextGameGroup = groupedGames.find(group => group.key === nextGameGroupKey);
+
   if (loading) {
     return (
       <TabLayout>
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
-            <div className="text-gray-600">Loading alignment data...</div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-green mx-auto mb-4"></div>
+            <div className="text-gray-400">Loading alignment data...</div>
           </div>
         </div>
       </TabLayout>
@@ -206,117 +280,102 @@ export default function ConsensusPage() {
 
   return (
     <TabLayout>
-      <div className="space-y-8">
-        {/* Group Consensus Section */}
-        <section>
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
-              <Target className="text-green-600" size={24} />
-              Group Alignment
-            </h2>
-            <p className="text-gray-600">
-              See where the group is aligned and find the strongest picks
-            </p>
-          </div>
-
-          <ConsensusAnalysis
-            games={games}
-            selections={selections}
-            users={friendGroup}
-            betDetails={betDetails}
-            onUpdateBetDetails={setBetDetails}
-          />
-        </section>
-
-        {/* Head to Head Section - More Subtle */}
-        <section>
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
-              <Plus className="text-purple-600" size={24} />
-              Head to Head Bets
-            </h2>
-            <p className="text-gray-600">
-              Create personal matchups - usually ATS between 2 people
-            </p>
-          </div>
-          
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {games.slice(0, 8).map(game => (
-                <button
-                  key={game.id}
-                  onClick={() => openH2HModal(game)}
-                  className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 text-left transition-colors group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium text-xs">
-                      {game.awayTeam} @ {game.homeTeam}
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Plus className="text-purple-600" size={14} />
-                    </div>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">
-                    {game.gameTime.toLocaleString('en-US', { 
-                      weekday: 'short', 
-                      hour: 'numeric',
-                      minute: '2-digit' 
-                    })}
-                  </div>
-                </button>
-              ))}
-            </div>
-            <div className="text-xs text-gray-500 text-center mt-3">
-              Click any game to create a head-to-head bet
+      {nextGameGroup && (
+        <div className="space-y-6">
+          {/* Next Game Group Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-3 px-6 py-3 rounded-lg bg-accent-green/10 border border-accent-green/30">
+              <Target className="text-accent-green" size={20} />
+              <div>
+                <h2 className="text-xl font-bold text-white mb-1">
+                  {nextGameGroup.label}
+                </h2>
+                <div className="text-sm text-gray-400">
+                  {nextGameGroup.gameTime.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                  })} • Group Alignment & Bets
+                </div>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* Actual Bets Tracker */}
-        <section>
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 flex items-center justify-center gap-2">
-              <DollarSign className="text-green-600" size={24} />
-              Actual Bets Placed
-            </h2>
-            <p className="text-gray-600">
-              Track real bets placed by the group with bet slips and results
-            </p>
-          </div>
-
-          <ActualBetsTracker
-            games={games}
-            users={friendGroup}
-            currentUserId={currentUserId}
-            actualBets={actualBets}
-            onAddBet={handleAddActualBet}
-            onUpdateBet={handleUpdateActualBet}
-            onDeleteBet={handleDeleteActualBet}
-          />
-        </section>
-
-        {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">{games.length}</div>
-            <div className="text-sm text-gray-600">Games</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">{selections.length}</div>
-            <div className="text-sm text-gray-600">Vote Picks</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">{actualBets.length}</div>
-            <div className="text-sm text-gray-600">Actual Bets</div>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-orange-600">
-              {actualBets.filter(b => b.type === 'head_to_head').length}
+          {/* What to Bet - Action-oriented bet placement */}
+          <div 
+            className="glass rounded-3xl border border-white/10 backdrop-blur-2xl mb-6 overflow-hidden shadow-2xl"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            <div className="border-b border-white/10 bg-white/5 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <Zap className="text-accent-green" size={20} />
+                <div>
+                  <h3 className="text-white font-bold text-lg">What to Bet</h3>
+                  <p className="text-gray-400 text-sm">Group consensus picks ready to place</p>
+                </div>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">H2H Bets</div>
+            
+            <div className="p-6">
+              <BetPlacer
+                games={nextGameGroup.games}
+                selections={selections}
+                users={friendGroup}
+                currentUserId={currentUserId}
+                placedBets={placedBets}
+                onPlaceBet={handlePlaceBet}
+                onUpdateBet={handleUpdatePlacedBet}
+                onDeleteBet={handleDeletePlacedBet}
+              />
+            </div>
+          </div>
+
+          {/* Actual Bets Section */}
+          <div 
+            className="glass rounded-3xl border border-white/10 backdrop-blur-2xl mb-6 overflow-hidden shadow-2xl"
+            style={{ 
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+            }}
+          >
+            <div className="border-b border-white/10 bg-white/5 px-6 py-4">
+              <div className="flex items-center gap-3">
+                <DollarSign className="text-accent-blue" size={20} />
+                <div>
+                  <h3 className="text-white font-bold text-lg">Actual Bets</h3>
+                  <p className="text-gray-400 text-sm">Track real bets placed by the group</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6">
+              <ActualBetsTracker
+                games={nextGameGroup.games}
+                users={friendGroup}
+                currentUserId={currentUserId}
+                actualBets={actualBets}
+                onAddBet={handleAddActualBet}
+                onUpdateBet={handleUpdateActualBet}
+                onDeleteBet={handleDeleteActualBet}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {!nextGameGroup && (
+        <div className="text-center py-12">
+          <div className="text-gray-400 text-lg">No upcoming games found</div>
+        </div>
+      )}
 
       {/* Weekly Stats Footer */}
       {(weeklyStats.totalBets > 0 || weeklyStats.totalAtStake > 0) && (
@@ -377,19 +436,6 @@ export default function ConsensusPage() {
         </div>
       )}
 
-      {/* H2H Modal */}
-      {showH2HModal && selectedGameForH2H && (
-        <HeadToHeadBetCreator
-          game={selectedGameForH2H}
-          users={friendGroup}
-          currentUserId={currentUserId}
-          onCreateBet={(bet) => {
-            handleAddActualBet(bet);
-            setShowH2HModal(false);
-          }}
-          onClose={() => setShowH2HModal(false)}
-        />
-      )}
     </TabLayout>
   );
 }
