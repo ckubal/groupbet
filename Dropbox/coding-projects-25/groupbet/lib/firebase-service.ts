@@ -815,7 +815,16 @@ export const gameIdMappingService = {
   },
 
   // Get Odds API ID from internal ID
-  async getOddsApiId(internalId: string): Promise<string | null> {
+  // Get complete game mapping from internal ID
+  async getGameMapping(internalId: string): Promise<{
+    internalId: string;
+    espnId?: string;
+    oddsApiId?: string;
+    awayTeam?: string;
+    homeTeam?: string;
+    gameTime?: Date;
+    lastUpdated?: Date;
+  } | null> {
     try {
       const q = query(
         collection(db, COLLECTIONS.GAME_ID_MAPPINGS),
@@ -829,13 +838,29 @@ export const gameIdMappingService = {
         return null;
       }
       
-      const mapping = querySnapshot.docs[0].data();
-      console.log(`🆔 Found Odds API ID: ${mapping.oddsApiId} for internal ID: ${internalId}`);
-      return mapping.oddsApiId || null;
+      const doc = querySnapshot.docs[0];
+      const mapping = doc.data();
+      
+      return {
+        internalId: mapping.internalId,
+        espnId: mapping.espnId,
+        oddsApiId: mapping.oddsApiId,
+        awayTeam: mapping.awayTeam,
+        homeTeam: mapping.homeTeam,
+        gameTime: mapping.gameTime?.toDate(),
+        lastUpdated: mapping.lastUpdated?.toDate()
+      };
+      
     } catch (error) {
-      console.error('❌ Error retrieving Odds API ID:', error);
+      console.error('❌ Error getting game mapping:', error);
       return null;
     }
+  },
+
+  // Get Odds API ID from internal ID (backwards compatibility)
+  async getOddsApiId(internalId: string): Promise<string | null> {
+    const mapping = await this.getGameMapping(internalId);
+    return mapping?.oddsApiId || null;
   },
 
   // Find internal ID by matching teams and date

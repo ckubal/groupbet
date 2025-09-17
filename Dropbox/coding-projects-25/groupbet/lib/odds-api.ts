@@ -283,28 +283,52 @@ class OddsApiService {
         enhancedGames.push(...liveGames);
       }
       
-      // Handle completed games with historical odds
+      // Handle completed games: Use cached odds from Firebase, don't call API
       if (completedGames.length > 0) {
-        console.log('📜 Fetching historical odds for completed games...');
+        console.log('🏁 Using cached odds for completed games (avoiding API calls)...');
+        const { gameCacheService } = await import('./firebase-service');
         
-        // Group games by date to optimize API calls
-        const gamesByDate = this.groupGamesByDate(completedGames);
-        
-        for (const [dateStr, games] of Object.entries(gamesByDate)) {
+        for (const game of completedGames) {
+          let oddsFound = false;
+          
+          // Try to get odds from cache first
           try {
-            const historicalOdds = await this.fetchHistoricalOdds(dateStr);
-            if (historicalOdds && historicalOdds.length > 0) {
-              console.log(`📜 Found historical odds for ${historicalOdds.length} games on ${dateStr}`);
-              enhancedGames.push(...await this.matchGamesWithOdds(games, historicalOdds, 'historical'));
-            } else {
-              console.warn(`⚠️ No historical odds found for ${dateStr}, using games without odds`);
-              enhancedGames.push(...games);
+            const weekendId = game.weekendId;
+            const cachedData = await gameCacheService.getCachedGames(weekendId);
+            
+            if (cachedData && cachedData.games) {
+              const cachedGame = cachedData.games.find(g => g.id === game.id);
+              if (cachedGame && (cachedGame.spread !== undefined || cachedGame.homeMoneyline !== undefined)) {
+                console.log(`💾 Using cached odds for completed game: ${game.awayTeam} @ ${game.homeTeam}`);
+                // Copy ALL betting lines from cached game
+                game.spread = cachedGame.spread;
+                game.spreadOdds = cachedGame.spreadOdds;
+                game.overUnder = cachedGame.overUnder;
+                game.overUnderOdds = cachedGame.overUnderOdds;
+                game.homeMoneyline = cachedGame.homeMoneyline;
+                game.awayMoneyline = cachedGame.awayMoneyline;
+                game.playerProps = cachedGame.playerProps || [];
+                oddsFound = true;
+              }
             }
           } catch (error) {
-            console.warn(`⚠️ Failed to fetch historical odds for ${dateStr}:`, error);
-            enhancedGames.push(...games);
+            console.warn(`⚠️ Could not get cached odds for completed game ${game.awayTeam} @ ${game.homeTeam}:`, error);
+          }
+          
+          // If no odds found in cache, use reasonable defaults
+          if (!oddsFound) {
+            console.warn(`⚠️ No cached odds found for completed game ${game.awayTeam} @ ${game.homeTeam}, using default odds`);
+            game.spread = game.spread || 0;
+            game.spreadOdds = game.spreadOdds || -110;
+            game.overUnder = game.overUnder || 45;
+            game.overUnderOdds = game.overUnderOdds || -110;
+            game.homeMoneyline = game.homeMoneyline || -120;
+            game.awayMoneyline = game.awayMoneyline || 100;
+            game.playerProps = game.playerProps || [];
           }
         }
+        
+        enhancedGames.push(...completedGames);
       }
       
       console.log(`✅ Enhanced ${enhancedGames.filter(g => g.spread !== undefined).length}/${enhancedGames.length} games with betting lines`);

@@ -131,12 +131,15 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [userBets, setUserBets] = useState<Bet[]>([]);
   const [allWeekBets, setAllWeekBets] = useState<Bet[]>([]); // All bets for current week from all users
   const [isLoadingBets, setIsLoadingBets] = useState(false);
+  const [isLoadingWeek, setIsLoadingWeek] = useState(false); // Loading indicator for week navigation
   const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [userBalances, setUserBalances] = useState<Record<string, UserBalance>>({});
   const [showSettlement, setShowSettlement] = useState(false);
   
   // Handle week navigation
   const handleWeekChange = async (week: number) => {
+    setIsLoadingWeek(true);
+    
     // Clear existing games immediately to prevent showing old week's data
     setGames([]);
     setCurrentWeek(week);
@@ -157,39 +160,77 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     } catch (error) {
       console.error(`❌ Error fetching games for Week ${week}:`, error);
       setGames([]);
+    } finally {
+      setIsLoadingWeek(false);
     }
   };
   
-  // Load additional games for bets that aren't found in current week's games
+  // Load additional games for bets that aren't found in current games collection
   const loadMissingBetGames = async (bets: Bet[]) => {
-    // CRITICAL: Only look for missing games in the CURRENT WEEK
-    // Don't load games from other weeks - that causes confusion
-    const currentWeekendId = `2025-week-${currentWeek}`;
+    // Find all unique weeks that have bets
+    const weeksWithBets = [...new Set(bets.map(bet => {
+      // Extract week number from weekendId or nflWeek field
+      if (bet.nflWeek) return bet.nflWeek;
+      const weekMatch = bet.weekendId?.match(/week-(\d+)/);
+      return weekMatch ? parseInt(weekMatch[1]) : null;
+    }).filter(week => week !== null))];
     
-    // Only check bets for the current week
-    const currentWeekBets = bets.filter(bet => bet.weekendId === currentWeekendId);
+    console.log(`🔍 Found bets in weeks: ${weeksWithBets.join(', ')}`);
     
-    const missingGameIds = currentWeekBets
-      .filter(bet => !games.find(g => g.id === bet.gameId))
-      .map(bet => bet.gameId);
+    // Find missing games for each week that has bets
+    const weeklyMissingGames = new Map<number, string[]>();
     
-    if (missingGameIds.length === 0) return;
-    
-    console.log(`🔍 Loading ${missingGameIds.length} missing games for Week ${currentWeek} only`);
-    
-    try {
-      const response = await fetch(`/api/games?week=${currentWeek}&force=true`);
-      if (response.ok) {
-        const weekGames = await response.json();
-        console.log(`✅ Loaded ${weekGames.length} games from Week ${currentWeek}`);
-        
-        setGames(prevGames => {
-          // Replace all games with fresh data for current week
-          return weekGames;
-        });
+    for (const week of weeksWithBets) {
+      const weekBets = bets.filter(bet => {
+        const betWeek = bet.nflWeek || (bet.weekendId?.match(/week-(\d+)/) ? parseInt(bet.weekendId.match(/week-(\d+)/)![1]) : null);
+        return betWeek === week;
+      });
+      
+      const missingGameIds = weekBets
+        .filter(bet => !games.find(g => g.id === bet.gameId))
+        .map(bet => bet.gameId);
+      
+      if (missingGameIds.length > 0) {
+        weeklyMissingGames.set(week, [...new Set(missingGameIds)]);
       }
-    } catch (error) {
-      console.error(`❌ Failed to load Week ${currentWeek} games:`, error);
+    }
+    
+    if (weeklyMissingGames.size === 0) return;
+    
+    console.log(`🔍 Loading missing games for weeks: ${Array.from(weeklyMissingGames.keys()).join(', ')}`);
+    
+    // Load games for each week that has missing games
+    const allNewGames: Game[] = [];
+    
+    for (const [week, missingGameIds] of weeklyMissingGames) {
+      try {
+        console.log(`📥 Loading ${missingGameIds.length} missing games from Week ${week}`);
+        const response = await fetch(`/api/games?week=${week}&force=true`);
+        if (response.ok) {
+          const weekGames = await response.json();
+          console.log(`✅ Loaded ${weekGames.length} games from Week ${week}`);
+          allNewGames.push(...weekGames);
+        }
+      } catch (error) {
+        console.error(`❌ Failed to load Week ${week} games:`, error);
+      }
+    }
+    
+    if (allNewGames.length > 0) {
+      setGames(prevGames => {
+        // Merge new games with existing games, avoiding duplicates
+        const gameMap = new Map<string, Game>();
+        
+        // Add existing games
+        prevGames.forEach(game => gameMap.set(game.id, game));
+        
+        // Add new games (will overwrite existing ones with same ID)
+        allNewGames.forEach(game => gameMap.set(game.id, game));
+        
+        return Array.from(gameMap.values());
+      });
+      
+      console.log(`✅ Added ${allNewGames.length} games to collection. Total games: ${games.length + allNewGames.length}`);
     }
   };
   
@@ -273,8 +314,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           }
         }
         
-        setAllWeekBets(allBets);
-        console.log(`📊 Loaded ${allBets.length} total bets for Week ${currentWeek} from all users`);
+        // Deduplicate bets by ID to prevent the same bet showing up multiple times
+        const uniqueBets = allBets.reduce((acc: Bet[], current: Bet) => {
+          if (!acc.find(bet => bet.id === current.id)) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        setAllWeekBets(uniqueBets);
+        console.log(`📊 Loaded ${uniqueBets.length} unique bets for Week ${currentWeek} from all users (deduped from ${allBets.length} total)`);
       } catch (error) {
         console.error('❌ Failed to fetch all week bets:', error);
         setAllWeekBets([]);
@@ -359,8 +408,15 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     setCollapsedSections(getDefaultCollapsedSections());
   }, [games]);
 
-  // Group games by time slot for display
-  const gamesByTimeSlot = games.reduce((acc, game) => {
+  // Filter games to only show current week in main UI, but keep all games for bet matching
+  const currentWeekGames = games.filter(game => {
+    // Check if game belongs to current week being viewed
+    const gameWeek = game.weekendId?.match(/week-(\d+)/) ? parseInt(game.weekendId.match(/week-(\d+)/)![1]) : null;
+    return gameWeek === currentWeek;
+  });
+  
+  // Group games by time slot for display (only current week)
+  const gamesByTimeSlot = currentWeekGames.reduce((acc, game) => {
     const slot = game.timeSlot;
     if (!acc[slot]) acc[slot] = [];
     acc[slot].push(game);
@@ -384,8 +440,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     { key: 'monday', title: 'Monday Night Football', games: gamesByTimeSlot.monday || [] },
   ];
 
-  const totalGames = games.length;
-  const completedGames = games.filter(g => g.status === 'final').length;
+  const totalGames = currentWeekGames.length;
+  const completedGames = currentWeekGames.filter(g => g.status === 'final').length;
   
   return (
     <div className="min-h-screen bg-black text-white font-light">
@@ -791,10 +847,10 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                           <div className="text-sm text-gray-400 font-mono truncate">
                             {isHeadToHead ? (
                               userSide === 'A' 
-                                ? `vs ${bet?.sideB?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
+                                ? `H2H vs ${bet?.sideB?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
                                 : userSide === 'B'
-                                ? `vs ${bet?.sideA?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
-                                : 'head-to-head'
+                                ? `H2H vs ${bet?.sideA?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
+                                : 'H2H'
                             ) : (bet?.placedBy || 'Unknown')}
                           </div>
                         </div>
@@ -803,11 +859,6 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                           <span className="truncate block">
                             ${bet?.amountPerPerson?.toFixed(0) || '0'} on {simplifyPlayerName(simplifyTeamName(userSelection || 'Unknown'))} ({bet?.odds ? formatOdds(bet.odds) : '(-110)'})
                           </span>
-                          {isHeadToHead && (
-                            <span className="text-yellow-400 text-sm mt-1 block">
-                              H2H vs {userSide === 'A' ? bet?.sideB?.participants.length : bet?.sideA?.participants.length} player{(userSide === 'A' ? bet?.sideB?.participants.length : bet?.sideA?.participants.length) !== 1 ? 's' : ''}
-                            </span>
-                          )}
                         </div>
                         
                         <div className="flex items-center justify-end">
@@ -857,8 +908,18 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               );
             })()}
 
+            {/* Loading Indicator for Week Navigation */}
+            {isLoadingWeek && (
+              <div className="bg-gray-900/20 border border-gray-800/50 rounded-3xl p-12 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-300 mx-auto mb-4"></div>
+                <div className="text-gray-400 font-mono">
+                  loading week {currentWeek} games...
+                </div>
+              </div>
+            )}
+
             {/* Games by Time Slot - Minimalist Sections */}
-            {timeSlots.map(timeSlot => {
+            {!isLoadingWeek && timeSlots.map(timeSlot => {
               if (timeSlot.games.length === 0) return null;
               
               const isCollapsed = collapsedSections.has(timeSlot.key);

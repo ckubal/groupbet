@@ -84,6 +84,7 @@ export interface Bet {
   id: string;
   weekendId: string;
   gameId: string;
+  nflWeek?: number; // NFL week number for easier game matching
   placedBy: string; // userId
   participants: string[]; // userIds
   

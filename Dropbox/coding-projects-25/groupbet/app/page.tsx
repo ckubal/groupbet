@@ -3,12 +3,13 @@ import GamesPage from './games-page';
 import { Game } from '@/types';
 
 interface HomeProps {
-  searchParams: { week?: string };
+  searchParams: Promise<{ week?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
   // Get week from URL params or default to 2
-  const week = searchParams.week ? parseInt(searchParams.week) : 2;
+  const resolvedSearchParams = await searchParams;
+  const week = resolvedSearchParams.week ? parseInt(resolvedSearchParams.week) : 2;
   
   // Server-side data fetching to bypass hydration issues
   let games: Game[] = [];

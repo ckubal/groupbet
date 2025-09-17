@@ -1,0 +1,49 @@
+
+> groupbet@0.1.0 dev
+> next dev --turbopack
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/ckubal/package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * /Users/ckubal/Dropbox/coding-projects-25/groupbet/package-lock.json
+
+   ▲ Next.js 15.5.3 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.4.112:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 736ms
+ ○ Compiling / ...
+ ✓ Compiled / in 1700ms
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot:
+📅 Week 2 boundaries: 2025-09-11T07:00:00.000Z to 2025-09-18T06:59:59.999Z
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 2000ms
+🔥 HOME COMPONENT RENDERING - Client side check: false
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot:
+📅 Week 2 boundaries: 2025-09-11T07:00:00.000Z to 2025-09-18T06:59:59.999Z
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 287ms
+🔥 HOME COMPONENT RENDERING - Client side check: false
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot:
+📅 Week 2 boundaries: 2025-09-11T07:00:00.000Z to 2025-09-18T06:59:59.999Z
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 318ms
+ ✓ Compiled /test in 247ms
+🧪 TEST COMPONENT RENDERING - Client side: false isClient state: false
+ GET /test 200 in 394ms
+🧪 TEST COMPONENT RENDERING - Client side: false isClient state: false
+ GET /test 200 in 81ms
+[?25h

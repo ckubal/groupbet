@@ -253,62 +253,88 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
               });
               return null;
             })()}
-            {game.playerProps && game.playerProps.length > 0 ? (
-              <div className="space-y-2">
-                {/* Group by prop type and organize by team */}
-                {['passing_yards', 'rushing_yards', 'receiving_yards'].map(propType => {
-                  const typeProps = game.playerProps?.filter(prop => prop.propType === propType) || [];
-                  if (typeProps.length === 0) return null;
-                  
-                  const typeLabel = propType === 'passing_yards' ? 'Passing Yards' : 
-                                   propType === 'rushing_yards' ? 'Rushing Yards' : 'Receiving Yards';
-                  
-                  // Group players by team - use simple alternating pattern since we don't have team data from odds API
-                  const getPlayerTeam = (playerName: string, index: number) => {
-                    // Simple alternating pattern: even indices go to home team, odd to away team
-                    // This is a temporary solution until we get proper team data from the API
-                    return index % 2 === 0 ? game.homeTeam : game.awayTeam;
-                  };
-                  
-                  // Sort players by line (lowest to highest yards) - simple approach
-                  const sortedProps = [...typeProps].sort((a, b) => a.line - b.line);
-                  
-                  return (
-                    <div key={propType}>
-                      <h4 className="text-xs font-medium text-gray-700 mb-1 px-1">{typeLabel}</h4>
-                      <div className="grid gap-1">
-                        {sortedProps.map((prop, index) => (
-                          <div key={`${game.id}-${prop.playerId}-${index}`} className="grid grid-cols-2 gap-1">
-                            <button
-                              onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Over ${prop.line} ${propType.replace('_', ' ')}`)}
-                              className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
-                                getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Over`))
-                              }`}
-                            >
-                              <div className="font-medium text-left">{prop.playerName}</div>
-                              <div className="text-gray-600 text-left">O {prop.line} ({formatOdds(prop.overOdds)})</div>
-                            </button>
-                            <button
-                              onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Under ${prop.line} ${propType.replace('_', ' ')}`)}
-                              className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
-                                getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Under`))
-                              }`}
-                            >
-                              <div className="font-medium text-left">{prop.playerName}</div>
-                              <div className="text-gray-600 text-left">U {prop.line} ({formatOdds(prop.underOdds)})</div>
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+{(() => {
+              // Check if game is more than 48 hours away
+              const gameTime = new Date(game.gameTime);
+              const now = new Date();
+              const hoursUntilGame = (gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+              const isTooEarly = hoursUntilGame > 48;
+              
+              if (isTooEarly && game.status === 'upcoming') {
+                return (
+                  <div className="text-center py-6">
+                    <div className="text-gray-400 text-sm mb-2">⏰</div>
+                    <div className="text-gray-500 text-sm">
+                      Player props not available yet
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="text-sm text-gray-500 text-center py-4">
-                No player props available for this game
-              </p>
-            )}
+                    <div className="text-gray-400 text-xs mt-1">
+                      Check back closer to game time
+                    </div>
+                  </div>
+                );
+              }
+              
+              if (game.playerProps && game.playerProps.length > 0) {
+                return (
+                  <div className="space-y-2">
+                    {/* Group by prop type and organize by team */}
+                    {['passing_yards', 'rushing_yards', 'receiving_yards'].map(propType => {
+                      const typeProps = game.playerProps?.filter(prop => prop.propType === propType) || [];
+                      if (typeProps.length === 0) return null;
+                      
+                      const typeLabel = propType === 'passing_yards' ? 'Passing Yards' : 
+                                       propType === 'rushing_yards' ? 'Rushing Yards' : 'Receiving Yards';
+                      
+                      // Group players by team - use simple alternating pattern since we don't have team data from odds API
+                      const getPlayerTeam = (playerName: string, index: number) => {
+                        // Simple alternating pattern: even indices go to home team, odd to away team
+                        // This is a temporary solution until we get proper team data from the API
+                        return index % 2 === 0 ? game.homeTeam : game.awayTeam;
+                      };
+                      
+                      // Sort players by line (lowest to highest yards) - simple approach
+                      const sortedProps = [...typeProps].sort((a, b) => a.line - b.line);
+                      
+                      return (
+                        <div key={propType}>
+                          <h4 className="text-xs font-medium text-gray-700 mb-1 px-1">{typeLabel}</h4>
+                          <div className="grid gap-1">
+                            {sortedProps.map((prop, index) => (
+                              <div key={`${game.id}-${prop.playerId}-${index}`} className="grid grid-cols-2 gap-1">
+                                <button
+                                  onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Over ${prop.line} ${propType.replace('_', ' ')}`)}
+                                  className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
+                                    getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Over`))
+                                  }`}
+                                >
+                                  <div className="font-medium text-left">{prop.playerName}</div>
+                                  <div className="text-gray-600 text-left">O {prop.line} ({formatOdds(prop.overOdds)})</div>
+                                </button>
+                                <button
+                                  onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Under ${prop.line} ${propType.replace('_', ' ')}`)}
+                                  className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
+                                    getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Under`))
+                                  }`}
+                                >
+                                  <div className="font-medium text-left">{prop.playerName}</div>
+                                  <div className="text-gray-600 text-left">U {prop.line} ({formatOdds(prop.underOdds)})</div>
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              } else {
+                return (
+                  <p className="text-sm text-gray-500 text-center py-4">
+                    No player props available for this game
+                  </p>
+                );
+              }
+            })()}
           </div>
         )}
           </div>

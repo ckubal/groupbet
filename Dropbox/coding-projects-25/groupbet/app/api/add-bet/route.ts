@@ -19,9 +19,20 @@ export async function POST(request: NextRequest) {
       }
     }
     
+    // Extract NFL week from weekendId or use provided nflWeek
+    let nflWeek = betData.nflWeek;
+    if (!nflWeek && betData.weekendId) {
+      const weekMatch = betData.weekendId.match(/week-(\d+)/);
+      nflWeek = weekMatch ? parseInt(weekMatch[1]) : 2; // Default to week 2
+    }
+    if (!nflWeek) {
+      nflWeek = 2; // Default fallback
+    }
+    
     // Add default fields
     const newBet = {
-      weekendId: '2025-week-2',
+      weekendId: betData.weekendId || '2025-week-2',
+      nflWeek, // Store the NFL week number
       status: 'active', // Will be resolved by the resolve-bets API
       createdAt: new Date(),
       ...betData
