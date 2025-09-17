@@ -268,8 +268,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           }
         }
         
-        setUserBets(allBets);
-        console.log(`✅ Loaded ${allBets.length} total bets for user ${currentUser.name} across all weeks`);
+        // Deduplicate user bets by ID to prevent H2H bets from showing up multiple times
+        const uniqueUserBets = allBets.reduce((acc: Bet[], current: Bet) => {
+          if (!acc.find(bet => bet.id === current.id)) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        setUserBets(uniqueUserBets);
+        console.log(`✅ Loaded ${uniqueUserBets.length} unique bets for user ${currentUser.name} across all weeks (deduped from ${allBets.length} total)`);
         
         // Load games for any bets that aren't in the current week's game list
         await loadMissingBetGames(allBets);
@@ -359,8 +367,36 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
       // Refresh bets to show the updated data
       const weekendId = `2025-week-${currentWeek}`;
       if (currentUser) {
-        const updatedBets = await betService.getBetsForUser(currentUser.id, weekendId);
-        setUserBets(updatedBets);
+        // Fetch updated bets for current week and adjacent weeks
+        const allUpdatedBets: Bet[] = [];
+        
+        // Current week
+        const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        allUpdatedBets.push(...currentWeekBets);
+        
+        // Adjacent weeks
+        const weeksToCheck = [currentWeek - 1, currentWeek + 1, 2];
+        for (const week of weeksToCheck) {
+          if (week >= 1 && week <= 18 && week !== currentWeek) {
+            try {
+              const weekEndId = `2025-week-${week}`;
+              const weekBets = await betService.getBetsForUser(currentUser.id, weekEndId);
+              allUpdatedBets.push(...weekBets);
+            } catch (error) {
+              console.log(`No bets found for Week ${week}`);
+            }
+          }
+        }
+        
+        // Deduplicate bets
+        const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
+          if (!acc.find(bet => bet.id === current.id)) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        setUserBets(uniqueUpdatedBets);
       }
       
       console.log('✅ Bet updated successfully');
@@ -995,11 +1031,27 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         onPlaceBet={(betData) => {
           betService.createBet(betData).then(() => {
             setIsBetPopupOpen(false);
-            // Refresh user bets when a new bet is placed
+            // Refresh user bets when a new bet is placed (with deduplication)
             if (currentUser) {
               const weekendId = `2025-week-${currentWeek}`;
-              betService.getBetsForUser(currentUser.id, weekendId).then(bets => {
-                setUserBets(bets);
+              const allUpdatedBets: Bet[] = [];
+              
+              // Fetch bets from multiple weeks and deduplicate
+              Promise.all([
+                betService.getBetsForUser(currentUser.id, weekendId),
+                betService.getBetsForUser(currentUser.id, `2025-week-2`) // Always check week 2
+              ]).then(([currentWeekBets, week2Bets]) => {
+                allUpdatedBets.push(...currentWeekBets, ...week2Bets);
+                
+                // Deduplicate bets
+                const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
+                  if (!acc.find(bet => bet.id === current.id)) {
+                    acc.push(current);
+                  }
+                  return acc;
+                }, []);
+                
+                setUserBets(uniqueUpdatedBets);
               });
             }
           }).catch(error => {
