@@ -1,5 +1,11 @@
 # CLAUDE.md - Critical Project Context
 
+## 🚨 CRITICAL: CORRECT PROJECT FOLDER
+- **ALWAYS USE**: `/Users/ckubal/Dropbox/coding-projects-25/groupbet`
+- **NEVER USE**: `allegedly` folder (outdated, not connected to live site)
+- **GITHUB REPO**: https://github.com/ckubal/groupbet.git
+- **VERCEL DEPLOYMENT**: Connected to the `groupbet` GitHub repository
+
 ## 🚨 CURRENT DATE AND NFL SEASON CONTEXT
 - **TODAY IS SEPTEMBER 15, 2025**
 - **WE ARE IN THE 2025 NFL SEASON**
