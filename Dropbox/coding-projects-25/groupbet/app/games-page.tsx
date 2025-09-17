@@ -137,6 +137,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   
   // Handle week navigation
   const handleWeekChange = async (week: number) => {
+    // Clear existing games immediately to prevent showing old week's data
+    setGames([]);
     setCurrentWeek(week);
     router.push(`/?week=${week}`);
     
@@ -160,47 +162,34 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   
   // Load additional games for bets that aren't found in current week's games
   const loadMissingBetGames = async (bets: Bet[]) => {
-    const missingGameIds = bets
+    // CRITICAL: Only look for missing games in the CURRENT WEEK
+    // Don't load games from other weeks - that causes confusion
+    const currentWeekendId = `2025-week-${currentWeek}`;
+    
+    // Only check bets for the current week
+    const currentWeekBets = bets.filter(bet => bet.weekendId === currentWeekendId);
+    
+    const missingGameIds = currentWeekBets
       .filter(bet => !games.find(g => g.id === bet.gameId))
       .map(bet => bet.gameId);
     
     if (missingGameIds.length === 0) return;
     
-    console.log(`🔍 Loading missing games for ${missingGameIds.length} bets`);
+    console.log(`🔍 Loading ${missingGameIds.length} missing games for Week ${currentWeek} only`);
     
-    // Extract week numbers from bet weekendIds and load those weeks
-    const missingWeeks = new Set(
-      bets
-        .filter(bet => missingGameIds.includes(bet.gameId))
-        .map(bet => parseInt(bet.weekendId.split('-')[2]))
-    );
-    
-    const additionalGames: Game[] = [];
-    
-    for (const week of missingWeeks) {
-      if (week !== currentWeek) {
-        try {
-          console.log(`📅 Loading Week ${week} games for missing bets`);
-          const response = await fetch(`/api/games?week=${week}`);
-          if (response.ok) {
-            const weekGames = await response.json();
-            additionalGames.push(...weekGames);
-            console.log(`✅ Loaded ${weekGames.length} games from Week ${week}`);
-          }
-        } catch (error) {
-          console.error(`❌ Failed to load Week ${week} games:`, error);
-        }
+    try {
+      const response = await fetch(`/api/games?week=${currentWeek}&force=true`);
+      if (response.ok) {
+        const weekGames = await response.json();
+        console.log(`✅ Loaded ${weekGames.length} games from Week ${currentWeek}`);
+        
+        setGames(prevGames => {
+          // Replace all games with fresh data for current week
+          return weekGames;
+        });
       }
-    }
-    
-    if (additionalGames.length > 0) {
-      setGames(prevGames => {
-        // Merge games, avoiding duplicates
-        const existingIds = new Set(prevGames.map(g => g.id));
-        const newGames = additionalGames.filter(g => !existingIds.has(g.id));
-        console.log(`🔄 Adding ${newGames.length} additional games to game list`);
-        return [...prevGames, ...newGames];
-      });
+    } catch (error) {
+      console.error(`❌ Failed to load Week ${currentWeek} games:`, error);
     }
   };
   
@@ -942,24 +931,23 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         game={selectedBet?.game || null}
         betType={selectedBet?.betType || 'spread'}
         selection={selectedBet?.selection || ''}
-        onPlaceBet={async (betData) => {
-          try {
-            await betService.createBet(betData);
+        onPlaceBet={(betData) => {
+          betService.createBet(betData).then(() => {
             setIsBetPopupOpen(false);
             // Refresh user bets when a new bet is placed
             if (currentUser) {
               const weekendId = `2025-week-${currentWeek}`;
-              const bets = await betService.getBetsForUser(currentUser.id, weekendId);
-              setUserBets(bets);
+              betService.getBetsForUser(currentUser.id, weekendId).then(bets => {
+                setUserBets(bets);
+              });
             }
-          } catch (error) {
+          }).catch(error => {
             console.error('❌ Failed to place bet:', error);
-          }
+          });
         }}
       />
       
       {/* Edit Bet Modal */}
-      {console.log('🎯 Edit Modal State:', { editBetModalOpen, betToEdit: betToEdit?.id || 'none' })}
       <EditBetModal
         bet={betToEdit}
         isOpen={editBetModalOpen}
