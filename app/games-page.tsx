@@ -484,6 +484,19 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   return (
     <div className="min-h-screen bg-black text-white font-light">
       <div className="max-w-7xl mx-auto px-6 py-12">
+        {/* Logout Button - Top Right */}
+        <div className="flex justify-end mb-8">
+          <button
+            onClick={() => {
+              clearGroupSession();
+              window.location.reload();
+            }}
+            className="font-mono text-xs tracking-wide text-gray-500 hover:text-red-400 transition-all duration-300"
+          >
+            [ logout ]
+          </button>
+        </div>
+
         {/* Header - Minimalist */}
         <div className="mb-16">
           <div className="flex items-end justify-between mb-8">
@@ -524,16 +537,6 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 }`}
               >
                 [ next ]
-              </button>
-              
-              <button
-                onClick={() => {
-                  clearGroupSession();
-                  window.location.reload();
-                }}
-                className="font-mono text-xs tracking-wide text-gray-500 hover:text-red-400 transition-all duration-300 ml-8"
-              >
-                [ logout ]
               </button>
             </div>
           </div>
