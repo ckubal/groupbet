@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Game, Bet } from '@/types';
 import { useUser } from '@/lib/user-context';
+import { useGroup } from '@/lib/group-context';
 import GameCard from '@/components/GameCard';
 import BetPopup from '@/components/BetPopup';
 import EditBetModal from '@/components/EditBetModal';
@@ -125,6 +126,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   console.log('🎯 GAMES PAGE RENDERING with', initialGames.length, 'games');
   
   const { currentUser, allUsers } = useUser();
+  const { clearGroupSession } = useGroup();
   const router = useRouter();
   const [currentWeek, setCurrentWeek] = useState(initialWeek || getCurrentNFLWeek());
   const [games, setGames] = useState<Game[]>(initialGames);
@@ -522,6 +524,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 }`}
               >
                 [ next ]
+              </button>
+              
+              <button
+                onClick={() => {
+                  clearGroupSession();
+                  window.location.reload();
+                }}
+                className="font-mono text-xs tracking-wide text-gray-500 hover:text-red-400 transition-all duration-300 ml-8"
+              >
+                [ logout ]
               </button>
             </div>
           </div>

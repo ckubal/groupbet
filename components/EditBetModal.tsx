@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Bet } from '@/types';
 import { calculatePayout } from '@/lib/betting-odds';
+import { useUser } from '@/lib/user-context';
 
 interface EditBetModalProps {
   bet: Bet | null;
@@ -14,12 +15,14 @@ interface EditBetModalProps {
 export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetModalProps) {
   console.log('🔧 EditBetModal render:', { isOpen, betId: bet?.id });
   
+  const { allUsers } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     selection: '',
     odds: '',
     amountPerPerson: '',
-    line: ''
+    line: '',
+    participants: [] as string[]
   });
 
   useEffect(() => {
@@ -28,7 +31,8 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
         selection: bet.selection || '',
         odds: bet.odds?.toString() || '',
         amountPerPerson: bet.amountPerPerson?.toString() || '',
-        line: bet.line?.toString() || ''
+        line: bet.line?.toString() || '',
+        participants: bet.participants || []
       });
     }
   }, [bet, isOpen]);
@@ -42,7 +46,9 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
         selection: formData.selection,
         odds: formData.odds ? parseInt(formData.odds) : undefined,
         amountPerPerson: formData.amountPerPerson ? parseFloat(formData.amountPerPerson) : undefined,
-        line: formData.line ? parseFloat(formData.line) : undefined
+        line: formData.line ? parseFloat(formData.line) : undefined,
+        participants: formData.participants,
+        totalAmount: formData.participants.length * (parseFloat(formData.amountPerPerson) || 0)
       };
 
       // Remove undefined values
@@ -236,12 +242,34 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
             <label className="block text-sm font-medium text-gray-300 mb-1">
               Participants
             </label>
-            <input
-              type="text"
-              value={bet.participants.join(', ')}
-              disabled
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-gray-400 text-sm"
-            />
+            <div className="space-y-2">
+              {allUsers.map(user => (
+                <label key={user.id} className="flex items-center space-x-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={formData.participants.includes(user.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setFormData(prev => ({
+                          ...prev,
+                          participants: [...prev.participants, user.id]
+                        }));
+                      } else {
+                        setFormData(prev => ({
+                          ...prev,
+                          participants: prev.participants.filter(id => id !== user.id)
+                        }));
+                      }
+                    }}
+                    className="rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500 focus:ring-offset-0"
+                  />
+                  <span className="text-gray-300">{user.name}</span>
+                </label>
+              ))}
+            </div>
+            <div className="mt-2 text-xs text-gray-400">
+              Total Amount: ${(formData.participants.length * (parseFloat(formData.amountPerPerson) || 0)).toFixed(2)}
+            </div>
           </div>
         </div>
 

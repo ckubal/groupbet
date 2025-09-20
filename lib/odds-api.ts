@@ -176,6 +176,22 @@ class OddsApiService {
       enhancedGames = realGames;
     }
     
+    // CRITICAL: Deduplicate games by ID to ensure max 16 games per week
+    const uniqueGames = enhancedGames.reduce((acc: Game[], game: Game) => {
+      const existingGame = acc.find(g => g.id === game.id);
+      if (!existingGame) {
+        acc.push(game);
+      } else {
+        console.log(`🚫 Duplicate game detected and removed: ${game.awayTeam} @ ${game.homeTeam} (ID: ${game.id})`);
+      }
+      return acc;
+    }, []);
+    
+    if (uniqueGames.length !== enhancedGames.length) {
+      console.log(`🧹 Deduplication: ${enhancedGames.length} → ${uniqueGames.length} games (removed ${enhancedGames.length - uniqueGames.length} duplicates)`);
+      enhancedGames = uniqueGames;
+    }
+    
     // Cache the enhanced games in Firebase for future use
     try {
       await gameCacheService.saveGames(weekendId, enhancedGames);
