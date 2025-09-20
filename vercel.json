@@ -1,0 +1,21 @@
+{
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
+  "functions": {
+    "app/api/resolve-bets/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/auto-resolve/route.ts": {
+      "maxDuration": 30
+    },
+    "app/api/weekly-settlement/route.ts": {
+      "maxDuration": 30
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/auto-resolve",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}

@@ -1,0 +1,3535 @@
+
+> groupbet@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.3
+   - Local:        http://localhost:3000
+   - Network:      http://10.0.4.112:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 1060ms
+ ○ Compiling / ...
+ ✓ Compiled / in 2.7s (1088 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 2 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+❌ Error caching games: [Error [FirebaseError]: Function addDoc() called with invalid data. Unsupported field value: undefined (found in field spread in document games/ozkmQwDAXr5n4OfAESpj)] {
+  code: 'invalid-argument',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+❌ Failed to cache real games: [Error [FirebaseError]: Function addDoc() called with invalid data. Unsupported field value: undefined (found in field spread in document games/ozkmQwDAXr5n4OfAESpj)] {
+  code: 'invalid-argument',
+  customData: undefined,
+  toString: [Function (anonymous)]
+}
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 4533ms
+ ⨯ ./lib/firebase-service.ts
+Error:   [31mx[0m Expression expected
+     ,-[[36;1;4m/Users/ckubal/Dropbox/coding-projects-25/groupbet/lib/firebase-service.ts[0m:320:1]
+ [2m317[0m |         
+ [2m318[0m |         return addDoc(collection(db, COLLECTIONS.GAMES), cleanGame);
+ [2m319[0m |       })
+ [2m320[0m |       );
+     : [35;1m      ^[0m
+ [2m321[0m |       
+ [2m322[0m |       await Promise.all(addPromises);
+ [2m323[0m |       console.log(`✅ Cached ${games.length} games for ${weekendId}`);
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/firebase-service.ts
+./app/games-page.tsx
+ ⨯ ./lib/firebase-service.ts
+Error:   [31mx[0m Expression expected
+     ,-[[36;1;4m/Users/ckubal/Dropbox/coding-projects-25/groupbet/lib/firebase-service.ts[0m:320:1]
+ [2m317[0m |         
+ [2m318[0m |         return addDoc(collection(db, COLLECTIONS.GAMES), cleanGame);
+ [2m319[0m |       })
+ [2m320[0m |       );
+     : [35;1m      ^[0m
+ [2m321[0m |       
+ [2m322[0m |       await Promise.all(addPromises);
+ [2m323[0m |       console.log(`✅ Cached ${games.length} games for ${weekendId}`);
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./lib/firebase-service.ts
+./app/games-page.tsx
+ ✓ Compiled in 216ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 0 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 2552ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 2 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📦 Returning cached ESPN scoreboard
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 2354ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📦 Returning cached ESPN scoreboard
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+ GET / 200 in 1928ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📦 Returning cached ESPN scoreboard
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+ GET / 200 in 1061ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📦 Returning cached ESPN scoreboard
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 2777ms
+ ✓ Compiled /favicon.ico in 311ms (736 modules)
+ GET /favicon.ico 200 in 411ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 3163ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 2 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+ GET / 200 in 2038ms
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📦 Returning cached ESPN scoreboard
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+🎯 GAMES PAGE RENDERING with 16 games
+📅 Development mode: returning Week 2 for mock data testing
+🎮 UI RENDERING - Games by time slot: [
+  'monday: 2',
+  'thursday: 1',
+  'sunday_afternoon: 12',
+  'sunday_night: 1'
+]
+🎪 BetPopup render - isOpen: false game: undefined vs undefined
+🎪 BetPopup - betType:  spread: undefined o/u: undefined
+🚫 BetPopup early return - isOpen: false game: false
+ GET / 200 in 2793ms
+ GET /favicon.ico 200 in 41ms
+ ✓ Compiled in 1328ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 2 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:02:24.464Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 2559ms
+ ✓ Compiled in 444ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:03:09.624Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API...
+🎰 Found betting lines for 18 games from Odds API
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with betting lines
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with betting lines
+⚠️ No betting lines found for Washington Commanders @ Green Bay Packers
+⚠️ No betting lines found for Jacksonville Jaguars @ Cincinnati Bengals
+⚠️ No betting lines found for New York Giants @ Dallas Cowboys
+⚠️ No betting lines found for Chicago Bears @ Detroit Lions
+⚠️ No betting lines found for Los Angeles Rams @ Tennessee Titans
+⚠️ No betting lines found for New England Patriots @ Miami Dolphins
+⚠️ No betting lines found for San Francisco 49ers @ New Orleans Saints
+⚠️ No betting lines found for Buffalo Bills @ New York Jets
+⚠️ No betting lines found for Seattle Seahawks @ Pittsburgh Steelers
+⚠️ No betting lines found for Cleveland Browns @ Baltimore Ravens
+⚠️ No betting lines found for Denver Broncos @ Indianapolis Colts
+⚠️ No betting lines found for Carolina Panthers @ Arizona Cardinals
+⚠️ No betting lines found for Philadelphia Eagles @ Kansas City Chiefs
+⚠️ No betting lines found for Atlanta Falcons @ Minnesota Vikings
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 3325ms
+ ✓ Compiled in 330ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 10 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:03:39.561Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API (with historical support)...
+📊 Games breakdown: 14 completed, 2 upcoming
+🔴 Fetching live odds for upcoming games...
+🔴 Found live odds for 18 games
+❌ Error enhancing games with odds: TypeError: this.matchGamesWithOdds is not a function
+    at OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:175:38)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  173 |           console.log(`🔴 Found live odds for ${liveOddsData.length} games`);
+  174 |           
+> 175 |           enhancedGames.push(...this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live'));
+      |                                      ^
+  176 |         } else {
+  177 |           console.warn('⚠️ Failed to fetch live odds, using games without odds');
+  178 |           enhancedGames.push(...upcomingGames);
+⚠️ Failed to enhance games with betting lines, using ESPN data only: TypeError: this.matchGamesWithOdds is not a function
+    at OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:175:38)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  173 |           console.log(`🔴 Found live odds for ${liveOddsData.length} games`);
+  174 |           
+> 175 |           enhancedGames.push(...this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live'));
+      |                                      ^
+  176 |         } else {
+  177 |           console.warn('⚠️ Failed to fetch live odds, using games without odds');
+  178 |           enhancedGames.push(...upcomingGames);
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 2538ms
+ ✓ Compiled in 302ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:03:55.940Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API (with historical support)...
+📊 Games breakdown: 14 completed, 2 upcoming
+🔴 Fetching live odds for upcoming games...
+🔴 Found live odds for 18 games
+❌ Error enhancing games with odds: TypeError: this.matchGamesWithOdds is not a function
+    at OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:175:38)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  173 |           console.log(`🔴 Found live odds for ${liveOddsData.length} games`);
+  174 |           
+> 175 |           enhancedGames.push(...this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live'));
+      |                                      ^
+  176 |         } else {
+  177 |           console.warn('⚠️ Failed to fetch live odds, using games without odds');
+  178 |           enhancedGames.push(...upcomingGames);
+⚠️ Failed to enhance games with betting lines, using ESPN data only: TypeError: this.matchGamesWithOdds is not a function
+    at OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:175:38)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  173 |           console.log(`🔴 Found live odds for ${liveOddsData.length} games`);
+  174 |           
+> 175 |           enhancedGames.push(...this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live'));
+      |                                      ^
+  176 |         } else {
+  177 |           console.warn('⚠️ Failed to fetch live odds, using games without odds');
+  178 |           enhancedGames.push(...upcomingGames);
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 2937ms
+ ✓ Compiled in 331ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:04:12.675Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API (with historical support)...
+📊 Games breakdown: 14 completed, 2 upcoming
+🔴 Fetching live odds for upcoming games...
+🔴 Found live odds for 18 games
+🎯 Matching 2 games with 18 live odds...
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with live odds
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with live odds
+📜 Fetching historical odds for completed games...
+📜 Fetching historical odds for 2025-09-12...
+⚠️ Failed to fetch historical odds for 2025-09-12: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-12, using games without odds
+📜 Fetching historical odds for 2025-09-14...
+⚠️ Failed to fetch historical odds for 2025-09-14: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-14, using games without odds
+📜 Fetching historical odds for 2025-09-15...
+⚠️ Failed to fetch historical odds for 2025-09-15: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-15, using games without odds
+✅ Enhanced 2/16 games with betting lines
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 3495ms
+ ✓ Compiled in 787ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+🧹 CLEARING ALL FIREBASE DATA - Starting fresh with real ESPN data only
+📅 Fetching REAL Week 2 2025 NFL games from ESPN API
+✅ Cleared 16 cached games for 2025-week-2
+✅ Cleared all Firebase game cache
+📺 Fetching real ESPN Week 2 2025 data...
+📺 Fetching ESPN Week 2 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=2&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 2
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Tampa Bay Buccaneers @ Houston Texans | Scheduled | 0-0
+   2. Los Angeles Chargers @ Las Vegas Raiders | Scheduled | 0-0
+   3. Washington Commanders @ Green Bay Packers | Final | 18-27
+   4. Jacksonville Jaguars @ Cincinnati Bengals | Final | 27-31
+   5. New York Giants @ Dallas Cowboys | Final | 37-40
+   6. Chicago Bears @ Detroit Lions | Final | 21-52
+   7. Los Angeles Rams @ Tennessee Titans | Final | 33-19
+   8. New England Patriots @ Miami Dolphins | Final | 33-27
+   9. San Francisco 49ers @ New Orleans Saints | Final | 26-21
+   10. Buffalo Bills @ New York Jets | Final | 30-10
+   11. Seattle Seahawks @ Pittsburgh Steelers | Final | 31-17
+   12. Cleveland Browns @ Baltimore Ravens | Final | 17-41
+   13. Denver Broncos @ Indianapolis Colts | Final | 28-29
+   14. Carolina Panthers @ Arizona Cardinals | Final | 22-27
+   15. Philadelphia Eagles @ Kansas City Chiefs | Final | 20-17
+   16. Atlanta Falcons @ Minnesota Vikings | Final | 22-6
+✅ ESPN data cached for 1800s
+📺 Found 16 real ESPN games for Week 2 2025
+🔄 About to convert 16 ESPN events to Game format
+🔄 Converting ESPN events to Game format - REAL DATA ONLY
+📊 CONVERSION SUMMARY: Processing 16 ESPN events
+🕐 Time slot calculation: UTC: 2025-09-15T23:00:00.000Z, ET: 2025-09-16T02:00:00.000Z, Day 1, Hour 19 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 1/16:
+   🏈 Tampa Bay Buccaneers @ Houston Texans
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-15T23:00Z
+   🕐 Parsed Time: 2025-09-15T23:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772715
+🕐 Time slot calculation: UTC: 2025-09-16T02:00:00.000Z, ET: 2025-09-16T05:00:00.000Z, Day 1, Hour 22 ET
+📅 Classified as: Monday Night
+✅ CONVERTING GAME 2/16:
+   🏈 Los Angeles Chargers @ Las Vegas Raiders
+   🏟️ Status: upcoming | Score: 0-0
+   📅 Raw Date: 2025-09-16T02:00Z
+   🕐 Parsed Time: 2025-09-16T02:00:00.000Z
+   🎰 Time Slot: monday
+   🆔 ESPN ID: 401772811
+🕐 Time slot calculation: UTC: 2025-09-12T00:15:00.000Z, ET: 2025-09-12T03:15:00.000Z, Day 4, Hour 20 ET
+📅 Classified as: Thursday Night
+✅ CONVERTING GAME 3/16:
+   🏈 Washington Commanders @ Green Bay Packers
+   🏟️ Status: final | Score: 18-27
+   📅 Raw Date: 2025-09-12T00:15Z
+   🕐 Parsed Time: 2025-09-12T00:15:00.000Z
+   🎰 Time Slot: thursday
+   🆔 ESPN ID: 401772936
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 4/16:
+   🏈 Jacksonville Jaguars @ Cincinnati Bengals
+   🏟️ Status: final | Score: 27-31
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772725
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 5/16:
+   🏈 New York Giants @ Dallas Cowboys
+   🏟️ Status: final | Score: 37-40
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772834
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 6/16:
+   🏈 Chicago Bears @ Detroit Lions
+   🏟️ Status: final | Score: 21-52
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772835
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 7/16:
+   🏈 Los Angeles Rams @ Tennessee Titans
+   🏟️ Status: final | Score: 33-19
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772724
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 8/16:
+   🏈 New England Patriots @ Miami Dolphins
+   🏟️ Status: final | Score: 33-27
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772728
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 9/16:
+   🏈 San Francisco 49ers @ New Orleans Saints
+   🏟️ Status: final | Score: 26-21
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772833
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 10/16:
+   🏈 Buffalo Bills @ New York Jets
+   🏟️ Status: final | Score: 30-10
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772727
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 11/16:
+   🏈 Seattle Seahawks @ Pittsburgh Steelers
+   🏟️ Status: final | Score: 31-17
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772836
+🕐 Time slot calculation: UTC: 2025-09-14T17:00:00.000Z, ET: 2025-09-14T20:00:00.000Z, Day 0, Hour 13 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 12/16:
+   🏈 Cleveland Browns @ Baltimore Ravens
+   🏟️ Status: final | Score: 17-41
+   📅 Raw Date: 2025-09-14T17:00Z
+   🕐 Parsed Time: 2025-09-14T17:00:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772726
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 13/16:
+   🏈 Denver Broncos @ Indianapolis Colts
+   🏟️ Status: final | Score: 28-29
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772729
+🕐 Time slot calculation: UTC: 2025-09-14T20:05:00.000Z, ET: 2025-09-14T23:05:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 14/16:
+   🏈 Carolina Panthers @ Arizona Cardinals
+   🏟️ Status: final | Score: 22-27
+   📅 Raw Date: 2025-09-14T20:05Z
+   🕐 Parsed Time: 2025-09-14T20:05:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772730
+🕐 Time slot calculation: UTC: 2025-09-14T20:25:00.000Z, ET: 2025-09-14T23:25:00.000Z, Day 0, Hour 16 ET
+📅 Classified as: Sunday Afternoon
+✅ CONVERTING GAME 15/16:
+   🏈 Philadelphia Eagles @ Kansas City Chiefs
+   🏟️ Status: final | Score: 20-17
+   📅 Raw Date: 2025-09-14T20:25Z
+   🕐 Parsed Time: 2025-09-14T20:25:00.000Z
+   🎰 Time Slot: sunday_afternoon
+   🆔 ESPN ID: 401772837
+🕐 Time slot calculation: UTC: 2025-09-15T00:20:00.000Z, ET: 2025-09-15T03:20:00.000Z, Day 0, Hour 20 ET
+📅 Classified as: Sunday Night
+✅ CONVERTING GAME 16/16:
+   🏈 Atlanta Falcons @ Minnesota Vikings
+   🏟️ Status: final | Score: 22-6
+   📅 Raw Date: 2025-09-15T00:20Z
+   🕐 Parsed Time: 2025-09-15T00:20:00.000Z
+   🎰 Time Slot: sunday_night
+   🆔 ESPN ID: 401772919
+🎯 CONVERSION COMPLETE: Successfully converted 16 games
+📋 TIME SLOT BREAKDOWN:
+   monday: 2 games
+   thursday: 1 games
+   sunday_afternoon: 12 games
+   sunday_night: 1 games
+✅ Successfully converted 16 ESPN games to internal format
+📋 ALL CONVERTED GAMES:
+   1. Tampa Bay Buccaneers @ Houston Texans | upcoming | Score: 0-0 | ID: 401772715 | TimeSlot: monday
+   2. Los Angeles Chargers @ Las Vegas Raiders | upcoming | Score: 0-0 | ID: 401772811 | TimeSlot: monday
+   3. Washington Commanders @ Green Bay Packers | final | Score: 18-27 | ID: 401772936 | TimeSlot: thursday
+   4. Jacksonville Jaguars @ Cincinnati Bengals | final | Score: 27-31 | ID: 401772725 | TimeSlot: sunday_afternoon
+   5. New York Giants @ Dallas Cowboys | final | Score: 37-40 | ID: 401772834 | TimeSlot: sunday_afternoon
+   6. Chicago Bears @ Detroit Lions | final | Score: 21-52 | ID: 401772835 | TimeSlot: sunday_afternoon
+   7. Los Angeles Rams @ Tennessee Titans | final | Score: 33-19 | ID: 401772724 | TimeSlot: sunday_afternoon
+   8. New England Patriots @ Miami Dolphins | final | Score: 33-27 | ID: 401772728 | TimeSlot: sunday_afternoon
+   9. San Francisco 49ers @ New Orleans Saints | final | Score: 26-21 | ID: 401772833 | TimeSlot: sunday_afternoon
+   10. Buffalo Bills @ New York Jets | final | Score: 30-10 | ID: 401772727 | TimeSlot: sunday_afternoon
+   11. Seattle Seahawks @ Pittsburgh Steelers | final | Score: 31-17 | ID: 401772836 | TimeSlot: sunday_afternoon
+   12. Cleveland Browns @ Baltimore Ravens | final | Score: 17-41 | ID: 401772726 | TimeSlot: sunday_afternoon
+   13. Denver Broncos @ Indianapolis Colts | final | Score: 28-29 | ID: 401772729 | TimeSlot: sunday_afternoon
+   14. Carolina Panthers @ Arizona Cardinals | final | Score: 22-27 | ID: 401772730 | TimeSlot: sunday_afternoon
+   15. Philadelphia Eagles @ Kansas City Chiefs | final | Score: 20-17 | ID: 401772837 | TimeSlot: sunday_afternoon
+   16. Atlanta Falcons @ Minnesota Vikings | final | Score: 22-6 | ID: 401772919 | TimeSlot: sunday_night
+[2025-09-15T17:04:29.769Z]  @firebase/firestore: Firestore (12.2.0): BloomFilter error:  [Error [BloomFilterError]: Invalid hash count: 0]
+✅ Cached 16 games for 2025-week-2
+💾 Cached 16 REAL games to Firebase
+💰 Attempting to enhance ESPN games with Odds API betting lines...
+🎰 Fetching betting lines from Odds API (with historical support)...
+📊 Games breakdown: 14 completed, 2 upcoming
+🔴 Fetching live odds for upcoming games...
+🔴 Found live odds for 18 games
+🎯 Matching 2 games with 18 live odds...
+💰 Enhanced Tampa Bay Buccaneers @ Houston Texans with live odds
+💰 Enhanced Los Angeles Chargers @ Las Vegas Raiders with live odds
+📜 Fetching historical odds for completed games...
+📜 Fetching historical odds for 2025-09-12...
+⚠️ Failed to fetch historical odds for 2025-09-12: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-12, using games without odds
+📜 Fetching historical odds for 2025-09-14...
+⚠️ Failed to fetch historical odds for 2025-09-14: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-14, using games without odds
+📜 Fetching historical odds for 2025-09-15...
+⚠️ Failed to fetch historical odds for 2025-09-15: Error: Historical odds API failed: 422
+    at OddsApiService.fetchHistoricalOdds (lib/odds-api.ts:252:15)
+    at async OddsApiService.enhanceGamesWithOdds (lib/odds-api.ts:191:36)
+    at async OddsApiService.getNFLGames (lib/odds-api.ts:133:29)
+    at async Home (app/page.tsx:11:13)
+  250 |           return null;
+  251 |         }
+> 252 |         throw new Error(`Historical odds API failed: ${response.status}`);
+      |               ^
+  253 |       }
+  254 |
+  255 |       const data: OddsApiGame[] = await response.json();
+⚠️ No historical odds found for 2025-09-15, using games without odds
+✅ Enhanced 2/16 games with betting lines
+✅ Enhanced 2/16 games with betting lines
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 3358ms
+ ✓ Compiled in 431ms (1079 modules)
+🖥️ SERVER: Fetching games on server-side
+📅 Getting Week 2 NFL games with smart caching...
+📊 FIREBASE CACHE GAME MATCHING SUMMARY:
+📦 Retrieved 16 games from Firebase cache for 2025-week-2
+🕐 Cache age: 1 minutes old
+   1. Seattle Seahawks @ Pittsburgh Steelers | final | 2025-09-14T17:00:00.000Z | ID: 401772836
+   2. Washington Commanders @ Green Bay Packers | final | 2025-09-12T00:15:00.000Z | ID: 401772936
+   3. Philadelphia Eagles @ Kansas City Chiefs | final | 2025-09-14T20:25:00.000Z | ID: 401772837
+   4. Denver Broncos @ Indianapolis Colts | final | 2025-09-14T20:05:00.000Z | ID: 401772729
+   5. Cleveland Browns @ Baltimore Ravens | final | 2025-09-14T17:00:00.000Z | ID: 401772726
+   6. New England Patriots @ Miami Dolphins | final | 2025-09-14T17:00:00.000Z | ID: 401772728
+   7. New York Giants @ Dallas Cowboys | final | 2025-09-14T17:00:00.000Z | ID: 401772834
+   8. Carolina Panthers @ Arizona Cardinals | final | 2025-09-14T20:05:00.000Z | ID: 401772730
+   9. Los Angeles Chargers @ Las Vegas Raiders | upcoming | 2025-09-16T02:00:00.000Z | ID: 401772811
+   10. San Francisco 49ers @ New Orleans Saints | final | 2025-09-14T17:00:00.000Z | ID: 401772833
+   11. Los Angeles Rams @ Tennessee Titans | final | 2025-09-14T17:00:00.000Z | ID: 401772724
+   12. Tampa Bay Buccaneers @ Houston Texans | upcoming | 2025-09-15T23:00:00.000Z | ID: 401772715
+   13. Jacksonville Jaguars @ Cincinnati Bengals | final | 2025-09-14T17:00:00.000Z | ID: 401772725
+   14. Buffalo Bills @ New York Jets | final | 2025-09-14T17:00:00.000Z | ID: 401772727
+   15. Atlanta Falcons @ Minnesota Vikings | final | 2025-09-15T00:20:00.000Z | ID: 401772919
+   16. Chicago Bears @ Detroit Lions | final | 2025-09-14T17:00:00.000Z | ID: 401772835
+🔴 Cache validation for live/upcoming games: ✅ VALID (1 min old)
+💾 Using valid cached data: 16 games from Firebase
+✅ SERVER: Successfully fetched 16 games on server-side
+ GET / 200 in 383ms
