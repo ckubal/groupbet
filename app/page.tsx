@@ -1,5 +1,5 @@
 import { oddsApi } from '@/lib/odds-api';
-import GamesPage from './games-page';
+import AppWrapper from '@/components/AppWrapper';
 import { Game } from '@/types';
 import { getCurrentNFLWeek } from '@/lib/utils';
 
@@ -36,5 +36,5 @@ export default async function Home({ searchParams }: HomeProps) {
     games = [];
   }
 
-  return <GamesPage initialGames={games} initialWeek={week} />;
+  return <AppWrapper initialGames={games} initialWeek={week} />;
 }
