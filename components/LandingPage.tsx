@@ -152,6 +152,13 @@ export default function LandingPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
           <div className="text-center mb-12">
+            <div className="flex justify-center mb-6">
+              <img 
+                src="/logo.svg" 
+                alt="GroupBet Logo" 
+                className="w-24 h-24"
+              />
+            </div>
             <h1 className="text-6xl font-light mb-4">groupbet</h1>
             <p className="text-gray-400">nfl betting with friends</p>
           </div>

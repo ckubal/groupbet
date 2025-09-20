@@ -500,12 +500,19 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         {/* Header - Minimalist */}
         <div className="mb-16">
           <div className="flex items-end justify-between mb-8">
-            <div>
-              <h1 className="text-5xl font-light text-white mb-2">
-                groupbet
-              </h1>
-              <div className="text-gray-400 font-mono text-sm tracking-wider">
-                nfl week {currentWeek} • {completedGames} of {totalGames} complete
+            <div className="flex items-center space-x-4">
+              <img 
+                src="/logo.svg" 
+                alt="GroupBet Logo" 
+                className="w-12 h-12"
+              />
+              <div>
+                <h1 className="text-5xl font-light text-white mb-2">
+                  groupbet
+                </h1>
+                <div className="text-gray-400 font-mono text-sm tracking-wider">
+                  nfl week {currentWeek} • {completedGames} of {totalGames} complete
+                </div>
               </div>
             </div>
             

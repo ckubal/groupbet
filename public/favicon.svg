@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Hexagon background -->
+  <path fill="#000" d="M200 20L350 110v180L200 380 50 290V110z"/>
+  
+  <!-- G letter -->
+  <path fill="#fff" d="M120 140c-30 0-50 20-50 50v80c0 30 20 50 50 50h40c20 0 30-10 30-30v-30h-30v15h15v15c0 5-5 5-5 5h-40c-15 0-25-10-25-25v-80c0-15 10-25 25-25h40c15 0 25 10 25 25v10h20v-10c0-30-20-50-50-50z"/>
+  
+  <!-- B letter -->
+  <path fill="#fff" d="M220 140v130h50c30 0 50-20 50-50v-10c0-15-10-25-20-30 10-5 20-15 20-30v-10c0-30-20-50-50-50zm20 20h30c15 0 25 10 25 25v10c0 15-10 25-25 25h-30zm0 60h30c15 0 25 10 25 25v10c0 15-10 25-25 25h-30z"/>
+  
+  <!-- Football -->
+  <ellipse fill="#fff" cx="160" cy="200" rx="20" ry="12"/>
+  <rect fill="#000" x="152" y="197" width="16" height="1"/>
+  <rect fill="#000" x="152" y="199" width="16" height="1"/>
+  <rect fill="#000" x="152" y="201" width="16" height="1"/>
+  <rect fill="#000" x="152" y="203" width="16" height="1"/>
+</svg>
