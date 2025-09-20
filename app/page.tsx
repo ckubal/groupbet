@@ -1,15 +1,16 @@
 import { oddsApi } from '@/lib/odds-api';
 import GamesPage from './games-page';
 import { Game } from '@/types';
+import { getCurrentNFLWeek } from '@/lib/utils';
 
 interface HomeProps {
   searchParams: Promise<{ week?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  // Get week from URL params or default to 2
+  // Get week from URL params or default to current NFL week
   const resolvedSearchParams = await searchParams;
-  const week = resolvedSearchParams.week ? parseInt(resolvedSearchParams.week) : 2;
+  const week = resolvedSearchParams.week ? parseInt(resolvedSearchParams.week) : getCurrentNFLWeek();
   
   // Server-side data fetching to bypass hydration issues
   let games: Game[] = [];

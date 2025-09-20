@@ -64,7 +64,31 @@ export function getNFLWeekBoundaries(weekNumber: number, year: number = 2025): {
 }
 
 export function getCurrentNFLWeek(): number {
-  // For development/testing, return Week 2 to match our mock data
-  console.log('📅 Development mode: returning Week 2 for mock data testing');
-  return 2;
+  const today = new Date();
+  const year = today.getFullYear();
+  
+  // For 2025 NFL season - Week 1 starts Thursday September 4, 2025
+  let seasonStart: Date;
+  if (year === 2025) {
+    seasonStart = new Date(2025, 8, 4); // September 4, 2025 (Thursday)
+  } else if (year === 2024) {
+    seasonStart = new Date(2024, 8, 5); // September 5, 2024
+  } else {
+    // For other years, find first Thursday in September
+    const septFirst = new Date(year, 8, 1);
+    const firstThursday = new Date(septFirst);
+    firstThursday.setDate(1 + ((4 - septFirst.getDay() + 7) % 7));
+    seasonStart = firstThursday;
+  }
+  
+  // Calculate weeks since season start
+  const timeDiff = today.getTime() - seasonStart.getTime();
+  const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+  const currentWeek = Math.floor(daysDiff / 7) + 1;
+  
+  // Ensure we're within valid NFL weeks (1-18 for regular season)
+  const validWeek = Math.max(1, Math.min(18, currentWeek));
+  
+  console.log(`📅 Today: ${today.toDateString()}, Season started: ${seasonStart.toDateString()}, Current NFL Week: ${validWeek}`);
+  return validWeek;
 }

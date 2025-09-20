@@ -514,9 +514,9 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               
               <button
                 onClick={() => handleWeekChange(Math.min(18, currentWeek + 1))}
-                disabled={currentWeek >= 18}
+                disabled={currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1}
                 className={`font-mono text-sm tracking-wide transition-all duration-300 ${
-                  currentWeek >= 18 
+                  currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1
                     ? 'text-gray-600 cursor-not-allowed' 
                     : 'text-gray-400 hover:text-yellow-300'
                 }`}
