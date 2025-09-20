@@ -1,17 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <!-- Hexagon background -->
-  <path fill="#000" d="M200 20L350 110v180L200 380 50 290V110z"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Simple hexagon background -->
+  <path fill="#000" d="M50 10L85 30v40L50 90 15 70V30z"/>
   
-  <!-- G letter -->
-  <path fill="#fff" d="M120 140c-30 0-50 20-50 50v80c0 30 20 50 50 50h40c20 0 30-10 30-30v-30h-30v15h15v15c0 5-5 5-5 5h-40c-15 0-25-10-25-25v-80c0-15 10-25 25-25h40c15 0 25 10 25 25v10h20v-10c0-30-20-50-50-50z"/>
+  <!-- Clean G -->
+  <path fill="#fff" d="M30 35c-5 0-8 3-8 8v14c0 5 3 8 8 8h6c3 0 5-2 5-5v-5h-5v3h2v2h-6c-2 0-3-1-3-3V43c0-2 1-3 3-3h6c2 0 3 1 3 3h3c0-5-3-8-8-8z"/>
   
-  <!-- B letter -->
-  <path fill="#fff" d="M220 140v130h50c30 0 50-20 50-50v-10c0-15-10-25-20-30 10-5 20-15 20-30v-10c0-30-20-50-50-50zm20 20h30c15 0 25 10 25 25v10c0 15-10 25-25 25h-30zm0 60h30c15 0 25 10 25 25v10c0 15-10 25-25 25h-30z"/>
+  <!-- Clean B -->
+  <path fill="#fff" d="M50 35v22h8c5 0 8-3 8-8v-1c0-2-1-4-2-5 1-1 2-3 2-5v-1c0-5-3-8-8-8zm3 3h5c2 0 3 1 3 3v1c0 2-1 3-3 3h-5zm0 10h5c2 0 3 1 3 3v1c0 2-1 3-3 3h-5z"/>
   
-  <!-- Football -->
-  <ellipse fill="#fff" cx="160" cy="200" rx="20" ry="12"/>
-  <rect fill="#000" x="152" y="197" width="16" height="1"/>
-  <rect fill="#000" x="152" y="199" width="16" height="1"/>
-  <rect fill="#000" x="152" y="201" width="16" height="1"/>
-  <rect fill="#000" x="152" y="203" width="16" height="1"/>
+  <!-- Simple football -->
+  <ellipse fill="#fff" cx="68" cy="50" rx="6" ry="4"/>
+  <line stroke="#000" stroke-width="0.5" x1="65" y1="50" x2="71" y2="50"/>
+  <line stroke="#000" stroke-width="0.3" x1="66" y1="48.5" x2="70" y2="48.5"/>
+  <line stroke="#000" stroke-width="0.3" x1="66" y1="51.5" x2="70" y2="51.5"/>
 </svg>

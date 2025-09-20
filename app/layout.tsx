@@ -10,11 +10,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "GroupBet - NFL Betting Tracker",
   description: "Track group bets on NFL games with your friends",
-  icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
-  },
 };
 
 export default function RootLayout({
