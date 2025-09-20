@@ -19,8 +19,8 @@ export default function LandingPage() {
   const handleJoinGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, hardcode "allegedly" group with password "allegedly2024"
-    if (password === 'allegedly2024') {
+    // For now, hardcode "allegedly" group with password "arjuna"
+    if (password === 'arjuna') {
       setGroupSession({
         groupId: 'allegedly',
         groupName: 'allegedly',
@@ -48,7 +48,7 @@ export default function LandingPage() {
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     // For MVP, just show coming soon
-    setError('Creating new groups coming soon! For now, join "allegedly" with password "allegedly2024"');
+    setError('Creating new groups coming soon! For now, join "allegedly" with password "arjuna"');
   };
 
   if (mode === 'landing') {
@@ -121,7 +121,7 @@ export default function LandingPage() {
               </button>
 
               <p className="text-gray-500 text-xs text-center">
-                hint: allegedly2024
+                hint: arjuna
               </p>
             </form>
           </div>
