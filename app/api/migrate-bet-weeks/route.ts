@@ -20,15 +20,15 @@ export async function POST(request: NextRequest) {
     
     for (const bet of bets) {
       // Skip if bet already has nflWeek field
-      if (bet.nflWeek) {
+      if ((bet as any).nflWeek) {
         skippedCount++;
         continue;
       }
       
       // Extract NFL week from weekendId
       let nflWeek = null;
-      if (bet.weekendId) {
-        const weekMatch = bet.weekendId.match(/week-(\d+)/);
+      if ((bet as any).weekendId) {
+        const weekMatch = (bet as any).weekendId.match(/week-(\d+)/);
         nflWeek = weekMatch ? parseInt(weekMatch[1]) : null;
       }
       
