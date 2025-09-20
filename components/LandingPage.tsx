@@ -11,24 +11,36 @@ export default function LandingPage() {
   const { allUsers, setCurrentUser } = useUser();
   
   const [mode, setMode] = useState<'landing' | 'join' | 'create' | 'select-user'>('landing');
+  const [selectedGroup, setSelectedGroup] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [newGroupName, setNewGroupName] = useState('');
   const [newGroupPassword, setNewGroupPassword] = useState('');
+  
+  // Available groups (hardcoded for now, could be fetched from an API later)
+  const availableGroups = [
+    { id: 'allegedly', name: 'allegedly' },
+    // Add more groups here as needed
+  ];
 
   const handleJoinGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // For now, hardcode "allegedly" group with password "arjuna"
-    if (password === 'arjuna') {
+    if (!selectedGroup) {
+      setError('Please select a group');
+      return;
+    }
+    
+    // Check password for selected group
+    if (selectedGroup === 'allegedly' && password === 'arjuna') {
       setGroupSession({
-        groupId: 'allegedly',
-        groupName: 'allegedly',
+        groupId: selectedGroup,
+        groupName: selectedGroup,
       });
       setMode('select-user');
       setError('');
     } else {
-      setError('Incorrect password');
+      setError('Incorrect password for this group');
     }
   };
 
@@ -37,8 +49,8 @@ export default function LandingPage() {
     if (user) {
       setCurrentUser(user);
       setGroupSession({
-        groupId: 'allegedly',
-        groupName: 'allegedly',
+        groupId: selectedGroup,
+        groupName: selectedGroup,
         userId: user.id,
       });
       router.push('/');
@@ -48,7 +60,7 @@ export default function LandingPage() {
   const handleCreateGroup = async (e: React.FormEvent) => {
     e.preventDefault();
     // For MVP, just show coming soon
-    setError('Creating new groups coming soon! For now, join "allegedly" with password "arjuna"');
+    setError('Creating new groups coming soon! Please join an existing group for now.');
   };
 
   if (mode === 'landing') {
@@ -87,7 +99,12 @@ export default function LandingPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
           <button
-            onClick={() => { setMode('landing'); setError(''); }}
+            onClick={() => { 
+              setMode('landing'); 
+              setError(''); 
+              setSelectedGroup(''); 
+              setPassword(''); 
+            }}
             className="mb-8 text-gray-400 hover:text-white transition-colors"
           >
             ← back
@@ -95,17 +112,37 @@ export default function LandingPage() {
 
           <div className="bg-gray-900/30 rounded-2xl p-8 border border-gray-800">
             <h2 className="text-3xl font-light mb-2">join group</h2>
-            <p className="text-gray-400 mb-8">enter password for "allegedly"</p>
+            <p className="text-gray-400 mb-8">select a group and enter password</p>
 
             <form onSubmit={handleJoinGroup} className="space-y-6">
               <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Group
+                </label>
+                <select
+                  value={selectedGroup}
+                  onChange={(e) => setSelectedGroup(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                >
+                  <option value="">select group</option>
+                  {availableGroups.map(group => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">
+                  Password
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="group password"
                   className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
-                  autoFocus
                 />
               </div>
 
@@ -119,10 +156,6 @@ export default function LandingPage() {
               >
                 join group
               </button>
-
-              <p className="text-gray-500 text-xs text-center">
-                hint: arjuna
-              </p>
             </form>
           </div>
         </div>
@@ -135,7 +168,12 @@ export default function LandingPage() {
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
           <button
-            onClick={() => { setMode('landing'); setError(''); }}
+            onClick={() => { 
+              setMode('landing'); 
+              setError(''); 
+              setNewGroupName(''); 
+              setNewGroupPassword(''); 
+            }}
             className="mb-8 text-gray-400 hover:text-white transition-colors"
           >
             ← back
@@ -209,6 +247,7 @@ export default function LandingPage() {
               setMode('landing'); 
               setError(''); 
               setPassword('');
+              setSelectedGroup('');
             }}
             className="w-full mt-6 text-gray-500 hover:text-gray-300 transition-colors text-sm"
           >
