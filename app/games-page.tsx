@@ -309,7 +309,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     const fetchAllWeekBets = async () => {
       try {
         const weekendId = `2025-week-${currentWeek}`;
-        const allUserIds = ['will', 'D/O', 'rosen', 'charlie', 'pat'];
+        const allUserIds = ['will', 'dio', 'rosen', 'charlie', 'pat'];
         const allBets: Bet[] = [];
         
         // Fetch bets for all users for this week

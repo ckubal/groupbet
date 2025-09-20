@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     
     // Calculate each user's balance based on bet maker responsibility
     const userBalances: Record<string, UserBalance> = {};
-    const users = ['will', 'D/O', 'rosen', 'charlie'];
+    const users = ['will', 'dio', 'rosen', 'charlie'];
     
     // Initialize user balances
     users.forEach(user => {
