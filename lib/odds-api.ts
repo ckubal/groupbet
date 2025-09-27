@@ -146,11 +146,11 @@ class OddsApiService {
       throw new Error(`Failed to convert ESPN events to games: ${error}`);
     }
     
-    // Enhance with betting lines from Odds API (supports historical data)
-    console.log('💰 Enhancing games with Odds API betting lines (including historical data)...');
+    // Enhance with betting lines using strategic caching system
+    console.log('💰 Enhancing games with betting lines (strategic caching)...');
     let enhancedGames: Game[];
     try {
-      enhancedGames = await this.enhanceGamesWithOdds(realGames);
+      enhancedGames = await this.enhanceGamesWithBettingLinesCache(realGames);
       console.log(`✅ Enhanced ${enhancedGames.filter(g => g.spread !== undefined).length}/${enhancedGames.length} games with betting lines`);
       
       // Fetch player props for games that haven't started yet (not live or final)
@@ -228,6 +228,58 @@ class OddsApiService {
     }
     
     return enhancedGames;
+  }
+
+  /**
+   * Enhance ESPN games with betting lines using strategic caching system
+   */
+  private async enhanceGamesWithBettingLinesCache(espnGames: Game[]): Promise<Game[]> {
+    try {
+      console.log('🎯 Using strategic betting lines cache system...');
+      
+      // Import betting lines cache service
+      const { bettingLinesCacheService } = await import('./betting-lines-cache');
+      
+      // Process each game through the strategic cache system
+      const enhancedGames = await Promise.all(espnGames.map(async (game) => {
+        try {
+          // Ensure betting lines are properly cached for this game
+          await bettingLinesCacheService.ensureBettingLinesForGame(game);
+          
+          // Get the cached betting lines
+          const cachedLines = await bettingLinesCacheService.getCachedBettingLines(game.id);
+          
+          if (cachedLines) {
+            console.log(`💾 Applied cached betting lines to ${game.awayTeam} @ ${game.homeTeam}`);
+            
+            // Apply cached betting lines to the game
+            return {
+              ...game,
+              spread: cachedLines.spread,
+              spreadOdds: cachedLines.spreadOdds,
+              overUnder: cachedLines.overUnder,
+              overUnderOdds: cachedLines.overUnderOdds,
+              homeMoneyline: cachedLines.homeMoneyline,
+              awayMoneyline: cachedLines.awayMoneyline,
+            };
+          } else {
+            console.log(`⚠️ No cached betting lines available for ${game.awayTeam} @ ${game.homeTeam}`);
+            return game;
+          }
+        } catch (error) {
+          console.warn(`⚠️ Error processing betting lines cache for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+          return game;
+        }
+      }));
+      
+      console.log(`✅ Processed ${enhancedGames.length} games through betting lines cache system`);
+      return enhancedGames;
+      
+    } catch (error) {
+      console.error('❌ Error in strategic betting lines cache system:', error);
+      // Fallback to original method
+      return this.enhanceGamesWithOdds(espnGames);
+    }
   }
 
   /**

@@ -222,14 +222,135 @@ export class BettingLinesCacheService {
     options: { isInitialFetch: boolean; isFinalRefresh: boolean }
   ): Promise<void> {
     try {
-      // TODO: Implement Odds API integration for betting lines
-      // For now, create a placeholder implementation
-      console.log(`📡 Fetching betting lines for ${game.awayTeam} @ ${game.homeTeam}...`);
+      console.log(`📡 Fetching live betting lines for ${game.awayTeam} @ ${game.homeTeam}...`);
       
-      // Placeholder betting lines (would come from Odds API)
+      // Import Odds API service
+      const { oddsApi } = await import('./odds-api');
+      
+      // Get Odds API key
+      const apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY;
+      if (!apiKey) {
+        console.warn('⚠️ No Odds API key found, cannot fetch live betting lines');
+        throw new Error('Odds API key required for live betting lines');
+      }
+      
+      // Fetch live odds for this specific game by looking up all current games
+      const liveOddsResponse = await fetch(
+        `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds?${new URLSearchParams({
+          apiKey,
+          regions: 'us',
+          markets: 'spreads,totals,h2h',
+          oddsFormat: 'american',
+          bookmakers: 'bovada,draftkings,fanduel',
+        })}`
+      );
+
+      if (!liveOddsResponse.ok) {
+        throw new Error(`Odds API failed: ${liveOddsResponse.status} ${liveOddsResponse.statusText}`);
+      }
+
+      const liveOddsData = await liveOddsResponse.json();
+      console.log(`📊 Found ${liveOddsData.length} games with live odds`);
+      
+      // Find matching game in Odds API data
+      const matchingOddsGame = liveOddsData.find((oddsGame: any) => {
+        // Import game matching utilities
+        const { doGamesMatch } = require('./game-id-generator');
+        
+        return doGamesMatch(
+          { 
+            gameTime: game.gameTime, 
+            awayTeam: game.awayTeam, 
+            homeTeam: game.homeTeam 
+          },
+          { 
+            gameTime: oddsGame.commence_time, 
+            awayTeam: oddsGame.away_team, 
+            homeTeam: oddsGame.home_team 
+          }
+        );
+      });
+
+      if (!matchingOddsGame) {
+        console.warn(`⚠️ No matching Odds API game found for ${game.awayTeam} @ ${game.homeTeam}`);
+        
+        // Create cache entry with no lines but proper metadata
+        const bettingLines: BettingLinesCache = {
+          gameId: game.id,
+          spread: undefined,
+          spreadOdds: undefined,
+          overUnder: undefined,
+          overUnderOdds: undefined,
+          homeMoneyline: undefined,
+          awayMoneyline: undefined,
+          fetchedAt: new Date(),
+          source: 'odds_api',
+          gameTime: game.gameTime,
+          weekendId: game.weekendId,
+          bookmaker: undefined,
+          isInitialFetch: options.isInitialFetch,
+          isFinalRefresh: options.isFinalRefresh,
+          isFrozen: false
+        };
+        
+        await this.saveBettingLines(game.id, bettingLines);
+        console.log(`💾 Cached empty betting lines for ${game.awayTeam} @ ${game.homeTeam} (no match found)`);
+        return;
+      }
+
+      // Extract betting lines from best bookmaker
+      const bookmaker = matchingOddsGame.bookmakers.find((b: any) => 
+        ['bovada', 'draftkings', 'fanduel'].includes(b.key)
+      ) || matchingOddsGame.bookmakers[0];
+
+      if (!bookmaker) {
+        throw new Error('No bookmaker data found in Odds API response');
+      }
+
+      // Extract spread
+      const spreadMarket = bookmaker.markets.find((m: any) => m.key === 'spreads');
+      const homeSpread = spreadMarket?.outcomes.find((o: any) => o.name === matchingOddsGame.home_team);
+      
+      // Extract totals
+      const totalsMarket = bookmaker.markets.find((m: any) => m.key === 'totals');
+      const overTotal = totalsMarket?.outcomes.find((o: any) => o.name === 'Over');
+      
+      // Extract moneylines
+      const h2hMarket = bookmaker.markets.find((m: any) => m.key === 'h2h');
+      const homeML = h2hMarket?.outcomes.find((o: any) => o.name === matchingOddsGame.home_team);
+      const awayML = h2hMarket?.outcomes.find((o: any) => o.name === matchingOddsGame.away_team);
+
+      console.log(`💰 Extracted lines: Spread ${homeSpread?.point || 'N/A'}, O/U ${overTotal?.point || 'N/A'}, ML ${homeML?.price || 'N/A'}/${awayML?.price || 'N/A'}`);
+      
+      // Create betting lines cache entry
       const bettingLines: BettingLinesCache = {
         gameId: game.id,
-        spread: undefined, // Would be fetched from API
+        spread: homeSpread?.point,
+        spreadOdds: homeSpread?.price || -110,
+        overUnder: overTotal?.point,
+        overUnderOdds: overTotal?.price || -110,
+        homeMoneyline: homeML?.price,
+        awayMoneyline: awayML?.price,
+        fetchedAt: new Date(),
+        source: 'odds_api',
+        gameTime: game.gameTime,
+        weekendId: game.weekendId,
+        bookmaker: bookmaker.key,
+        isInitialFetch: options.isInitialFetch,
+        isFinalRefresh: options.isFinalRefresh,
+        isFrozen: false
+      };
+      
+      await this.saveBettingLines(game.id, bettingLines);
+      console.log(`✅ Cached live betting lines for ${game.awayTeam} @ ${game.homeTeam} from ${bookmaker.key}`);
+      
+    } catch (error) {
+      console.error(`❌ Failed to fetch betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+      
+      // Create cache entry to mark the attempt (prevents repeated failures)
+      const fallbackLines: BettingLinesCache = {
+        gameId: game.id,
+        spread: undefined,
         spreadOdds: undefined,
         overUnder: undefined,
         overUnderOdds: undefined,
@@ -239,17 +360,13 @@ export class BettingLinesCacheService {
         source: 'odds_api',
         gameTime: game.gameTime,
         weekendId: game.weekendId,
-        bookmaker: 'draftkings', // Default bookmaker
+        bookmaker: undefined,
         isInitialFetch: options.isInitialFetch,
         isFinalRefresh: options.isFinalRefresh,
         isFrozen: false
       };
       
-      await this.saveBettingLines(game.id, bettingLines);
-      console.log(`✅ Cached betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
-      
-    } catch (error) {
-      console.error(`❌ Failed to fetch betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+      await this.saveBettingLines(game.id, fallbackLines);
       throw error;
     }
   }
