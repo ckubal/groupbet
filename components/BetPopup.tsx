@@ -20,7 +20,7 @@ interface BetPopupProps {
     amountPerPerson: number;
     placedBy: string;
     participants: string[];
-    bettingMode: 'group' | 'head_to_head';
+    bettingMode: 'group' | 'head_to_head' | 'parlay';
     sideA?: {
       participants: string[];
       selection: string;
@@ -30,12 +30,21 @@ interface BetPopupProps {
       selection: string;
     };
   }) => void;
+  onStartParlay?: (selection: {
+    id: string;
+    gameId: string;
+    game: Game;
+    betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop';
+    selection: string;
+    line?: number;
+    odds: number;
+  }) => void;
   game: Game | null;
   betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop';
   selection: string;
 }
 
-export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, selection }: BetPopupProps) {
+export default function BetPopup({ isOpen, onClose, onPlaceBet, onStartParlay, game, betType, selection }: BetPopupProps) {
   const { currentUser, allUsers } = useUser();
   
   console.log('🎪 BetPopup render - isOpen:', isOpen, 'game:', game?.homeTeam, 'vs', game?.awayTeam);
@@ -46,8 +55,8 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
   const [customOdds, setCustomOdds] = useState<number | null>(null);
   const [customLine, setCustomLine] = useState<number | undefined>(undefined);
   
-  // Head-to-head betting mode
-  const [bettingMode, setBettingMode] = useState<'group' | 'head_to_head'>('group');
+  // Betting mode
+  const [bettingMode, setBettingMode] = useState<'group' | 'head_to_head' | 'parlay'>('group');
   const [sideAParticipants, setSideAParticipants] = useState<string[]>([]);
   const [sideBParticipants, setSideBParticipants] = useState<string[]>([]);
 
@@ -65,18 +74,25 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
 
   const participantCount = bettingMode === 'group' 
     ? participants.length 
-    : sideAParticipants.length + sideBParticipants.length;
+    : bettingMode === 'head_to_head' 
+    ? sideAParticipants.length + sideBParticipants.length
+    : 0; // parlay mode
   
   // For head-to-head: totalAmount is the pot, split among winners
   // For group: totalAmount is split among all participants
   const amountPerPerson = bettingMode === 'head_to_head' 
     ? totalAmount // For H2H, show total pot amount
-    : (participantCount > 0 ? totalAmount / participantCount : 0);
+    : bettingMode === 'group' 
+    ? (participantCount > 0 ? totalAmount / participantCount : 0)
+    : 0; // parlay mode
 
   const getDefaultOdds = () => {
     // For head-to-head bets, default to +100 (even odds)
     if (bettingMode === 'head_to_head') {
       return 100;
+    }
+    if (bettingMode === 'parlay') {
+      return -110; // Standard parlay odds
     }
     
     switch (betType) {
@@ -172,6 +188,32 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
   };
 
   const handlePlaceBet = () => {
+    console.log('🎰 handlePlaceBet called with bettingMode:', bettingMode);
+    // Handle parlay mode
+    if ((bettingMode as string) === 'parlay') {
+      console.log('🎯 Parlay mode detected!');
+      if (!onStartParlay || !game) {
+        console.log('❌ Missing onStartParlay or game:', { onStartParlay: !!onStartParlay, game: !!game });
+        return;
+      }
+      
+      // Create parlay selection object
+      const parlaySelection = {
+        id: `${game.id}-${betType}-${selection}`,
+        gameId: game.id,
+        game,
+        betType,
+        selection,
+        line: betType === 'moneyline' ? undefined : (customLine !== undefined ? customLine : getDefaultLine()),
+        odds: customOdds || getDefaultOdds() || -110
+      };
+      
+      console.log('🎰 Calling onStartParlay with:', parlaySelection);
+      onStartParlay(parlaySelection);
+      onClose();
+      return;
+    }
+
     // Update selection text if custom line is used
     let finalSelection = selection;
     if (betType === 'spread' && customLine !== undefined) {
@@ -279,11 +321,12 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
           width: '100%',
           maxHeight: '90vh',
           overflowY: 'auto',
-          margin: '0 16px'
+          margin: '0 16px',
+          color: 'black'
         }}>
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex justify-between items-center">
-          <h2 className="text-xl font-semibold">Place Bet</h2>
+          <h2 className="text-xl font-semibold" style={{ color: 'black' }}>Place Bet</h2>
           <button
             onClick={onClose}
             className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
@@ -294,15 +337,15 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
 
         {/* Bet Summary */}
         <div className="p-4 bg-gray-50 border-b border-gray-200">
-          <div className="text-sm text-gray-600 mb-1">
+          <div className="text-sm mb-1" style={{ color: '#6b7280' }}>
             {game.awayTeam} @ {game.homeTeam}
           </div>
-          <div className="font-semibold text-lg">{selection}</div>
+          <div className="font-semibold text-lg" style={{ color: 'black' }}>{selection}</div>
           <div className="flex gap-4 mt-2">
             {/* Only show line for spread, over/under, and player prop bets */}
             {betType !== 'moneyline' && (
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">
+                <span className="text-sm" style={{ color: '#6b7280' }}>
                   {betType === 'spread' ? 'Spread:' : 
                    betType === 'over_under' ? 'Total:' : 
                    betType === 'player_prop' ? 'Line:' : 'Line:'}
@@ -365,7 +408,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
               </div>
             )}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-600">Odds:</span>
+              <span className="text-sm" style={{ color: '#6b7280' }}>Odds:</span>
               <div className="flex items-center">
                 <input
                   type="text"
@@ -409,11 +452,11 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
 
         {/* Betting Mode Toggle */}
         <div className="p-4 border-b border-gray-200">
-          <h3 className="font-medium mb-3">Betting Mode</h3>
-          <div className="flex gap-2">
+          <h3 className="font-medium mb-3" style={{ color: 'black' }}>Betting Mode</h3>
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => setBettingMode('group')}
-              className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
+              className={`px-3 py-2 rounded-lg border transition-all ${
                 bettingMode === 'group'
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
@@ -423,7 +466,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
             </button>
             <button
               onClick={() => setBettingMode('head_to_head')}
-              className={`flex-1 px-3 py-2 rounded-lg border transition-all ${
+              className={`px-3 py-2 rounded-lg border transition-all ${
                 bettingMode === 'head_to_head'
                   ? 'bg-blue-600 text-white border-blue-600'
                   : 'bg-white text-gray-700 border-gray-300 hover:border-blue-300'
@@ -431,28 +474,40 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
             >
               Head-to-Head
             </button>
+            <button
+              onClick={() => setBettingMode('parlay' as any)}
+              className={`px-3 py-2 rounded-lg border transition-all ${
+                (bettingMode as string) === 'parlay'
+                  ? 'bg-purple-600 text-white border-purple-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:border-purple-300'
+              }`}
+            >
+              🎰 Parlay
+            </button>
           </div>
         </div>
 
-        {/* Amount Section */}
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="font-medium mb-3">Bet Amount</h3>
+        {/* Amount Section - Hidden for Parlay Mode */}
+        {bettingMode !== 'parlay' && (
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="font-medium mb-3" style={{ color: 'black' }}>Bet Amount</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-gray-600 block mb-1">Total Amount</label>
+              <label className="text-sm block mb-1" style={{ color: '#6b7280' }}>Total Amount</label>
               <div className="flex items-center gap-1">
                 <span className="text-gray-400">$</span>
                 <input
                   type="number"
                   value={totalAmount}
-                  onChange={(e) => setTotalAmount(Math.max(0, parseInt(e.target.value) || 0))}
+                  onChange={(e) => setTotalAmount(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                  step="50"
+                  step="0.5"
+                  min="0.5"
                 />
               </div>
             </div>
             <div>
-              <label className="text-sm text-gray-600 block mb-1">
+              <label className="text-sm block mb-1" style={{ color: '#6b7280' }}>
                 {bettingMode === 'head_to_head' ? 'Pot Amount' : `Per Person (${participantCount} people)`}
               </label>
               <div className="px-3 py-2 bg-gray-100 rounded-lg font-medium">
@@ -461,15 +516,17 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
             </div>
           </div>
         </div>
+        )}
 
-        {/* Participants Section */}
-        <div className="p-4 border-b border-gray-200">
-          <h3 className="font-medium mb-3">Participants</h3>
+        {/* Participants Section - Hidden for Parlay Mode */}
+        {bettingMode !== 'parlay' && (
+          <div className="p-4 border-b border-gray-200">
+            <h3 className="font-medium mb-3" style={{ color: 'black' }}>Participants</h3>
           
           {/* Bet Placer - Only for group bets */}
           {bettingMode === 'group' && (
             <div className="mb-3">
-              <label className="text-sm text-gray-600 block mb-1">Bet Placer</label>
+              <label className="text-sm block mb-1" style={{ color: '#6b7280' }}>Bet Placer</label>
               <select
                 value={betPlacer}
                 onChange={(e) => setBetPlacer(e.target.value)}
@@ -484,7 +541,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
             </div>
           )}
 
-          {bettingMode === 'group' ? (
+          {bettingMode === 'group' && (
             /* Group Betting - Everyone on Same Side */
             <div className="space-y-2">
               {allUsers.map((user) => (
@@ -499,7 +556,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
                       onChange={() => toggleParticipant(user.id)}
                       className="w-4 h-4 text-blue-600"
                     />
-                    <span>{user.name}</span>
+                    <span style={{ color: 'black' }}>{user.name}</span>
                   </div>
                   {participants.includes(user.id) && (
                     <span className="text-sm text-gray-600">
@@ -509,7 +566,23 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
                 </label>
               ))}
             </div>
-          ) : (
+          )}
+          
+          {(bettingMode as string) === 'parlay' && (
+            /* Parlay Mode - Start Building Parlay */
+            <div className="text-center py-8 bg-purple-50 rounded-lg border border-purple-200">
+              <div className="text-4xl mb-3">🎰</div>
+              <h4 className="font-semibold text-purple-800 mb-2">Start Building Your Parlay</h4>
+              <p className="text-sm text-purple-600 mb-4">
+                This bet will become the first leg of your parlay. You can add more legs after placing this selection.
+              </p>
+              <div className="text-sm text-purple-700 bg-purple-100 rounded-lg p-3">
+                <strong>Selected:</strong> {selection}
+              </div>
+            </div>
+          )}
+          
+          {bettingMode === 'head_to_head' && (
             /* Head-to-Head Betting - Two Sides */
             <div className="space-y-4">
               {/* Side A */}
@@ -545,7 +618,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
                           onChange={() => toggleSideAParticipant(user.id)}
                           className="w-4 h-4 text-blue-600"
                         />
-                        <span>{user.name}</span>
+                        <span style={{ color: 'black' }}>{user.name}</span>
                       </div>
                       {sideAParticipants.includes(user.id) && (
                         <span className="text-sm text-blue-600">
@@ -590,7 +663,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
                           onChange={() => toggleSideBParticipant(user.id)}
                           className="w-4 h-4 text-red-600"
                         />
-                        <span>{user.name}</span>
+                        <span style={{ color: 'black' }}>{user.name}</span>
                       </div>
                       {sideBParticipants.includes(user.id) && (
                         <span className="text-sm text-red-600">
@@ -604,6 +677,7 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
             </div>
           )}
         </div>
+        )}
 
         {/* Actions */}
         <div className="p-4 flex gap-3">
@@ -616,12 +690,17 @@ export default function BetPopup({ isOpen, onClose, onPlaceBet, game, betType, s
           <button
             onClick={handlePlaceBet}
             disabled={
+              (bettingMode as string) === 'parlay' ? false :
               (bettingMode === 'group' ? (!betPlacer || participants.length === 0) : 
                (sideAParticipants.length === 0 || sideBParticipants.length === 0))
             }
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`flex-1 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+              (bettingMode as string) === 'parlay' 
+                ? 'bg-purple-600 text-white hover:bg-purple-700' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
           >
-            Place Bet
+            {(bettingMode as string) === 'parlay' ? '🎰 Start Parlay' : 'Place Bet'}
           </button>
         </div>
       </div>

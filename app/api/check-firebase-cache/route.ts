@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     
     if (cachedData) {
       const { props, cachedAt } = cachedData;
-      const isValid = playerPropsService.isCacheValid(cachedAt, 60);
+      const isValid = playerPropsService.isCacheValid(cachedAt, undefined, 60);
       
       return NextResponse.json({
         success: true,

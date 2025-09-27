@@ -7,16 +7,15 @@
 - **VERCEL DEPLOYMENT**: Connected to the `groupbet` GitHub repository
 
 ## 🚨 CURRENT DATE AND NFL SEASON CONTEXT
-- **TODAY IS SEPTEMBER 15, 2025**
+- **TODAY IS SEPTEMBER 24, 2025**
 - **WE ARE IN THE 2025 NFL SEASON**
-- **WEEK 2 GAMES HAPPENED SEPTEMBER 11-15, 2025**
-- **THESE ARE REAL, COMPLETED GAMES WITH ACTUAL RESULTS**
+- **WEEK 3 IS COMPLETED (SEPTEMBER 18-24, 2025)**
+- **ALL WEEK 3 GAMES ARE FINAL - BETS ARE RESOLVED**
 
-## 🏈 NFL WEEK 2 2025 SCHEDULE (COMPLETED GAMES)
-- **Thursday 9/11**: Packers @ Commanders (FINAL)
-- **Sunday 9/14**: Multiple games including Ravens @ Browns, Bills @ Chiefs, etc. (FINAL)
-- **Sunday Night 9/14**: Eagles @ Falcons (FINAL) 
-- **Monday 9/15**: Bengals @ Broncos (FINAL)
+## 🏈 NFL WEEK 3 2025 STATUS
+- **ALL GAMES COMPLETED**: Week 3 games have finished
+- **AUTOMATIC BET RESOLUTION**: System auto-resolves bets when games complete
+- **CURRENT FOCUS**: Week 3 completed games with final scores and bet resolutions
 
 ## 🎯 CORE ARCHITECTURE REQUIREMENTS
 
@@ -97,6 +96,12 @@ If games aren't loading correctly:
   - **Root Cause**: Function used UTC day instead of Eastern time day for classification
   - **Solution**: Changed `gameTime.getDay()` to use `easternTime.getDay()`
   - **Result**: All 16 Week 2 games now properly categorized into Thursday/Sunday/Monday slots
+
+## 🚨 CRITICAL USER ID STANDARDS
+- **D/O USER ID**: ALWAYS use "d/o" (with slash) - NEVER "dio" or other variations
+- **STANDARD PARTICIPANTS**: `["will", "d/o", "rosen", "charlie"]`
+- **DO NOT CHANGE**: User specifically requested d/o as the standard format
+- **CONSISTENCY**: All bets, user lookups, and participant arrays must use "d/o"
 
 ## ✅ MAJOR IMPLEMENTATION: PROPER BETTING ODDS SYSTEM (September 15, 2025)
 
@@ -201,3 +206,85 @@ curl -X POST http://localhost:3000/api/add-bet \
 4. Updates betting summary and individual bet status
 
 ### 💰 RESULT: Complete betting history with proper resolution!
+
+## ✅ PARLAY BETTING SYSTEM (September 21, 2025)
+
+### 🎯 COMPLETED: Full Parlay Implementation
+- **Data Model**: Added 'parlay' bet type with parlayLegs array
+- **Odds Calculation**: Proper American odds multiplication
+- **UI Components**: ParlayBuilder modal for creating parlays
+- **Bet Resolution**: All legs must win for parlay to win
+- **Display**: Shows each leg status in bet cards
+
+### 🏈 How Parlays Work:
+1. **Create Parlay**: Click "Create Parlay" button in bets section
+2. **Select Legs**: Choose 2+ active bets to combine
+3. **Combined Odds**: Automatically calculates parlay odds
+4. **All or Nothing**: All legs must win for payout
+
+### 📊 Parlay Odds Calculation:
+```typescript
+// Example: 2-leg parlay with -120 and -110 odds
+// Decimal: 1.833 × 1.909 = 3.498
+// American: +250 (pay $250 profit on $100 bet)
+```
+
+## ✅ WEEK 3 CRITICAL FIXES (September 24, 2025)
+
+### 🎯 COMPLETED: All Critical Week 3 Issues Resolved
+
+1. **BET DISPLAY FIXES**:
+   - ✅ Fixed bet cards displaying 1 per row → Now shows 2-3 per row responsively
+   - ✅ Fixed game dates all showing as Sunday morning → Proper time slot categorization
+   - ✅ Added subtle background colors: Green for wins, red for losses
+
+2. **PARLAY BET RESOLUTION**:
+   - ✅ Fixed Jacksonville ML + 49ers ML parlay bet resolution (2-leg parlay WON)
+   - ✅ Enhanced parlay resolution logic to handle multiple game references
+   - ✅ Fixed "game is not defined" and "updatedParlayLegs" errors in resolution
+
+3. **AUTOMATIC BET RESOLUTION SYSTEM**:
+   - ✅ Implemented auto-resolve when games are fetched (`/api/auto-resolve-bets`)
+   - ✅ Checks multiple weeks for completed games automatically
+   - ✅ No more manual bet resolution requests needed
+
+4. **FIREBASE CACHING IMPROVEMENTS**:
+   - ✅ Enhanced Firebase-first caching system (`/lib/games-cache.ts`)
+   - ✅ Store both ESPN and Odds API game IDs to prevent ID mismatches
+   - ✅ Preserve player props when refreshing game data
+   - ✅ Fixed "Unsupported field value: undefined" Firebase errors
+
+5. **PLAYER PROPS SYSTEM**:
+   - ✅ Created `/api/add-player-prop` endpoint for manual prop addition
+   - ✅ Player props cached in Firebase and displayed for past games
+   - ✅ Added Travis Kelce Over 65.5 receiving yards (LOST - 26 yards)
+   - ✅ Added Brown Under 50.5 receiving yards (WON - 42 yards)
+   - ✅ **Strategic Props Caching Policy**:
+     - **Initial fetch**: 2+ days before game (when props become available)
+     - **Final refresh**: 2-6 hours before game (catch line movements)
+     - **Otherwise**: Use Firebase cache to minimize API calls
+   - ✅ **No Live Updates**: Preserves pre-game lines, saves API calls
+   - ✅ **Firebase Cache**: Props cached permanently once game starts
+
+6. **UI/UX ENHANCEMENTS (September 24, 2025)**:
+   - ✅ **Futuristic Fintech Aesthetic**: Brighter green outlines and bold backgrounds for wins
+   - ✅ **Enhanced Win Styling**: 2px green border with glow effect and 15% background opacity
+   - ✅ **Responsive Layout**: 2 cards per row on mobile, 3 cards per row on tablets/laptops (768px+)
+   - ✅ **Improved Spacing**: 12px gaps between cards with 20px internal padding
+   - ✅ **Custom CSS Grid**: `.bet-grid` class with media queries for reliable responsive behavior
+
+### 🔧 FILES MODIFIED:
+- `/app/games-page.tsx` - Bet card layout, responsive grid, enhanced styling
+- `/app/globals.css` - Futuristic fintech CSS classes and responsive grid
+- `/lib/games-cache.ts` - Enhanced Firebase caching with dual ID storage
+- `/app/api/resolve-bets/route.ts` - Fixed parlay resolution logic
+- `/app/api/auto-resolve-bets/route.ts` - Automatic bet resolution system
+- `/app/api/add-player-prop/route.ts` - Manual player prop addition
+- `/lib/firebase-utils.ts` - Clean undefined fields utility
+
+### 🎨 DESIGN SYSTEM:
+- **Win Cards**: `rgba(16, 185, 129, 0.15)` background, 2px green border, box-shadow glow
+- **Loss Cards**: `rgba(239, 68, 68, 0.05)` background, subtle red border
+- **Grid Layout**: `grid-cols-2 md:grid-cols-3` with 12px gaps
+- **Card Padding**: 20px internal padding (p-5)
+- **Fintech Style**: Glassmorphism effects, gradient borders, pulsing animations

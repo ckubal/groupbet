@@ -10,19 +10,22 @@ interface EditBetModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (betId: string, updates: Partial<Bet>) => Promise<void>;
+  onDelete?: (betId: string) => Promise<void>;
 }
 
-export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetModalProps) {
+export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }: EditBetModalProps) {
   console.log('🔧 EditBetModal render:', { isOpen, betId: bet?.id });
   
   const { allUsers } = useUser();
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [formData, setFormData] = useState({
     selection: '',
     odds: '',
     amountPerPerson: '',
     line: '',
-    participants: [] as string[]
+    participants: [] as string[],
+    placedBy: ''
   });
 
   useEffect(() => {
@@ -32,7 +35,8 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
         odds: bet.odds?.toString() || '',
         amountPerPerson: bet.amountPerPerson?.toString() || '',
         line: bet.line?.toString() || '',
-        participants: bet.participants || []
+        participants: bet.participants || [],
+        placedBy: bet.placedBy || ''
       });
     }
   }, [bet, isOpen]);
@@ -48,6 +52,7 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
         amountPerPerson: formData.amountPerPerson ? parseFloat(formData.amountPerPerson) : undefined,
         line: formData.line ? parseFloat(formData.line) : undefined,
         participants: formData.participants,
+        placedBy: formData.placedBy,
         totalAmount: formData.participants.length * (parseFloat(formData.amountPerPerson) || 0)
       };
 
@@ -62,6 +67,21 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
       onClose();
     } catch (error) {
       console.error('Error saving bet:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!bet || !onDelete) return;
+    
+    setIsLoading(true);
+    try {
+      await onDelete(bet.id);
+      setShowDeleteConfirm(false);
+      onClose();
+    } catch (error) {
+      console.error('Error deleting bet:', error);
     } finally {
       setIsLoading(false);
     }
@@ -155,19 +175,58 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
             />
           </div>
 
-          {/* Selection */}
+          {/* Bet Placer */}
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-1">
-              Selection
+              Bet Placer
             </label>
-            <input
-              type="text"
-              value={formData.selection}
-              onChange={(e) => setFormData(prev => ({ ...prev, selection: e.target.value }))}
+            <select
+              value={formData.placedBy}
+              onChange={(e) => setFormData(prev => ({ ...prev, placedBy: e.target.value }))}
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500"
-              placeholder="e.g. Patriots -3.5"
-            />
+            >
+              <option value="">Select who placed this bet</option>
+              {allUsers.map(user => (
+                <option key={user.id} value={user.id}>
+                  {user.name}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {/* Selection - Hide for parlay bets */}
+          {bet.betType !== 'parlay' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Selection
+              </label>
+              <input
+                type="text"
+                value={formData.selection}
+                onChange={(e) => setFormData(prev => ({ ...prev, selection: e.target.value }))}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500"
+                placeholder="e.g. Patriots -3.5"
+              />
+            </div>
+          )}
+
+          {/* Selection - Read-only for parlay bets */}
+          {bet.betType === 'parlay' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Selection
+              </label>
+              <input
+                type="text"
+                value={formData.selection}
+                disabled
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-gray-400 text-sm"
+              />
+              <div className="mt-1 text-xs text-gray-400">
+                Parlay selection is auto-generated and cannot be edited
+              </div>
+            </div>
+          )}
 
           {/* Amount */}
           <div>
@@ -181,7 +240,7 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
               className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500"
               placeholder="50"
               min="0"
-              step="0.01"
+              step="0.5"
             />
           </div>
 
@@ -199,20 +258,22 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
             />
           </div>
 
-          {/* Line (for spreads/totals) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Line (optional)
-            </label>
-            <input
-              type="number"
-              value={formData.line}
-              onChange={(e) => setFormData(prev => ({ ...prev, line: e.target.value }))}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500"
-              placeholder="3.5"
-              step="0.5"
-            />
-          </div>
+          {/* Line (for spreads/totals) - Not applicable for parlays */}
+          {bet.betType !== 'parlay' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-1">
+                Line (optional)
+              </label>
+              <input
+                type="number"
+                value={formData.line}
+                onChange={(e) => setFormData(prev => ({ ...prev, line: e.target.value }))}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white focus:border-blue-500"
+                placeholder="3.5"
+                step="0.5"
+              />
+            </div>
+          )}
 
           {/* Projected Payout */}
           {formData.amountPerPerson && formData.odds && (
@@ -275,6 +336,16 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
 
         {/* Action Buttons */}
         <div className="flex gap-3 mt-6">
+          {/* Show delete button only if onDelete prop is provided */}
+          {onDelete && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-colors"
+              disabled={isLoading}
+            >
+              Delete
+            </button>
+          )}
           <button
             onClick={onClose}
             className="flex-1 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
@@ -290,6 +361,82 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave }: EditBetMo
             {isLoading ? 'Saving...' : 'Save Changes'}
           </button>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        {showDeleteConfirm && (
+          <div 
+            className="fixed inset-0 flex items-center justify-center" 
+            style={{ 
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 10001,
+              backgroundColor: 'rgba(0, 0, 0, 0.75)'
+            }}
+          >
+            <div 
+              className="absolute inset-0" 
+              onClick={() => setShowDeleteConfirm(false)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
+              }}
+            />
+            <div 
+              className="bg-gray-800 rounded-xl p-6 max-w-sm w-full relative"
+              style={{
+                backgroundColor: '#1f2937',
+                borderRadius: '12px',
+                padding: '24px',
+                maxWidth: '24rem',
+                width: '90%',
+                position: 'relative',
+                zIndex: 10002,
+                margin: '0 20px'
+              }}
+            >
+              <h3 className="text-lg font-semibold text-white mb-4">Confirm Delete</h3>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete this bet? This action cannot be undone.
+              </p>
+              <div className="space-y-2 mb-6 text-sm">
+                <div className="text-gray-400">
+                  <span className="font-medium">Selection:</span> {bet?.selection}
+                </div>
+                <div className="text-gray-400">
+                  <span className="font-medium">Amount:</span> ${bet?.amountPerPerson} per person
+                </div>
+                <div className="text-gray-400">
+                  <span className="font-medium">Status:</span> {bet?.status}
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="flex-1 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500 transition-colors"
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isLoading}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500 transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Deleting...' : 'Delete Bet'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       </div>
     </>

@@ -14,6 +14,70 @@ import {
 import { db } from './firebase';
 import { Bet, Game, Weekend, Settlement, PlayerProp } from '@/types';
 
+// Time slot calculation utility
+function getTimeSlot(gameTime: Date): Game['timeSlot'] {
+  // Validate gameTime - return default if invalid
+  if (!gameTime || isNaN(gameTime.getTime())) {
+    console.warn('⚠️ Invalid game time provided to getTimeSlot:', gameTime);
+    return 'sunday_early'; // Default fallback
+  }
+
+  // Create proper timezone-aware dates using Intl.DateTimeFormat (consistent with odds-api.ts)
+  const easternTimeOptions: Intl.DateTimeFormatOptions = { 
+    timeZone: "America/New_York", 
+    year: "numeric", month: "2-digit", day: "2-digit", 
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+  };
+  const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
+    timeZone: "America/Los_Angeles", 
+    year: "numeric", month: "2-digit", day: "2-digit", 
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+  };
+  
+  // Get timezone-aware components
+  const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(gameTime);
+  const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(gameTime);
+  
+  // Extract values
+  const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
+  const easternDay = new Date(`${easternParts.find(p => p.type === 'year')?.value}-${easternParts.find(p => p.type === 'month')?.value}-${easternParts.find(p => p.type === 'day')?.value}`).getDay();
+  const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
+  
+  console.log(`🕐 Firebase time slot calculation for ${gameTime.toISOString()}:`);
+  console.log(`   ET: Day ${easternDay}, Hour ${easternHour} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][easternDay]})`);
+  console.log(`   PT: Hour ${pacificHour}`);
+
+  if (easternDay === 4) { // Thursday
+    console.log('📅 Firebase classified as: Thursday Night');
+    return 'thursday';
+  }
+  if (easternDay === 1) { // Monday
+    console.log('📅 Firebase classified as: Monday Night');
+    return 'monday';
+  }
+  if (easternDay === 0) { // Sunday
+    // Use Pacific time for Sunday game categorization
+    if (pacificHour < 12) { // Before noon PT
+      console.log('📅 Firebase classified as: Sunday Morning (before noon PT)');
+      return 'sunday_early';
+    }
+    if (pacificHour < 15) { // Noon to 3pm PT
+      console.log('📅 Firebase classified as: Sunday Afternoon (noon-3pm PT)');
+      return 'sunday_afternoon';
+    }
+    console.log('📅 Firebase classified as: Sunday Night (3pm+ PT / SNF)');
+    return 'sunday_night';        // 3pm+ PT (SNF)
+  }
+  if (easternDay === 6) { // Saturday
+    console.log('📅 Firebase classified as: Saturday (putting in Sunday Early)');
+    return 'sunday_early'; // Saturday games go in early slot
+  }
+  
+  // For any other day (Tuesday, Wednesday, Friday), put in early slot
+  console.log(`📅 Firebase classified as: Other day (${easternDay}) - putting in Sunday Early`);
+  return 'sunday_early';
+}
+
 // Collections
 const COLLECTIONS = {
   BETS: 'bets',
@@ -23,7 +87,8 @@ const COLLECTIONS = {
   USERS: 'users',
   FINAL_GAMES: 'final_games', // Store completed games permanently
   PLAYER_PROPS: 'player_props', // Cache player props separately
-  GAME_ID_MAPPINGS: 'game_id_mappings' // Map between internal IDs and external API IDs
+  GAME_ID_MAPPINGS: 'game_id_mappings', // Map between internal IDs and external API IDs
+  PRE_GAME_ODDS: 'pre_game_odds' // Freeze betting lines before games start - NEVER overwrite
 };
 
 // Bet Management
@@ -573,7 +638,7 @@ export const finalGameService = {
             homeTeam: data.homeTeam,
             awayTeam: data.awayTeam,
             gameTime: data.gameTime.toDate(),
-            timeSlot: 'sunday_afternoon', // Default timeSlot for final games
+            timeSlot: getTimeSlot(data.gameTime.toDate()), // Calculate correct timeSlot
             status: 'final',
             homeScore: data.homeScore,
             awayScore: data.awayScore,
@@ -613,13 +678,14 @@ export const finalGameService = {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         
+        const gameTime = data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime;
         games.push({
           id: data.gameId,
           weekendId: data.weekendId,
           homeTeam: data.homeTeam,
           awayTeam: data.awayTeam,
-          gameTime: data.gameTime.toDate(),
-          timeSlot: 'sunday_afternoon',
+          gameTime: gameTime,
+          timeSlot: getTimeSlot(gameTime), // Calculate correct timeSlot
           status: 'final',
           homeScore: data.homeScore,
           awayScore: data.awayScore,
@@ -760,10 +826,16 @@ export const playerPropsService = {
   },
 
   // Check if player props cache is still valid
-  isCacheValid(cachedAt: Date, maxAgeMinutes: number = 60): boolean {
+  isCacheValid(cachedAt: Date, gameStatus?: string, maxAgeMinutes: number = 60): boolean {
     const ageInMinutes = (Date.now() - cachedAt.getTime()) / (1000 * 60);
-    const isValid = ageInMinutes < maxAgeMinutes;
     
+    // For completed games, player props cache never expires (allows historical betting)
+    if (gameStatus === 'final') {
+      console.log(`📊 Player props cache for FINAL game: ✅ ALWAYS VALID (${Math.round(ageInMinutes)} min old)`);
+      return true;
+    }
+    
+    const isValid = ageInMinutes < maxAgeMinutes;
     console.log(`📊 Player props cache validation: ${isValid ? '✅ VALID' : '❌ EXPIRED'} (${Math.round(ageInMinutes)} min old)`);
     return isValid;
   }
@@ -788,15 +860,21 @@ export const gameIdMappingService = {
       
       const existingDocs = await getDocs(existingQuery);
       
-      const mappingData = {
+      const mappingData: any = {
         internalId,
-        espnId: externalIds.espnId,
-        oddsApiId: externalIds.oddsApiId,
         awayTeam: externalIds.awayTeam,
         homeTeam: externalIds.homeTeam,
         gameTime: Timestamp.fromDate(externalIds.gameTime),
         lastUpdated: Timestamp.now()
       };
+
+      // Only add non-undefined fields
+      if (externalIds.espnId !== undefined) {
+        mappingData.espnId = externalIds.espnId;
+      }
+      if (externalIds.oddsApiId !== undefined) {
+        mappingData.oddsApiId = externalIds.oddsApiId;
+      }
       
       if (!existingDocs.empty) {
         // Update existing mapping
@@ -923,6 +1001,105 @@ export const gameIdMappingService = {
   }
 };
 
+// Pre-Game Odds Management - CRITICAL: Preserve betting lines forever once games start
+export const preGameOddsService = {
+  // Freeze betting odds permanently - these should NEVER change after a game starts
+  async freezeOdds(gameId: string, odds: {
+    spread?: number;
+    spreadOdds?: number;
+    overUnder?: number;
+    overUnderOdds?: number;
+    homeMoneyline?: number;
+    awayMoneyline?: number;
+    playerProps?: PlayerProp[];
+  }): Promise<void> {
+    try {
+      // Check if already frozen to avoid overwrites
+      const existingDoc = await this.getFrozenOdds(gameId);
+      if (existingDoc) {
+        console.log(`❄️ Pre-game odds already frozen for game ${gameId} - skipping overwrite`);
+        return;
+      }
+
+      const frozenOdds = {
+        gameId,
+        spread: odds.spread,
+        spreadOdds: odds.spreadOdds,
+        overUnder: odds.overUnder,
+        overUnderOdds: odds.overUnderOdds,
+        homeMoneyline: odds.homeMoneyline,
+        awayMoneyline: odds.awayMoneyline,
+        playerProps: odds.playerProps || [],
+        frozenAt: Timestamp.now()
+      };
+
+      // Remove undefined values
+      Object.keys(frozenOdds).forEach(key => {
+        if (frozenOdds[key as keyof typeof frozenOdds] === undefined) {
+          delete frozenOdds[key as keyof typeof frozenOdds];
+        }
+      });
+
+      await addDoc(collection(db, COLLECTIONS.PRE_GAME_ODDS), frozenOdds);
+      console.log(`🧊 FROZEN pre-game odds for game ${gameId} - these lines will NEVER change`);
+    } catch (error) {
+      console.error('❌ Error freezing pre-game odds:', error);
+      throw error;
+    }
+  },
+
+  // Get frozen pre-game odds - these are the definitive betting lines for started/completed games
+  async getFrozenOdds(gameId: string): Promise<{
+    spread?: number;
+    spreadOdds?: number;
+    overUnder?: number;
+    overUnderOdds?: number;
+    homeMoneyline?: number;
+    awayMoneyline?: number;
+    playerProps?: PlayerProp[];
+  } | null> {
+    try {
+      const q = query(
+        collection(db, COLLECTIONS.PRE_GAME_ODDS),
+        where('gameId', '==', gameId)
+      );
+
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        return null;
+      }
+
+      const doc = querySnapshot.docs[0];
+      const data = doc.data();
+      
+      return {
+        spread: data.spread,
+        spreadOdds: data.spreadOdds,
+        overUnder: data.overUnder,
+        overUnderOdds: data.overUnderOdds,
+        homeMoneyline: data.homeMoneyline,
+        awayMoneyline: data.awayMoneyline,
+        playerProps: data.playerProps || []
+      };
+    } catch (error) {
+      console.error('❌ Error getting frozen odds:', error);
+      return null;
+    }
+  },
+
+  // Get count of frozen odds (for debugging)
+  async getFrozenOddsCount(): Promise<number> {
+    try {
+      const querySnapshot = await getDocs(collection(db, COLLECTIONS.PRE_GAME_ODDS));
+      return querySnapshot.size;
+    } catch (error) {
+      console.error('❌ Error getting frozen odds count:', error);
+      return 0;
+    }
+  }
+};
+
 export default {
   bet: betService,
   weekend: weekendService,
@@ -930,5 +1107,6 @@ export default {
   gameCache: gameCacheService,
   finalGame: finalGameService,
   playerProps: playerPropsService,
-  gameIdMapping: gameIdMappingService
+  gameIdMapping: gameIdMappingService,
+  preGameOdds: preGameOddsService
 };

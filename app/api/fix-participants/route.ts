@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       'prWbvmc96Nn5mfDQT3tK'  // Jayden Daniels rushing yards
     ];
     
-    const correctParticipants = ["will", "dio", "rosen", "charlie"];
+    const correctParticipants = ["will", "d/o", "rosen", "charlie"];
     const correctPlacedBy = "rosen";
     
     for (const betId of betIdsToFix) {

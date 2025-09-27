@@ -7,6 +7,8 @@ import { useGroup } from '@/lib/group-context';
 import GameCard from '@/components/GameCard';
 import BetPopup from '@/components/BetPopup';
 import EditBetModal from '@/components/EditBetModal';
+import ParlayBuilder from '@/components/ParlayBuilder';
+import ParlayPanel, { ParlaySelection } from '@/components/ParlayPanel';
 import UserSelector from '@/components/UserSelector';
 import { format } from 'date-fns';
 import { getCurrentNFLWeek } from '@/lib/utils';
@@ -122,6 +124,65 @@ const simplifyPlayerName = (text: string): string => {
   });
 };
 
+// Client-side function to calculate correct time slot based on actual game time
+const calculateCorrectTimeSlot = (gameTime: Date | string): string => {
+  let date: Date;
+  
+  if (typeof gameTime === 'string') {
+    date = new Date(gameTime);
+  } else {
+    date = gameTime;
+  }
+  
+  if (!date || isNaN(date.getTime())) {
+    console.warn('⚠️ Invalid game time provided to calculateCorrectTimeSlot:', gameTime);
+    return 'sunday_early';
+  }
+
+  // Use timezone-aware calculations (same logic as server-side getTimeSlot)
+  const easternTimeOptions: Intl.DateTimeFormatOptions = { 
+    timeZone: "America/New_York", 
+    year: "numeric", month: "2-digit", day: "2-digit", 
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+  };
+  const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
+    timeZone: "America/Los_Angeles", 
+    year: "numeric", month: "2-digit", day: "2-digit", 
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+  };
+  
+  // Get timezone-aware components using formatToParts
+  const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(date);
+  const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(date);
+  
+  // Extract values
+  const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
+  const easternDay = new Date(`${easternParts.find(p => p.type === 'year')?.value}-${easternParts.find(p => p.type === 'month')?.value}-${easternParts.find(p => p.type === 'day')?.value}`).getDay();
+  const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
+  
+  // Apply same logic as server-side getTimeSlot function
+  if (easternDay === 4) { // Thursday
+    return 'thursday';
+  }
+  if (easternDay === 1) { // Monday
+    return 'monday';
+  }
+  if (easternDay === 0) { // Sunday
+    if (pacificHour < 12) {
+      return 'sunday_early';      // Before noon PT
+    }
+    if (pacificHour < 15) {
+      return 'sunday_afternoon';  // Noon to 3pm PT
+    }
+    return 'sunday_night';        // 3pm+ PT (SNF)
+  }
+  if (easternDay === 6) { // Saturday
+    return 'sunday_early';        // Saturday games go in early slot
+  }
+  
+  return 'sunday_early'; // Default
+};
+
 export default function GamesPage({ initialGames, initialWeek }: GamesPageProps) {
   console.log('🎯 GAMES PAGE RENDERING with', initialGames.length, 'games');
   
@@ -137,6 +198,11 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [userBalances, setUserBalances] = useState<Record<string, UserBalance>>({});
   const [showSettlement, setShowSettlement] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(Date.now());
+  
+  // Parlay builder state
+  const [isParlayMode, setIsParlayMode] = useState(false);
+  const [parlaySelections, setParlaySelections] = useState<ParlaySelection[]>([]);
   
   // Handle week navigation
   const handleWeekChange = async (week: number) => {
@@ -150,11 +216,68 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     // Fetch games for the new week
     try {
       console.log(`📅 Fetching games for Week ${week}`);
-      const response = await fetch(`/api/games?week=${week}`);
+      const response = await fetch(`/api/games?week=${week}&force=true`);
       if (response.ok) {
         const weekGames = await response.json();
         setGames(weekGames);
         console.log(`✅ Loaded ${weekGames.length} games for Week ${week}`);
+        
+        // Only resolve bets for the CURRENT NFL week, not past weeks
+        const currentNFLWeek = getCurrentNFLWeek();
+        if (week === currentNFLWeek) {
+          const completedGames = weekGames.filter((g: Game) => g.status === 'final');
+          if (completedGames.length > 0) {
+            console.log(`🎯 Resolving bets for ${completedGames.length} completed games in current Week ${week}...`);
+            try {
+              const resolveResponse = await fetch('/api/resolve-bets', { method: 'POST' });
+              if (resolveResponse.ok) {
+                const resolveResult = await resolveResponse.json();
+                console.log(`✅ Resolved ${resolveResult.resolvedCount} bets`);
+                
+                // Force refresh ALL bet data to sync with backend
+                console.log('🔄 Force refreshing all bet data after resolution...');
+                
+                // Reload user bets for current week
+                if (currentUser) {
+                  const weekendId = `2025-week-${currentNFLWeek}`;
+                  const freshUserBets = await betService.getBetsForUser(currentUser.id, weekendId);
+                  setUserBets(freshUserBets);
+                  console.log(`✅ Refreshed ${freshUserBets.length} user bets for Week ${currentNFLWeek}`);
+                }
+                
+                // Reload all week bets from all users
+                const weekendId = `2025-week-${currentNFLWeek}`;
+                const allUserIds = ['will', 'd/o', 'rosen', 'charlie', 'pat'];
+                const allFreshBets: Bet[] = [];
+                
+                for (const userId of allUserIds) {
+                  try {
+                    const userWeekBets = await betService.getBetsForUser(userId, weekendId);
+                    allFreshBets.push(...userWeekBets);
+                  } catch (error) {
+                    // Ignore
+                  }
+                }
+                
+                // Deduplicate and set
+                const uniqueBets = allFreshBets.reduce((acc: Bet[], current: Bet) => {
+                  if (!acc.find(bet => bet.id === current.id)) {
+                    acc.push(current);
+                  }
+                  return acc;
+                }, []);
+                
+                setAllWeekBets(uniqueBets);
+                console.log(`✅ Refreshed ${uniqueBets.length} total week bets`);
+                
+                // Force a re-render by updating a timestamp
+                setLastUpdated(Date.now());
+              }
+            } catch (error) {
+              console.error('❌ Failed to auto-resolve bets:', error);
+            }
+          }
+        }
       } else {
         console.error(`❌ Failed to fetch games for Week ${week}`);
         setGames([]);
@@ -169,7 +292,11 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   
   // Load additional games for bets that aren't found in current games collection
   const loadMissingBetGames = async (bets: Bet[]) => {
-    // Find all unique weeks that have bets
+    // Skip loading past week games to avoid data overload
+    console.log('⚠️ Skipping loading of past week games to optimize performance');
+    return;
+    
+    // DISABLED: Find all unique weeks that have bets
     const weeksWithBets = [...new Set(bets.map(bet => {
       // Extract week number from weekendId or nflWeek field
       if (bet.nflWeek) return bet.nflWeek;
@@ -212,6 +339,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           const weekGames = await response.json();
           console.log(`✅ Loaded ${weekGames.length} games from Week ${week}`);
           allNewGames.push(...weekGames);
+          
         }
       } catch (error) {
         console.error(`❌ Failed to load Week ${week} games:`, error);
@@ -247,28 +375,13 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
       try {
         setIsLoadingBets(true);
         
-        // First, get bets for current week being viewed
+        // ONLY get bets for current week being viewed - no past or future weeks
         const weekendId = `2025-week-${currentWeek}`;
+        console.log(`📊 Loading bets ONLY for current Week ${currentWeek}`);
         const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
         
-        // Also get bets from adjacent weeks (common scenario)
+        // Use only current week bets
         const allBets: Bet[] = [...currentWeekBets];
-        
-        // Check a few adjacent weeks for additional bets
-        const weeksToCheck = [currentWeek - 1, currentWeek + 1, 2]; // Always check week 2 since it has most bets
-        
-        for (const week of weeksToCheck) {
-          if (week >= 1 && week <= 18 && week !== currentWeek) {
-            try {
-              const weekendId = `2025-week-${week}`;
-              const weekBets = await betService.getBetsForUser(currentUser.id, weekendId);
-              allBets.push(...weekBets);
-            } catch (error) {
-              // Ignore errors for weeks with no bets
-              console.log(`No bets found for Week ${week}`);
-            }
-          }
-        }
         
         // Deduplicate user bets by ID to prevent H2H bets from showing up multiple times
         const uniqueUserBets = allBets.reduce((acc: Bet[], current: Bet) => {
@@ -311,7 +424,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     const fetchAllWeekBets = async () => {
       try {
         const weekendId = `2025-week-${currentWeek}`;
-        const allUserIds = ['will', 'dio', 'rosen', 'charlie', 'pat'];
+        const allUserIds = ['will', 'd/o', 'rosen', 'charlie', 'pat'];
         const allBets: Bet[] = [];
         
         // Fetch bets for all users for this week
@@ -407,6 +520,169 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
       throw error;
     }
   };
+
+  const handleDeleteBet = async (betId: string) => {
+    try {
+      console.log(`🗑️ Deleting bet: ${betId}`);
+      
+      const response = await fetch(`/api/delete-bet?betId=${betId}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete bet');
+      }
+      
+      const result = await response.json();
+      console.log('✅ Bet deleted successfully:', result);
+      
+      // Refresh bets to remove the deleted bet from the UI
+      const weekendId = `2025-week-${currentWeek}`;
+      if (currentUser) {
+        // Fetch updated bets for current week and adjacent weeks
+        const allUpdatedBets: Bet[] = [];
+        
+        // Current week
+        const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        allUpdatedBets.push(...currentWeekBets);
+        
+        // Adjacent weeks
+        const weeksToCheck = [currentWeek - 1, currentWeek + 1, 2];
+        for (const week of weeksToCheck) {
+          if (week >= 1 && week <= 18 && week !== currentWeek) {
+            try {
+              const weekEndId = `2025-week-${week}`;
+              const weekBets = await betService.getBetsForUser(currentUser.id, weekEndId);
+              allUpdatedBets.push(...weekBets);
+            } catch (error) {
+              console.log(`No bets found for Week ${week}`);
+            }
+          }
+        }
+        
+        // Deduplicate bets
+        const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
+          if (!acc.find(bet => bet.id === current.id)) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        
+        setUserBets(uniqueUpdatedBets);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error deleting bet:', error);
+      throw error;
+    }
+  };
+  
+  // Parlay handlers
+  const handleToggleParlayMode = () => {
+    setIsParlayMode(!isParlayMode);
+    if (isParlayMode) {
+      // Clear selections when exiting parlay mode
+      setParlaySelections([]);
+    }
+  };
+  
+  const handleAddToParlaySelection = (selection: ParlaySelection) => {
+    console.log('🎯 handleAddToParlaySelection called with:', selection);
+    console.log('🎯 Selection ID:', selection.id);
+    setParlaySelections(prev => {
+      console.log('🎯 Current parlay selections:', prev.map(s => ({ id: s.id, selection: s.selection })));
+      // Check if this exact selection already exists
+      const exists = prev.find(s => s.id === selection.id);
+      if (exists) {
+        console.log('⚠️ Selection already exists, not adding duplicate. Existing:', exists.id);
+        return prev; // Don't add duplicates
+      }
+      
+      const newSelections = [...prev, selection];
+      console.log('✅ Updated parlay selections:', newSelections.map(s => ({ id: s.id, selection: s.selection })));
+      return newSelections;
+    });
+  };
+  
+  const handleRemoveParlaySelection = (selectionId: string) => {
+    setParlaySelections(prev => prev.filter(s => s.id !== selectionId));
+  };
+  
+  const handleClearParlaySelections = () => {
+    setParlaySelections([]);
+  };
+  
+  const handlePlaceParlay = async (parlayData: any) => {
+    try {
+      console.log('🎰 Placing parlay bet - received data:', parlayData);
+      
+      // Validate required fields
+      if (!parlayData.weekendId || !parlayData.placedBy || !parlayData.participants || parlayData.participants.length === 0) {
+        console.error('❌ Missing required parlay data:', {
+          weekendId: parlayData.weekendId,
+          placedBy: parlayData.placedBy,
+          participants: parlayData.participants
+        });
+        return;
+      }
+
+      // Clean and validate parlay legs
+      const cleanedParlayLegs = parlayData.parlayLegs.map((leg: any, index: number) => {
+        const cleanedLeg: any = {
+          betId: leg.betId || `${leg.gameId}-${leg.betType}-${index}`,
+          gameId: leg.gameId,
+          betType: leg.betType,
+          selection: leg.selection,
+          odds: leg.odds || -110
+        };
+        
+        // Only add line if it exists and is valid
+        if (leg.line !== undefined && leg.line !== null && !isNaN(leg.line)) {
+          cleanedLeg.line = leg.line;
+        }
+        
+        return cleanedLeg;
+      });
+
+      const betPayload = {
+        weekendId: parlayData.weekendId,
+        gameId: 'parlay', // Special ID for parlays
+        placedBy: parlayData.placedBy,
+        participants: parlayData.participants,
+        betType: 'parlay' as const,
+        selection: `${parlayData.parlayLegs.length}-leg parlay`,
+        odds: parlayData.parlayOdds || -110,
+        parlayLegs: cleanedParlayLegs,
+        parlayOdds: parlayData.parlayOdds || -110,
+        bettingMode: 'group' as const,
+        totalAmount: parlayData.totalAmount || 0,
+        amountPerPerson: parlayData.amountPerPerson || 0
+      };
+
+      console.log('🎰 Creating parlay bet with cleaned data:', betPayload);
+      
+      // Create the parlay bet using the bet service
+      const betId = await betService.createBet(betPayload);
+      
+      console.log('✅ Parlay bet created with ID:', betId);
+      
+      // Clear parlay state
+      setParlaySelections([]);
+      setIsParlayMode(false);
+      
+      // Refresh bets
+      if (currentUser) {
+        const weekendId = `2025-week-${currentWeek}`;
+        const freshUserBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        setUserBets(freshUserBets);
+      }
+      
+    } catch (error) {
+      console.error('❌ Error placing parlay bet:', error);
+      throw error;
+    }
+  };
   
   const [selectedBet, setSelectedBet] = useState<{
     game: Game | null;
@@ -414,6 +690,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     selection: string;
   } | null>(null);
   const [isBetPopupOpen, setIsBetPopupOpen] = useState(false);
+  const [isParlayBuilderOpen, setIsParlayBuilderOpen] = useState(false);
   
   // Auto-collapse sections where all games are final
   const getDefaultCollapsedSections = () => {
@@ -454,8 +731,18 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   });
   
   // Group games by time slot for display (only current week)
+  // Use client-side calculation to override incorrect cached timeSlot values
   const gamesByTimeSlot = currentWeekGames.reduce((acc, game) => {
-    const slot = game.timeSlot;
+    // Calculate correct timeSlot based on actual game time
+    const correctSlot = calculateCorrectTimeSlot(game.gameTime);
+    
+    // Debug log when cached slot differs from calculated slot
+    if (game.timeSlot !== correctSlot) {
+      console.log(`🔄 Correcting ${game.awayTeam} @ ${game.homeTeam}: cached="${game.timeSlot}" → calculated="${correctSlot}"`);
+    }
+    
+    // Use the correctly calculated slot
+    const slot = correctSlot;
     if (!acc[slot]) acc[slot] = [];
     acc[slot].push(game);
     return acc;
@@ -482,8 +769,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const completedGames = currentWeekGames.filter(g => g.status === 'final').length;
   
   return (
-    <div className="min-h-screen bg-black text-white font-light">
-      <div className="max-w-7xl mx-auto px-6 py-12">
+    <div className="min-h-screen bg-background">
+      <div className="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
         {/* Logout Button - Top Right */}
         <div className="flex justify-end mb-8">
           <button
@@ -491,58 +778,64 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               clearGroupSession();
               window.location.reload();
             }}
-            className="font-mono text-xs tracking-wide text-gray-500 hover:text-red-400 transition-all duration-300"
+            className="btn-secondary text-sm px-4 py-2 hover:text-danger hover:border-danger"
           >
-            [ logout ]
+            logout
           </button>
         </div>
 
-        {/* Header - Minimalist */}
-        <div className="mb-16">
-          <div className="flex items-end justify-between mb-8">
+        {/* Header - Modern */}
+        <div className="mb-12 animate-slide-up">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mb-8 gap-6">
             <div>
-              <h1 className="text-5xl font-light text-white mb-2">
+              <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-3 tracking-tight">
                 groupbet
               </h1>
-              <div className="text-gray-400 font-mono text-sm tracking-wider">
-                nfl week {currentWeek} • {completedGames} of {totalGames} complete
+              <div className="flex items-center gap-2 text-foreground-muted text-lg font-medium">
+                <span className="text-info">week {currentWeek}</span>
+                <span>•</span>
+                <span>{completedGames} of {totalGames} complete</span>
               </div>
             </div>
             
-            {/* Week Navigation - Subtle */}
-            <div className="flex items-center space-x-6">
+            {/* Week Navigation - Modern */}
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => handleWeekChange(Math.max(1, currentWeek - 1))}
                 disabled={currentWeek <= 1}
-                className={`font-mono text-sm tracking-wide transition-all duration-300 ${
+                className={`btn-secondary px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   currentWeek <= 1 
-                    ? 'text-gray-600 cursor-not-allowed' 
-                    : 'text-gray-400 hover:text-yellow-300'
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-surface-hover'
                 }`}
               >
-                [ prev ]
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
               </button>
               
-              <div className="text-yellow-300 font-mono text-lg">
+              <div className="bg-info text-white px-4 py-2 rounded-sm font-bold text-lg min-w-[3rem] text-center">
                 {currentWeek}
               </div>
               
               <button
                 onClick={() => handleWeekChange(Math.min(18, currentWeek + 1))}
                 disabled={currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1}
-                className={`font-mono text-sm tracking-wide transition-all duration-300 ${
+                className={`btn-secondary px-4 py-2 text-sm font-medium transition-all duration-200 ${
                   currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1
-                    ? 'text-gray-600 cursor-not-allowed' 
-                    : 'text-gray-400 hover:text-yellow-300'
+                    ? 'opacity-50 cursor-not-allowed' 
+                    : 'hover:bg-surface-hover'
                 }`}
               >
-                [ next ]
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
           </div>
           
-          {/* User Selection - Elegant */}
-          <div className="border-b border-gray-800 pb-8">
+          {/* User Selection - Modern */}
+          <div className="border-b border-surface-border pb-8">
             <UserSelector />
           </div>
         </div>
@@ -598,11 +891,11 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 // Show empty state if no bets for current week
                 if (currentWeekBets.length === 0) {
                   return (
-                    <div className="bg-gray-900/20 border border-gray-800/50 rounded-3xl p-8">
-                      <h2 className="text-2xl font-light mb-6 text-white">
-                        summary
+                    <div className="card p-8 animate-scale-in">
+                      <h2 className="text-2xl font-bold mb-6 text-foreground">
+                        week summary
                       </h2>
-                      <div className="text-gray-400 text-center py-8">
+                      <div className="text-foreground-muted text-center py-8">
                         no bets placed this week
                       </div>
                     </div>
@@ -610,30 +903,30 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 }
                 
                 return (
-                  <div className="bg-gray-900/20 border border-gray-800/50 rounded-3xl p-8">
-                    <h2 className="text-2xl font-light mb-6 text-white">
-                      summary
+                  <div className="card p-8 animate-scale-in">
+                    <h2 className="text-2xl font-bold mb-6 text-foreground">
+                      week summary
                     </h2>
                     
                     <div className="grid grid-cols-3 gap-8">
                       <div>
-                        <div className="text-gray-400 text-sm font-mono mb-1">in play</div>
-                        <div className="text-yellow-400 text-2xl font-mono">
+                        <div className="text-foreground-subtle text-sm font-medium mb-2">in play</div>
+                        <div className="text-warning text-2xl font-bold">
                           ${totalInPlay.toFixed(0)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-400 text-sm font-mono mb-1">profit</div>
-                        <div className={`text-2xl font-mono ${
-                          netProfit > 0 ? 'text-green-400' : 
-                          netProfit < 0 ? 'text-red-400' : 'text-gray-300'
+                        <div className="text-foreground-subtle text-sm font-medium mb-2">profit</div>
+                        <div className={`text-2xl font-bold ${
+                          netProfit > 0 ? 'text-success' : 
+                          netProfit < 0 ? 'text-danger' : 'text-foreground-muted'
                         }`}>
-  {netProfit > 0 ? '+' : ''}${netProfit.toFixed(2)}
+                          {netProfit > 0 ? '+' : ''}${netProfit.toFixed(2)}
                         </div>
                       </div>
                       <div>
-                        <div className="text-gray-400 text-sm font-mono mb-1">record</div>
-                        <div className="text-white text-2xl font-mono">
+                        <div className="text-foreground-subtle text-sm font-medium mb-2">record</div>
+                        <div className="text-foreground text-2xl font-bold">
                           {wonBets % 1 === 0 ? wonBets.toFixed(0) : wonBets.toFixed(1)}W-{lostBets % 1 === 0 ? lostBets.toFixed(0) : lostBets.toFixed(1)}L
                         </div>
                       </div>
@@ -644,10 +937,10 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
 
               {/* Weekly Settlement - Right Half */}
               {settlements.length > 0 && (
-                <div className="bg-gray-900/20 border border-gray-800/50 rounded-3xl p-8">
+                <div className="card p-8 animate-scale-in" style={{ animationDelay: '0.1s' }}>
                   <div className="flex items-start justify-between mb-8">
                     <div>
-                      <h2 className="text-2xl font-light text-white mb-1">
+                      <h2 className="text-2xl font-bold text-foreground mb-1">
                         settlement
                       </h2>
                       
@@ -688,7 +981,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                         
                         return (
                           <div className="text-white font-light text-sm mb-2">
-                            <span className="text-gray-400">team is </span>
+                            <span className="text-foreground-muted">team is </span>
                             <span className={`font-light ${teamTotal >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                               {teamTotal >= 0 ? 'up' : 'down'}
                             </span>
@@ -761,15 +1054,46 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               });
               
               return (
-                <div className="bg-gray-900/20 border border-gray-800/50 rounded-3xl p-8">
-                  <h2 className="text-2xl font-light text-white mb-8">
-                    {currentUser?.name || 'your'} bets • {sortedBets.length}
-                  </h2>
+                <div className="card p-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+                  <div className="flex justify-between items-center mb-8">
+                    <h2 className="text-2xl font-bold text-foreground">
+                      {currentUser?.name || 'your'} bets • {sortedBets.length}
+                    </h2>
+                  </div>
                   
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  <div className="bet-grid">
                     {sortedBets.map(bet => {
                     if (!bet) return null;
-                    const game = games.find(g => g.id === bet?.gameId);
+                    let game = games.find(g => g.id === bet?.gameId);
+                    
+                    // If game not found by ID, try to match by team names from bet selection
+                    if (!game && bet?.selection) {
+                      console.log(`🔍 Game not found by ID for bet: ${bet.selection}, trying team name matching...`);
+                      game = games.find(g => {
+                        const betSelection = bet.selection.toLowerCase();
+                        const homeTeam = g.homeTeam.toLowerCase();
+                        const awayTeam = g.awayTeam.toLowerCase();
+                        
+                        // Check if bet selection contains either team name or their short forms
+                        const homeWords = homeTeam.split(' ');
+                        const awayWords = awayTeam.split(' ');
+                        const lastHomeWord = homeWords[homeWords.length - 1];
+                        const lastAwayWord = awayWords[awayWords.length - 1];
+                        
+                        return (
+                          betSelection.includes(homeTeam) || 
+                          betSelection.includes(awayTeam) ||
+                          betSelection.includes(lastHomeWord) ||
+                          betSelection.includes(lastAwayWord)
+                        );
+                      });
+                      
+                      if (game) {
+                        console.log(`✅ Found game by team matching: ${game.awayTeam} @ ${game.homeTeam}`);
+                      } else {
+                        console.log(`❌ Could not find game for bet: ${bet.selection}`);
+                      }
+                    }
                     
                     // Handle head-to-head vs group bets differently
                     const isHeadToHead = bet?.bettingMode === 'head_to_head';
@@ -858,26 +1182,43 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                       } else {
                         // Active or unknown states
                         betResult = 'pending';
-                        resultColor = 'text-yellow-300';
-                        resultIcon = '·';
-                        backgroundColor = 'rgba(0, 0, 0, 0.3)';
-                        borderColor = 'rgba(75, 85, 99, 0.5)';
+                        resultColor = 'text-warning';
+                        resultIcon = '⏳';
+                        backgroundColor = 'var(--surface)';
+                        borderColor = 'var(--surface-border)';
                       }
+                    }
+                    
+                    // Determine status styling
+                    let statusBadgeClass = '';
+                    let statusTextClass = '';
+                    if (bet?.status === 'won') {
+                      statusBadgeClass = 'bg-success-muted text-success border-success';
+                      statusTextClass = 'text-success';
+                    } else if (bet?.status === 'lost') {
+                      statusBadgeClass = 'bg-danger-muted text-danger border-danger';
+                      statusTextClass = 'text-danger';
+                    } else {
+                      statusBadgeClass = 'bg-info-muted text-warning border-warning';
+                      statusTextClass = 'text-warning';
                     }
                     
                     return (
                       <div 
                         key={bet?.id || Math.random()} 
+                        className="card card-hover p-5 cursor-pointer group animate-scale-in"
                         style={{ 
-                          width: 'calc(23.333% - 8px)', 
-                          minWidth: '140px',
-                          maxWidth: 'calc(23.333% - 8px)',
-                          minHeight: '120px',
-                          backgroundColor: backgroundColor,
-                          borderColor: borderColor,
-                          cursor: 'pointer'
+                          minHeight: '100px',
+                          animationDelay: `${(sortedBets.indexOf(bet) * 0.05).toFixed(2)}s`,
+                          backgroundColor: bet?.status === 'won' ? 'rgba(16, 185, 129, 0.15)' : 
+                                         bet?.status === 'lost' ? 'rgba(239, 68, 68, 0.05)' : 
+                                         undefined,
+                          border: bet?.status === 'won' ? '2px solid rgba(16, 185, 129, 0.6)' :
+                                 bet?.status === 'lost' ? '1px solid rgba(239, 68, 68, 0.2)' :
+                                 undefined,
+                          boxShadow: bet?.status === 'won' ? '0 0 20px rgba(16, 185, 129, 0.2), inset 0 0 20px rgba(16, 185, 129, 0.05)' :
+                                    undefined
                         }}
-                        className="border rounded-xl p-3 transition-all duration-300 hover:border-yellow-300/30"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -891,63 +1232,113 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                           }
                         }}
                       >
-                        <div className="mb-1">
-                          <div className="text-white font-light text-sm mb-1 truncate">
-                            {game ? `${game.awayTeam.split(' ').pop()} @ ${game.homeTeam.split(' ').pop()}` : 'Game Not Found'}
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="text-foreground font-semibold text-sm mb-1 truncate">
+                              {bet?.betType === 'parlay' ? 
+                                `${bet.parlayLegs?.length || 0}-Leg Parlay` : 
+                                game ? (
+                                  game.status === 'final' && game.homeScore !== undefined && game.awayScore !== undefined ?
+                                    `${game.awayTeam.split(' ').pop()} ${game.awayScore} - ${game.homeScore} ${game.homeTeam.split(' ').pop()}` :
+                                    `${game.awayTeam.split(' ').pop()} @ ${game.homeTeam.split(' ').pop()}`
+                                ) : (bet as any)?.gameData ? (
+                                  `${(bet as any).gameData.awayTeam.split(' ').pop()} ${(bet as any).gameData.awayScore || 0} - ${(bet as any).gameData.homeScore || 0} ${(bet as any).gameData.homeTeam.split(' ').pop()}`
+                                ) : 'Game Not Found'
+                              }
+                            </div>
+                            <div className="text-xs text-foreground-subtle truncate">
+                              {isHeadToHead ? (
+                                userSide === 'A' 
+                                  ? `H2H vs ${bet?.sideB?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
+                                  : userSide === 'B'
+                                  ? `H2H vs ${bet?.sideA?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
+                                  : 'H2H'
+                              ) : (bet?.placedBy || 'Unknown')}
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-400 font-mono truncate">
-                            {isHeadToHead ? (
-                              userSide === 'A' 
-                                ? `H2H vs ${bet?.sideB?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
-                                : userSide === 'B'
-                                ? `H2H vs ${bet?.sideA?.participants.map(id => allUsers.find(u => u.id === id)?.name || id).join(', ')}`
-                                : 'H2H'
-                            ) : (bet?.placedBy || 'Unknown')}
+                          
+                          {/* Status Badge */}
+                          <div className={`px-2 py-1 rounded-sm text-xs font-medium border ${statusBadgeClass}`}>
+                            {resultIcon}
                           </div>
                         </div>
                         
-                        <div className="text-gray-300 text-sm mb-1 font-mono">
-                          <span className="truncate block">
-                            ${bet?.amountPerPerson?.toFixed(0) || '0'} on {simplifyPlayerName(simplifyTeamName(userSelection || 'Unknown'))} ({bet?.odds ? formatOdds(bet.odds) : '(-110)'})
-                          </span>
-                        </div>
-                        
-                        <div className="flex items-center justify-end">
-                          <div className={`${resultColor} text-sm font-mono flex items-center`}>
-                            <span className="mr-1 text-sm">{resultIcon}</span>
-                            <span className="truncate">{betResult}</span>
-                          </div>
-                        </div>
-                        
-                        {game && game.status === 'final' && (
-                          <div className="text-yellow-300 text-sm mt-1 font-mono truncate">
-                            {bet?.betType === 'player_prop' && bet?.result ? 
-                              simplifyPlayerName(bet.result) : 
-                              `${game.awayTeam.split(' ').pop()} ${game.awayScore}-${game.homeTeam.split(' ').pop()} ${game.homeScore}`
-                            }
-                          </div>
-                        )}
-                        
-                        {game && game.status === 'live' && (
-                          <div className="text-green-400 text-sm mt-1 font-mono truncate">
-                            <div className="flex items-center justify-between">
-                              <span>
-                                Q{game.quarter || '?'} {game.timeRemaining || 'Live'}
-                              </span>
-                              {game.possession && (
-                                <span className="flex items-center">
-                                  🏈 {game.possession.split(' ').pop()}
+                        {/* Bet Details */}
+                        <div className="text-foreground-muted text-sm mb-3">
+                          {bet?.betType === 'parlay' && bet?.parlayLegs ? (
+                            <div>
+                              <div className="truncate mb-1">
+                                <span className="font-medium">${bet?.amountPerPerson?.toFixed(0) || '0'}</span> on{' '}
+                                <span className="text-foreground-secondary">
+                                  {bet.parlayLegs.length}-leg parlay
                                 </span>
-                              )}
+                              </div>
+                              <div className="text-xs space-y-1 mt-2">
+                                {bet.parlayLegs.map((leg, idx) => (
+                                  <div key={idx} className="text-foreground-subtle flex items-center gap-1">
+                                    <span className={leg.status === 'won' ? 'text-success' : leg.status === 'lost' ? 'text-danger' : ''}>
+                                      {leg.status === 'won' ? '✓' : leg.status === 'lost' ? '✗' : '·'}
+                                    </span>
+                                    <span className="truncate">{simplifyTeamName(leg.selection)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="text-xs text-foreground-subtle mt-2 font-medium">
+                                Parlay odds: {bet?.parlayOdds ? formatOdds(bet.parlayOdds) : formatOdds(bet.odds)}
+                              </div>
                             </div>
-                            <div className="mt-0.5">
-                              {game.awayTeam.split(' ').pop()} {game.awayScore || 0}-{game.homeTeam.split(' ').pop()} {game.homeScore || 0}
-                            </div>
-                          </div>
-                        )}
+                          ) : (
+                            <>
+                              <div className="truncate">
+                                <span className="font-medium">${bet?.amountPerPerson?.toFixed(0) || '0'}</span> on{' '}
+                                <span className="text-foreground-secondary">
+                                  {(() => {
+                                    let selection = '';
+                                    // For over/under bets, show the line clearly
+                                    if (bet?.betType === 'over_under' && bet?.line && userSelection) {
+                                      const isOver = userSelection.toLowerCase().includes('over');
+                                      selection = `${isOver ? 'Over' : 'Under'} ${bet.line}`;
+                                    } else {
+                                      // For other bets, use existing logic
+                                      selection = simplifyPlayerName(simplifyTeamName(userSelection || 'Unknown'));
+                                    }
+                                    
+                                    // Add odds in parentheses
+                                    const odds = bet?.odds ? formatOdds(bet.odds) : '(-110)';
+                                    return `${selection} ${odds}`;
+                                  })()}
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
                         
-                        {!game && (
-                          <div className="text-orange-400 text-sm mt-2 font-mono">
+                        {/* Result/Status Footer */}
+                        <div className="flex items-center justify-between border-t border-surface-border pt-2">
+                          <div className={`text-sm font-bold ${statusTextClass}`}>
+                            {betResult}
+                          </div>
+                          
+                          {game && game.status === 'final' && (
+                            <div className="text-foreground-subtle text-xs truncate">
+                              {bet?.betType === 'player_prop' && bet?.result ? 
+                                simplifyPlayerName(bet.result) : 
+                                `${game.awayScore}-${game.homeScore}`
+                              }
+                            </div>
+                          )}
+                          
+                          {game && game.status === 'live' && (
+                            <div className="text-success text-xs font-medium flex items-center gap-1">
+                              <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                              <span>Q{game.quarter || '?'} {game.timeRemaining || 'Live'}</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {!game && bet?.betType !== 'parlay' && (
+                          <div className="text-warning text-sm mt-1">
                             missing data
                           </div>
                         )}
@@ -1010,6 +1401,9 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                             key={game.id}
                             game={game}
                             userBets={userBets}
+                            isParlayMode={isParlayMode}
+                            onAddToParlay={handleAddToParlaySelection}
+                            parlaySelections={parlaySelections.map(s => s.id)}
                             onBetClick={(game, betType, selection) => {
                               setSelectedBet({ game, betType, selection });
                               setIsBetPopupOpen(true);
@@ -1025,13 +1419,13 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
 
             {totalGames === 0 && (
               <div className="text-center py-24">
-                <p className="text-gray-400 text-xl font-light">no games found for this week</p>
+                <p className="text-foreground-muted text-xl font-medium">no games found for this week</p>
               </div>
             )}
           </div>
         ) : (
-          <div className="text-center py-24">
-            <p className="text-gray-400 text-xl font-light">select a user to view games and place bets</p>
+          <div className="text-center py-24 animate-fade-in">
+            <p className="text-foreground-muted text-xl font-medium">select a user to view games and place bets</p>
           </div>
         )}
       </div>
@@ -1043,6 +1437,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         game={selectedBet?.game || null}
         betType={selectedBet?.betType || 'spread'}
         selection={selectedBet?.selection || ''}
+        onStartParlay={(selection) => {
+          console.log('🎰 onStartParlay called with selection:', selection);
+          // Start parlay mode with this selection
+          setIsParlayMode(true);
+          console.log('✅ Set isParlayMode to true');
+          handleAddToParlaySelection(selection);
+          console.log('✅ Added selection to parlay');
+          setIsBetPopupOpen(false);
+          console.log('✅ Closed bet popup');
+        }}
         onPlaceBet={(betData) => {
           betService.createBet(betData).then(() => {
             setIsBetPopupOpen(false);
@@ -1085,6 +1489,72 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           setBetToEdit(null);
         }}
         onSave={handleSaveBetEdit}
+        onDelete={handleDeleteBet}
+      />
+      
+      {/* Parlay Builder */}
+      <ParlayBuilder
+        isOpen={isParlayBuilderOpen}
+        onClose={() => setIsParlayBuilderOpen(false)}
+        games={(() => {
+          const currentWeekGames = games.filter(game => game.weekendId === `2025-week-${currentWeek}`);
+          console.log('🎯 PARLAY BUILDER GAMES:', {
+            currentWeek,
+            totalGames: games.length,
+            currentWeekGames: currentWeekGames.length,
+            weekendId: `2025-week-${currentWeek}`,
+            sampleGames: currentWeekGames.slice(0, 3).map(g => ({ 
+              id: g.id, 
+              teams: `${g.awayTeam} @ ${g.homeTeam}`,
+              spread: g.spread,
+              overUnder: g.overUnder,
+              homeMoneyline: g.homeMoneyline,
+              awayMoneyline: g.awayMoneyline
+            }))
+          });
+          return currentWeekGames;
+        })()}
+        onCreateParlay={async (parlayData) => {
+          try {
+            // Create the parlay bet
+            const parlayBet = {
+              gameId: parlayData.parlayLegs[0].gameId, // Use first leg's game ID as reference
+              weekendId: parlayData.weekendId,
+              betType: 'parlay' as const,
+              selection: `${parlayData.parlayLegs.length}-leg parlay`,
+              odds: parlayData.parlayOdds || -110,
+              totalAmount: parlayData.totalAmount,
+              amountPerPerson: parlayData.amountPerPerson,
+              placedBy: parlayData.placedBy,
+              participants: parlayData.participants,
+              parlayLegs: parlayData.parlayLegs,
+              parlayOdds: parlayData.parlayOdds,
+              bettingMode: 'group' as const
+            };
+            
+            await betService.createBet(parlayBet);
+            setIsParlayBuilderOpen(false);
+            
+            // Refresh user bets
+            if (currentUser) {
+              const weekendId = `2025-week-${currentWeek}`;
+              const updatedBets = await betService.getBetsForUser(currentUser.id, weekendId);
+              setUserBets(updatedBets);
+            }
+          } catch (error) {
+            console.error('Failed to create parlay:', error);
+          }
+        }}
+      />
+
+      {/* Parlay Panel */}
+      <ParlayPanel
+        isActive={isParlayMode}
+        selections={parlaySelections}
+        onToggleActive={handleToggleParlayMode}
+        onRemoveSelection={handleRemoveParlaySelection}
+        onClearAll={handleClearParlaySelections}
+        onPlaceParlay={handlePlaceParlay}
       />
     </div>
   );

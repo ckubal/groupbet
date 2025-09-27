@@ -149,28 +149,58 @@ export default function LandingPage() {
 
   if (mode === 'landing') {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-fade-in">
+          {/* Header */}
           <div className="text-center mb-12">
-            <h1 className="text-6xl font-light mb-4">groupbet</h1>
-            <p className="text-gray-400">nfl betting with friends</p>
+            <h1 className="text-5xl font-bold text-foreground mb-3 tracking-tight">
+              groupbet
+            </h1>
+            <p className="text-foreground-muted text-lg font-medium">
+              nfl betting with friends
+            </p>
           </div>
 
+          {/* Action Cards */}
           <div className="space-y-4">
             <button
               onClick={() => setMode('join')}
-              className="w-full py-6 bg-gray-900 hover:bg-gray-800 transition-colors rounded-lg"
+              className="w-full card card-hover p-8 text-left group animate-slide-up border-2"
+              style={{ animationDelay: '0.1s' }}
             >
-              <div className="text-xl font-light">join existing group</div>
-              <div className="text-gray-400 text-sm mt-1">enter group password</div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-2xl font-semibold text-foreground mb-3 group-hover:text-success transition-colors">
+                    join existing group
+                  </div>
+                  <div className="text-foreground-muted text-base">
+                    enter group password to get started
+                  </div>
+                </div>
+                <div className="text-success opacity-30 group-hover:opacity-100 transition-opacity duration-200 ml-6">
+                  <div className="w-12 h-12 flex items-center justify-center text-4xl font-bold">→</div>
+                </div>
+              </div>
             </button>
 
             <button
               onClick={() => setMode('create')}
-              className="w-full py-6 bg-gray-900/50 hover:bg-gray-800/50 transition-colors rounded-lg border border-gray-800"
+              className="w-full card card-hover p-8 text-left group animate-slide-up border-2"
+              style={{ animationDelay: '0.2s' }}
             >
-              <div className="text-xl font-light">start new group</div>
-              <div className="text-gray-400 text-sm mt-1">create your own betting group</div>
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <div className="text-2xl font-semibold text-foreground mb-3 group-hover:text-info transition-colors">
+                    start new group
+                  </div>
+                  <div className="text-foreground-muted text-base">
+                    create your own betting group
+                  </div>
+                </div>
+                <div className="text-info opacity-30 group-hover:opacity-100 transition-opacity duration-200 ml-6">
+                  <div className="w-12 h-12 flex items-center justify-center text-4xl font-bold">+</div>
+                </div>
+              </div>
             </button>
           </div>
         </div>
@@ -180,8 +210,9 @@ export default function LandingPage() {
 
   if (mode === 'join') {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-fade-in">
+          {/* Back Button */}
           <button
             onClick={() => { 
               setMode('landing'); 
@@ -189,24 +220,30 @@ export default function LandingPage() {
               setSelectedGroup(''); 
               setPassword(''); 
             }}
-            className="mb-8 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center text-foreground-muted hover:text-foreground transition-colors mb-8 group"
           >
-            ← back
+            <svg className="w-5 h-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            back
           </button>
 
-          <div className="bg-gray-900/30 rounded-2xl p-8 border border-gray-800">
-            <h2 className="text-3xl font-light mb-2">join group</h2>
-            <p className="text-gray-400 mb-8">select a group and enter password</p>
+          {/* Form Card */}
+          <div className="card p-8 animate-scale-in">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-2">join group</h2>
+              <p className="text-foreground-muted">select a group and enter password</p>
+            </div>
 
             <form onSubmit={handleJoinGroup} className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground-secondary mb-3">
                   Group
                 </label>
                 <select
                   value={selectedGroup}
                   onChange={(e) => setSelectedGroup(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                  className="input-field w-full"
                 >
                   <option value="">select group</option>
                   {availableGroups.map(group => (
@@ -218,7 +255,7 @@ export default function LandingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+                <label className="block text-sm font-medium text-foreground-secondary mb-3">
                   Password
                 </label>
                 <input
@@ -226,17 +263,19 @@ export default function LandingPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="group password"
-                  className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                  className="input-field w-full"
                 />
               </div>
 
               {error && (
-                <p className="text-red-400 text-sm">{error}</p>
+                <div className="bg-danger-muted border border-danger rounded-sm p-4">
+                  <p className="text-danger text-sm font-medium">{error}</p>
+                </div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-3 bg-yellow-300 text-black rounded-lg hover:bg-yellow-400 transition-colors font-medium"
+                className="btn-primary w-full py-4 text-lg font-semibold"
               >
                 join group
               </button>
@@ -249,8 +288,9 @@ export default function LandingPage() {
 
   if (mode === 'create') {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="max-w-md w-full mx-4">
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="w-full max-w-md animate-fade-in">
+          {/* Back Button */}
           <button
             onClick={() => { 
               setMode('landing'); 
@@ -258,14 +298,20 @@ export default function LandingPage() {
               setNewGroupName(''); 
               setNewGroupPassword(''); 
             }}
-            className="mb-8 text-gray-400 hover:text-white transition-colors"
+            className="flex items-center text-foreground-muted hover:text-foreground transition-colors mb-8 group"
           >
-            ← back
+            <svg className="w-5 h-5 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            back
           </button>
 
-          <div className="bg-gray-900/30 rounded-2xl p-8 border border-gray-800">
-            <h2 className="text-3xl font-light mb-2">start new group</h2>
-            <p className="text-gray-400 mb-8">create your betting group</p>
+          {/* Form Card */}
+          <div className="card p-8 animate-scale-in">
+            <div className="mb-8">
+              <h2 className="text-3xl font-bold text-foreground mb-2">start new group</h2>
+              <p className="text-foreground-muted">create your betting group</p>
+            </div>
 
             <form onSubmit={handleCreateGroup} className="space-y-6">
               <div>
@@ -274,7 +320,7 @@ export default function LandingPage() {
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                   placeholder="group name"
-                  className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                  className="input-field w-full"
                 />
               </div>
 
@@ -284,17 +330,19 @@ export default function LandingPage() {
                   value={newGroupPassword}
                   onChange={(e) => setNewGroupPassword(e.target.value)}
                   placeholder="group password"
-                  className="w-full px-4 py-3 bg-gray-800 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-300/20"
+                  className="input-field w-full"
                 />
               </div>
 
               {error && (
-                <p className="text-orange-400 text-sm">{error}</p>
+                <div className="bg-danger-muted border border-danger rounded-sm p-4">
+                  <p className="text-danger text-sm font-medium">{error}</p>
+                </div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-3 bg-yellow-300 text-black rounded-lg hover:bg-yellow-400 transition-colors font-medium"
+                className="btn-primary w-full py-4 text-lg font-semibold"
               >
                 next: add members
               </button>

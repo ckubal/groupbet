@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getCurrentNFLWeek } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
   console.log('🔍 Checking all bets in database...');
   
   try {
-    // Get all bets for Week 2 2025
+    const { searchParams } = new URL(request.url);
+    const week = searchParams.get('week');
+    const weekNumber = week ? parseInt(week) : getCurrentNFLWeek();
+    const weekendId = `2025-week-${weekNumber}`;
+    
+    console.log(`🔍 Checking bets for ${weekendId}...`);
+    
+    // Get all bets for the specified week
     const betsQuery = query(
       collection(db, 'bets'),
-      where('weekendId', '==', '2025-week-2')
+      where('weekendId', '==', weekendId)
     );
     
     const betsSnapshot = await getDocs(betsQuery);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { calculatePayout } from '@/lib/betting-odds';
+import { getCurrentNFLWeek } from '@/lib/utils';
 
 interface UserBalance {
   won: number;
@@ -20,7 +21,9 @@ export async function GET(request: NextRequest) {
   
   try {
     const { searchParams } = new URL(request.url);
-    const weekendId = searchParams.get('weekendId') || '2025-week-2';
+    const week = searchParams.get('week');
+    const weekNumber = week ? parseInt(week) : getCurrentNFLWeek();
+    const weekendId = searchParams.get('weekendId') || `2025-week-${weekNumber}`;
     
     // Get all bets for the week
     const betsQuery = query(
@@ -38,7 +41,7 @@ export async function GET(request: NextRequest) {
     
     // Calculate each user's balance based on bet maker responsibility
     const userBalances: Record<string, UserBalance> = {};
-    const users = ['will', 'dio', 'rosen', 'charlie'];
+    const users = ['will', 'd/o', 'rosen', 'charlie'];
     
     // Initialize user balances
     users.forEach(user => {

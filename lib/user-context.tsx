@@ -16,7 +16,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 // Default friend group
 const DEFAULT_USERS: User[] = [
   { id: 'will', name: 'Will', pin: '1234', createdAt: new Date() },
-  { id: 'dio', name: 'D/O', pin: '2345', createdAt: new Date() },
+  { id: 'd/o', name: 'D/O', pin: '2345', createdAt: new Date() },
   { id: 'rosen', name: 'Rosen', pin: '3456', createdAt: new Date() },
   { id: 'charlie', name: 'Charlie', pin: '4567', createdAt: new Date() },
   { id: 'pat', name: 'Pat', pin: '5678', createdAt: new Date() },

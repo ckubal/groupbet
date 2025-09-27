@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getCurrentNFLWeek } from '@/lib/utils';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const weekendId = searchParams.get('weekendId') || '2025-week-2';
+    const weekendId = searchParams.get('weekendId') || `2025-week-${getCurrentNFLWeek()}`;
     
     const betsQuery = query(
       collection(db, 'bets'),

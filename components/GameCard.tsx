@@ -10,9 +10,19 @@ interface GameCardProps {
   game: Game;
   onBetClick: (game: Game, betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop', selection: string) => void;
   userBets?: Bet[];
+  isParlayMode?: boolean;
+  onAddToParlay?: (selection: any) => void;
+  parlaySelections?: string[]; // IDs of selected options for visual indication
 }
 
-export default function GameCard({ game, onBetClick, userBets = [] }: GameCardProps) {
+export default function GameCard({ 
+  game, 
+  onBetClick, 
+  userBets = [], 
+  isParlayMode = false, 
+  onAddToParlay, 
+  parlaySelections = [] 
+}: GameCardProps) {
   const [showPlayerProps, setShowPlayerProps] = useState(false);
   const [showBettingOptions, setShowBettingOptions] = useState(game.status !== 'final');
   
@@ -52,6 +62,52 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
     }
   };
 
+  // Helper function to create parlay selection ID
+  const createParlaySelectionId = (betType: string, selection: string): string => {
+    return `${game.id}-${betType}-${selection}`;
+  };
+
+  // Helper function to check if selection is in parlay
+  const isInParlay = (betType: string, selection: string): boolean => {
+    const selectionId = createParlaySelectionId(betType, selection);
+    return parlaySelections.includes(selectionId);
+  };
+
+  // Helper function to get parlay button styling
+  const getParlayButtonStyling = (betType: string, selection: string): string => {
+    if (!isParlayMode) return '';
+    
+    if (isInParlay(betType, selection)) {
+      return 'ring-2 ring-blue-500 bg-blue-50 hover:bg-blue-100';
+    }
+    
+    return 'hover:ring-2 hover:ring-blue-300';
+  };
+
+  // Helper function to handle bet click with parlay support
+  const handleBetClick = (betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop', selection: string, odds?: number) => {
+    if (isParlayMode && onAddToParlay) {
+      // Create parlay selection object
+      const parlaySelection = {
+        id: createParlaySelectionId(betType, selection),
+        gameId: game.id,
+        game,
+        betType,
+        selection,
+        line: betType === 'spread' ? game.spread : betType === 'over_under' ? game.overUnder : undefined,
+        odds: odds || (betType === 'spread' ? game.spreadOdds : 
+                      betType === 'over_under' ? game.overUnderOdds :
+                      betType === 'moneyline' && selection.includes(game.homeTeam) ? game.homeMoneyline :
+                      betType === 'moneyline' && selection.includes(game.awayTeam) ? game.awayMoneyline : -110) || -110
+      };
+      
+      onAddToParlay(parlaySelection);
+    } else {
+      // Normal bet mode
+      onBetClick(game, betType, selection);
+    }
+  };
+
   const getStatusColor = () => {
     switch (game.status) {
       case 'live':
@@ -85,7 +141,18 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
         return (
           <span className="flex items-center gap-1 text-gray-500 text-sm">
             <Clock className="w-3 h-3" />
-            {format(game.gameTime, 'h:mm a')}
+            {(() => {
+              try {
+                const gameDate = new Date(game.gameTime);
+                if (isNaN(gameDate.getTime())) {
+                  return 'TBD';
+                }
+                return format(gameDate, 'h:mm a');
+              } catch (error) {
+                console.error('Error formatting game time:', error, 'gameTime:', game.gameTime);
+                return 'TBD';
+              }
+            })()}
           </span>
         );
     }
@@ -94,10 +161,24 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
   return (
     <div className={`rounded-lg border-2 transition-all ${getStatusColor()}`}>
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div 
+        className="p-4 border-b border-gray-200 cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={() => setShowBettingOptions(!showBettingOptions)}
+      >
         <div className="flex justify-between items-center mb-2">
           <div className="text-sm text-gray-600">
-            {format(game.gameTime, 'EEE, MMM d')}
+            {(() => {
+              try {
+                const gameDate = new Date(game.gameTime);
+                if (isNaN(gameDate.getTime())) {
+                  return 'TBD';
+                }
+                return format(gameDate, 'EEE, MMM d');
+              } catch (error) {
+                console.error('Error formatting game date:', error, 'gameTime:', game.gameTime);
+                return 'TBD';
+              }
+            })()}
           </div>
           {getStatusBadge()}
         </div>
@@ -158,12 +239,12 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => {
-              console.log('🎯 Bet button clicked:', game.awayTeam, 'spread');
-              onBetClick(game, 'spread', `${game.awayTeam} ${game.spread ? (game.spread > 0 ? `-${game.spread}` : `+${Math.abs(game.spread)}`) : '+0'}`);
+              const selection = `${game.awayTeam} ${game.spread ? (game.spread > 0 ? `-${game.spread}` : `+${Math.abs(game.spread)}`) : '+0'}`;
+              handleBetClick('spread', selection, game.spreadOdds);
             }}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('spread', game.awayTeam))
-            }`}
+            } ${getParlayButtonStyling('spread', `${game.awayTeam} ${game.spread ? (game.spread > 0 ? `-${game.spread}` : `+${Math.abs(game.spread)}`) : '+0'}`)}`}
             disabled={false}
           >
             <div className="font-medium">{game.awayTeam}</div>
@@ -172,10 +253,13 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
             </div>
           </button>
           <button
-            onClick={() => onBetClick(game, 'spread', `${game.homeTeam} ${game.spread ? (game.spread > 0 ? `+${game.spread}` : `-${Math.abs(game.spread)}`) : '-3'}`)}
+            onClick={() => {
+              const selection = `${game.homeTeam} ${game.spread ? (game.spread > 0 ? `+${game.spread}` : `-${Math.abs(game.spread)}`) : '-3'}`;
+              handleBetClick('spread', selection, game.spreadOdds);
+            }}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('spread', game.homeTeam))
-            }`}
+            } ${getParlayButtonStyling('spread', `${game.homeTeam} ${game.spread ? (game.spread > 0 ? `+${game.spread}` : `-${Math.abs(game.spread)}`) : '-3'}`)}`}
             disabled={false}
           >
             <div className="font-medium">{game.homeTeam}</div>
@@ -188,20 +272,20 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
         {/* Total */}
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => onBetClick(game, 'over_under', 'Over')}
+            onClick={() => handleBetClick('over_under', 'Over', game.overUnderOdds)}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('over_under', 'Over'))
-            }`}
+            } ${getParlayButtonStyling('over_under', 'Over')}`}
             disabled={false}
           >
             <div className="font-medium">Over {game.overUnder !== undefined ? game.overUnder : '45'}</div>
             <div className="text-gray-600">{game.overUnderOdds ? formatOdds(game.overUnderOdds) : '(-110)'}</div>
           </button>
           <button
-            onClick={() => onBetClick(game, 'over_under', 'Under')}
+            onClick={() => handleBetClick('over_under', 'Under', game.overUnderOdds)}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('over_under', 'Under'))
-            }`}
+            } ${getParlayButtonStyling('over_under', 'Under')}`}
             disabled={false}
           >
             <div className="font-medium">Under {game.overUnder !== undefined ? game.overUnder : '45'}</div>
@@ -212,20 +296,26 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
         {/* Moneyline */}
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => onBetClick(game, 'moneyline', `${game.awayTeam} ML`)}
+            onClick={() => {
+              const selection = `${game.awayTeam} ML`;
+              handleBetClick('moneyline', selection, game.awayMoneyline);
+            }}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('moneyline', `${game.awayTeam} ML`))
-            }`}
+            } ${getParlayButtonStyling('moneyline', `${game.awayTeam} ML`)}`}
             disabled={false}
           >
             <div className="font-medium">{game.awayTeam} ML</div>
             <div className="text-gray-600">{game.awayMoneyline ? formatOdds(game.awayMoneyline) : '(+150)'}</div>
           </button>
           <button
-            onClick={() => onBetClick(game, 'moneyline', `${game.homeTeam} ML`)}
+            onClick={() => {
+              const selection = `${game.homeTeam} ML`;
+              handleBetClick('moneyline', selection, game.homeMoneyline);
+            }}
             className={`p-3 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-sm cursor-pointer ${
               getBetBackgroundColor(getBetStatus('moneyline', `${game.homeTeam} ML`))
-            }`}
+            } ${getParlayButtonStyling('moneyline', `${game.homeTeam} ML`)}`}
             disabled={false}
           >
             <div className="font-medium">{game.homeTeam} ML</div>
@@ -302,19 +392,25 @@ export default function GameCard({ game, onBetClick, userBets = [] }: GameCardPr
                             {sortedProps.map((prop, index) => (
                               <div key={`${game.id}-${prop.playerId}-${index}`} className="grid grid-cols-2 gap-1">
                                 <button
-                                  onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Over ${prop.line} ${propType.replace('_', ' ')}`)}
+                                  onClick={() => {
+                                    const selection = `${prop.playerName} Over ${prop.line} ${propType.replace('_', ' ')}`;
+                                    handleBetClick('player_prop', selection, prop.overOdds);
+                                  }}
                                   className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
                                     getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Over`))
-                                  }`}
+                                  } ${getParlayButtonStyling('player_prop', `${prop.playerName} Over ${prop.line} ${propType.replace('_', ' ')}`)}`}
                                 >
                                   <div className="font-medium text-left">{prop.playerName}</div>
                                   <div className="text-gray-600 text-left">O {prop.line} ({formatOdds(prop.overOdds)})</div>
                                 </button>
                                 <button
-                                  onClick={() => onBetClick(game, 'player_prop', `${prop.playerName} Under ${prop.line} ${propType.replace('_', ' ')}`)}
+                                  onClick={() => {
+                                    const selection = `${prop.playerName} Under ${prop.line} ${propType.replace('_', ' ')}`;
+                                    handleBetClick('player_prop', selection, prop.underOdds);
+                                  }}
                                   className={`p-2 rounded border border-gray-200 hover:border-blue-300 hover:shadow-sm transition-all duration-200 text-xs cursor-pointer ${
                                     getBetBackgroundColor(getBetStatus('player_prop', `${prop.playerName} Under`))
-                                  }`}
+                                  } ${getParlayButtonStyling('player_prop', `${prop.playerName} Under ${prop.line} ${propType.replace('_', ' ')}`)}`}
                                 >
                                   <div className="font-medium text-left">{prop.playerName}</div>
                                   <div className="text-gray-600 text-left">U {prop.line} ({formatOdds(prop.underOdds)})</div>

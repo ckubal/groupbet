@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const week = parseInt(searchParams.get('week') || '3');
+    const { getCurrentNFLWeek } = await import('@/lib/utils');
+    const week = parseInt(searchParams.get('week') || getCurrentNFLWeek().toString());
     
     const apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY;
     if (!apiKey) {

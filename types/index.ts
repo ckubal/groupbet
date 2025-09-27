@@ -89,7 +89,7 @@ export interface Bet {
   participants: string[]; // userIds
   
   // Bet details
-  betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop';
+  betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop' | 'parlay';
   selection: string; // e.g., "over", "under", "home", "away"
   line?: number; // the actual line bet on
   odds: number; // e.g., -110
@@ -99,8 +99,21 @@ export interface Bet {
   playerName?: string;
   propType?: 'passing_yards' | 'rushing_yards' | 'receiving_yards';
   
+  // Parlay specific
+  parlayLegs?: {
+    betId: string;  // Reference to individual bet (or could be inline bet data)
+    gameId: string;
+    betType: 'spread' | 'over_under' | 'moneyline' | 'player_prop';
+    selection: string;
+    line?: number;
+    odds: number;
+    status?: 'pending' | 'won' | 'lost';
+    result?: string;
+  }[];
+  parlayOdds?: number;  // Combined odds for the entire parlay
+  
   // Betting mode
-  bettingMode: 'group' | 'head_to_head'; // Default: group (everyone on same side)
+  bettingMode: 'group' | 'head_to_head' | 'parlay'; // Default: group (everyone on same side)
   
   // Head-to-head specific (when bettingMode is 'head_to_head')
   sideA?: {

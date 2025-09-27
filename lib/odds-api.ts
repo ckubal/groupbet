@@ -72,13 +72,16 @@ class OddsApiService {
     });
   }
 
-  async getNFLGames(weekNumber?: number, forceRefresh = false): Promise<Game[]> {
+  async getNFLGames(weekNumber?: number, forceRefresh = false, skipCaching = false): Promise<Game[]> {
     const currentWeek = weekNumber || getCurrentNFLWeek();
     const weekendId = `2025-week-${currentWeek}`;
     
     console.log(`📅 Getting Week ${currentWeek} NFL games with smart caching...`);
     if (forceRefresh) {
       console.log(`🔄 FORCE REFRESH REQUESTED - Clearing cache and fetching fresh data`);
+    }
+    if (skipCaching) {
+      console.log(`⚠️ SKIP CACHING MODE - Will not save to Firebase to prevent circular dependencies`);
     }
     
     // Import services
@@ -87,6 +90,7 @@ class OddsApiService {
     
     // If force refresh, clear cache first
     if (forceRefresh) {
+      console.log(`🧹 FORCE REFRESH: Clearing Firebase cache for ${weekendId}`);
       await gameCacheService.clearCachedGames(weekendId);
     }
     
@@ -149,14 +153,26 @@ class OddsApiService {
       enhancedGames = await this.enhanceGamesWithOdds(realGames);
       console.log(`✅ Enhanced ${enhancedGames.filter(g => g.spread !== undefined).length}/${enhancedGames.length} games with betting lines`);
       
-      // Fetch player props for upcoming games only (not live/started games) with Firebase caching
-      console.log('🎯 Fetching player props for upcoming games only (avoiding API for started games)...');
-      const upcomingGamesForProps = enhancedGames.filter(g => g.status === 'upcoming');
+      // Fetch player props for games that haven't started yet (not live or final)
+      // This preserves the pre-game betting lines and saves API calls
+      console.log('🎯 Fetching player props for games that haven\'t started yet...');
+      const currentTime = new Date();
+      const gamesForProps = enhancedGames.filter(g => {
+        // Only fetch for games that haven't started yet
+        const gameTime = new Date(g.gameTime || (g as any).date);
+        const hasNotStarted = gameTime > currentTime;
+        const isNotLiveOrFinal = g.status !== 'live' && g.status !== 'final';
+        console.log(`🔍 Game ${g.awayTeam} @ ${g.homeTeam}: gameTime=${gameTime.toISOString()}, hasNotStarted=${hasNotStarted}, status=${g.status}`);
+        return hasNotStarted && isNotLiveOrFinal;
+      });
       
-      for (const game of upcomingGamesForProps) {
+      console.log(`📊 Found ${gamesForProps.length} games eligible for player props (haven't started yet)`);
+      console.log(`⏭️  Skipping ${enhancedGames.length - gamesForProps.length} games (already started/live/final)`);
+      
+      for (const game of gamesForProps) {
         try {
           console.log(`🎯 Loading player props for ${game.awayTeam} @ ${game.homeTeam} (gameId: ${game.id})`);
-          const props = await this.getPlayerProps(game.id); // This method now uses Firebase cache
+          const props = await this.getPlayerProps(game.id, game.status); // This method now uses Firebase cache
           
           if (props.length > 0) {
             game.playerProps = props;
@@ -192,19 +208,23 @@ class OddsApiService {
       enhancedGames = uniqueGames;
     }
     
-    // Cache the enhanced games in Firebase for future use
-    try {
-      await gameCacheService.saveGames(weekendId, enhancedGames);
-      console.log(`💾 Cached ${enhancedGames.length} enhanced games to Firebase`);
-    } catch (error) {
-      console.error('❌ Failed to cache enhanced games:', error);
-    }
-    
-    // Store final game results permanently (for completed games)
-    try {
-      await finalGameService.storeFinalGameResults(enhancedGames);
-    } catch (error) {
-      console.error('❌ Failed to store final game results:', error);
+    // Cache the enhanced games in Firebase for future use (unless skipCaching is true)
+    if (!skipCaching) {
+      try {
+        await gameCacheService.saveGames(weekendId, enhancedGames);
+        console.log(`💾 Cached ${enhancedGames.length} enhanced games to Firebase`);
+      } catch (error) {
+        console.error('❌ Failed to cache enhanced games:', error);
+      }
+      
+      // Store final game results permanently (for completed games)
+      try {
+        await finalGameService.storeFinalGameResults(enhancedGames);
+      } catch (error) {
+        console.error('❌ Failed to store final game results:', error);
+      }
+    } else {
+      console.log(`⚠️ Skipping Firebase caching to prevent circular dependencies`);
     }
     
     return enhancedGames;
@@ -243,104 +263,184 @@ class OddsApiService {
           const liveOddsData: OddsApiGame[] = await liveOddsResponse.json();
           console.log(`🔴 Found live odds for ${liveOddsData.length} games`);
           
-          enhancedGames.push(...await this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live'));
+          const enhancedUpcomingGames = await this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live');
+          
+          // CRITICAL: Freeze odds for games starting within 1 hour
+          const { preGameOddsService } = await import('./firebase-service');
+          const now = new Date();
+          
+          for (const game of enhancedUpcomingGames) {
+            const hoursUntilGame = (game.gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+            
+            // Freeze odds if game starts within 1 hour and has betting lines
+            if (hoursUntilGame <= 1 && hoursUntilGame >= 0 && game.spread !== undefined) {
+              console.log(`🧊 Proactively freezing odds for game starting soon: ${game.awayTeam} @ ${game.homeTeam} (starts in ${Math.round(hoursUntilGame * 60)} minutes)`);
+              
+              await preGameOddsService.freezeOdds(game.id, {
+                spread: game.spread,
+                spreadOdds: game.spreadOdds,
+                overUnder: game.overUnder,
+                overUnderOdds: game.overUnderOdds,
+                homeMoneyline: game.homeMoneyline,
+                awayMoneyline: game.awayMoneyline,
+                playerProps: game.playerProps
+              });
+            }
+          }
+          
+          enhancedGames.push(...enhancedUpcomingGames);
         } else {
           console.warn('⚠️ Failed to fetch live odds, using games without odds');
           enhancedGames.push(...upcomingGames);
         }
       }
       
-      // Handle live/started games: Use cached odds from Firebase, don't call API
+      // Handle live/started games: CRITICAL - Never overwrite existing betting lines!
       if (liveGames.length > 0) {
-        console.log('🔥 Using cached odds for live/started games (avoiding API calls)...');
-        const { gameCacheService } = await import('./firebase-service');
+        console.log('🔥 CRITICAL: Preserving pre-game odds for live/started games (NEVER update lines after kickoff)...');
+        const { gameCacheService, preGameOddsService } = await import('./firebase-service');
         
         for (const game of liveGames) {
-          let oddsFound = false;
+          let preservedOdds = false;
           
-          // Try to get odds from current week's cache first
+          // FIRST PRIORITY: Check for frozen pre-game odds snapshot
           try {
-            const weekendId = game.weekendId;
-            const cachedData = await gameCacheService.getCachedGames(weekendId);
-            
-            if (cachedData && cachedData.games) {
-              const cachedGame = cachedData.games.find(g => g.id === game.id);
-              if (cachedGame && (cachedGame.spread !== undefined || cachedGame.homeMoneyline !== undefined)) {
-                console.log(`💾 Using cached odds for live game: ${game.awayTeam} @ ${game.homeTeam}`);
-                // Copy ALL betting lines from cached game
-                game.spread = cachedGame.spread;
-                game.spreadOdds = cachedGame.spreadOdds;
-                game.overUnder = cachedGame.overUnder;
-                game.overUnderOdds = cachedGame.overUnderOdds;
-                game.homeMoneyline = cachedGame.homeMoneyline;
-                game.awayMoneyline = cachedGame.awayMoneyline;
-                game.playerProps = cachedGame.playerProps || [];
-                oddsFound = true;
-              }
+            const frozenOdds = await preGameOddsService.getFrozenOdds(game.id);
+            if (frozenOdds) {
+              console.log(`🧊 Using FROZEN pre-game odds for live game: ${game.awayTeam} @ ${game.homeTeam}`);
+              // Use frozen pre-game odds - these should NEVER change after game starts
+              game.spread = frozenOdds.spread;
+              game.spreadOdds = frozenOdds.spreadOdds;
+              game.overUnder = frozenOdds.overUnder;
+              game.overUnderOdds = frozenOdds.overUnderOdds;
+              game.homeMoneyline = frozenOdds.homeMoneyline;
+              game.awayMoneyline = frozenOdds.awayMoneyline;
+              game.playerProps = frozenOdds.playerProps || [];
+              preservedOdds = true;
             }
           } catch (error) {
-            console.warn(`⚠️ Could not get cached odds for live game ${game.awayTeam} @ ${game.homeTeam}:`, error);
+            console.warn(`⚠️ Could not get frozen odds for live game ${game.awayTeam} @ ${game.homeTeam}:`, error);
           }
           
-          // If no odds found in cache, provide sensible defaults to avoid N/A
-          if (!oddsFound) {
-            console.warn(`⚠️ No cached odds found for ${game.awayTeam} @ ${game.homeTeam}, using default odds`);
-            // Set reasonable default odds so we never show N/A
-            game.spread = game.spread || 0;
-            game.spreadOdds = game.spreadOdds || -110;
-            game.overUnder = game.overUnder || 45;
-            game.overUnderOdds = game.overUnderOdds || -110;
-            game.homeMoneyline = game.homeMoneyline || -120;
-            game.awayMoneyline = game.awayMoneyline || 100;
-            game.playerProps = game.playerProps || [];
+          // SECOND PRIORITY: Try to get odds from current week's cache
+          if (!preservedOdds) {
+            try {
+              const weekendId = game.weekendId;
+              const cachedData = await gameCacheService.getCachedGames(weekendId);
+              
+              if (cachedData && cachedData.games) {
+                const cachedGame = cachedData.games.find(g => g.id === game.id);
+                if (cachedGame && (cachedGame.spread !== undefined || cachedGame.homeMoneyline !== undefined)) {
+                  console.log(`💾 Using cached odds for live game: ${game.awayTeam} @ ${game.homeTeam}`);
+                  // Copy ALL betting lines from cached game
+                  game.spread = cachedGame.spread;
+                  game.spreadOdds = cachedGame.spreadOdds;
+                  game.overUnder = cachedGame.overUnder;
+                  game.overUnderOdds = cachedGame.overUnderOdds;
+                  game.homeMoneyline = cachedGame.homeMoneyline;
+                  game.awayMoneyline = cachedGame.awayMoneyline;
+                  game.playerProps = cachedGame.playerProps || [];
+                  
+                  // CRITICAL: Create frozen snapshot now to prevent future overwrites
+                  await preGameOddsService.freezeOdds(game.id, {
+                    spread: game.spread,
+                    spreadOdds: game.spreadOdds,
+                    overUnder: game.overUnder,
+                    overUnderOdds: game.overUnderOdds,
+                    homeMoneyline: game.homeMoneyline,
+                    awayMoneyline: game.awayMoneyline,
+                    playerProps: game.playerProps
+                  });
+                  
+                  preservedOdds = true;
+                }
+              }
+            } catch (error) {
+              console.warn(`⚠️ Could not get cached odds for live game ${game.awayTeam} @ ${game.homeTeam}:`, error);
+            }
+          }
+          
+          // LAST RESORT: If no odds found anywhere, log critical warning
+          if (!preservedOdds) {
+            console.error(`🚨 CRITICAL: No pre-game odds found for live game ${game.awayTeam} @ ${game.homeTeam}!`);
+            console.error(`   This should never happen - betting lines must be preserved from before kickoff!`);
+            // Keep existing odds if any, but don't set defaults that could be misleading
+            // Leave as undefined to show "N/A" rather than fake "0" spreads
           }
         }
         
         enhancedGames.push(...liveGames);
       }
       
-      // Handle completed games: Use cached odds from Firebase, don't call API
+      // Handle completed games: Use betting lines from user bets instead of external APIs
       if (completedGames.length > 0) {
-        console.log('🏁 Using cached odds for completed games (avoiding API calls)...');
-        const { gameCacheService } = await import('./firebase-service');
+        console.log('🏁 Using betting lines from user bets for completed games...');
+        const { gameCacheService, preGameOddsService } = await import('./firebase-service');
         
         for (const game of completedGames) {
-          let oddsFound = false;
+          let preservedOdds = false;
           
-          // Try to get odds from cache first
+          // FIRST PRIORITY: Check for frozen pre-game odds snapshot
           try {
-            const weekendId = game.weekendId;
-            const cachedData = await gameCacheService.getCachedGames(weekendId);
-            
-            if (cachedData && cachedData.games) {
-              const cachedGame = cachedData.games.find(g => g.id === game.id);
-              if (cachedGame && (cachedGame.spread !== undefined || cachedGame.homeMoneyline !== undefined)) {
-                console.log(`💾 Using cached odds for completed game: ${game.awayTeam} @ ${game.homeTeam}`);
-                // Copy ALL betting lines from cached game
-                game.spread = cachedGame.spread;
-                game.spreadOdds = cachedGame.spreadOdds;
-                game.overUnder = cachedGame.overUnder;
-                game.overUnderOdds = cachedGame.overUnderOdds;
-                game.homeMoneyline = cachedGame.homeMoneyline;
-                game.awayMoneyline = cachedGame.awayMoneyline;
-                game.playerProps = cachedGame.playerProps || [];
-                oddsFound = true;
-              }
+            const frozenOdds = await preGameOddsService.getFrozenOdds(game.id);
+            if (frozenOdds) {
+              console.log(`🧊 Using FROZEN pre-game odds for completed game: ${game.awayTeam} @ ${game.homeTeam}`);
+              // Use frozen pre-game odds - these should NEVER change after game starts
+              game.spread = frozenOdds.spread;
+              game.spreadOdds = frozenOdds.spreadOdds;
+              game.overUnder = frozenOdds.overUnder;
+              game.overUnderOdds = frozenOdds.overUnderOdds;
+              game.homeMoneyline = frozenOdds.homeMoneyline;
+              game.awayMoneyline = frozenOdds.awayMoneyline;
+              game.playerProps = frozenOdds.playerProps || [];
+              preservedOdds = true;
             }
           } catch (error) {
-            console.warn(`⚠️ Could not get cached odds for completed game ${game.awayTeam} @ ${game.homeTeam}:`, error);
+            console.warn(`⚠️ Could not get frozen odds for completed game ${game.awayTeam} @ ${game.homeTeam}:`, error);
           }
           
-          // If no odds found in cache, use reasonable defaults
-          if (!oddsFound) {
-            console.warn(`⚠️ No cached odds found for completed game ${game.awayTeam} @ ${game.homeTeam}, using default odds`);
-            game.spread = game.spread || 0;
-            game.spreadOdds = game.spreadOdds || -110;
-            game.overUnder = game.overUnder || 45;
-            game.overUnderOdds = game.overUnderOdds || -110;
-            game.homeMoneyline = game.homeMoneyline || -120;
-            game.awayMoneyline = game.awayMoneyline || 100;
-            game.playerProps = game.playerProps || [];
+          // SECOND PRIORITY: Try to get odds from cache and freeze them
+          if (!preservedOdds) {
+            try {
+              const weekendId = game.weekendId;
+              const cachedData = await gameCacheService.getCachedGames(weekendId);
+              
+              if (cachedData && cachedData.games) {
+                const cachedGame = cachedData.games.find(g => g.id === game.id);
+                if (cachedGame && (cachedGame.spread !== undefined || cachedGame.homeMoneyline !== undefined)) {
+                  console.log(`💾 Using cached odds for completed game: ${game.awayTeam} @ ${game.homeTeam}`);
+                  // Copy ALL betting lines from cached game
+                  game.spread = cachedGame.spread;
+                  game.spreadOdds = cachedGame.spreadOdds;
+                  game.overUnder = cachedGame.overUnder;
+                  game.overUnderOdds = cachedGame.overUnderOdds;
+                  game.homeMoneyline = cachedGame.homeMoneyline;
+                  game.awayMoneyline = cachedGame.awayMoneyline;
+                  game.playerProps = cachedGame.playerProps || [];
+                  
+                  // CRITICAL: Create frozen snapshot to prevent future overwrites
+                  await preGameOddsService.freezeOdds(game.id, {
+                    spread: game.spread,
+                    spreadOdds: game.spreadOdds,
+                    overUnder: game.overUnder,
+                    overUnderOdds: game.overUnderOdds,
+                    homeMoneyline: game.homeMoneyline,
+                    awayMoneyline: game.awayMoneyline,
+                    playerProps: game.playerProps
+                  });
+                  
+                  preservedOdds = true;
+                }
+              }
+            } catch (error) {
+              console.warn(`⚠️ Could not get cached odds for completed game ${game.awayTeam} @ ${game.homeTeam}:`, error);
+            }
+          }
+          
+          // Note: We'll handle bet odds extraction in the calling function
+          // This prevents the critical error logs while still tracking missing odds
+          if (!preservedOdds) {
+            console.log(`📊 No cached odds found for completed game ${game.awayTeam} @ ${game.homeTeam} - will use bet data if available`);
           }
         }
         
@@ -470,6 +570,7 @@ class OddsApiService {
       const { gameIdMappingService } = await import('./firebase-service');
       try {
         await gameIdMappingService.storeGameIdMapping(consistentId, {
+          espnId: espnGame.espnId,
           oddsApiId: matchingOddsGame.id,
           awayTeam: espnGame.awayTeam,
           homeTeam: espnGame.homeTeam,
@@ -562,7 +663,18 @@ class OddsApiService {
       }
       
       // Determine time slot based on actual game time
-      const gameTime = new Date(event.date);
+      let gameTime: Date;
+      try {
+        gameTime = new Date(event.date);
+        if (isNaN(gameTime.getTime())) {
+          console.error(`❌ Invalid date from ESPN: ${event.date} for ${awayCompetitor?.team?.displayName} @ ${homeCompetitor?.team?.displayName}`);
+          // Return null to filter out this game
+          return null;
+        }
+      } catch (error) {
+        console.error(`❌ Failed to parse date: ${event.date}`, error);
+        return null;
+      }
       const timeSlot = this.getTimeSlot(gameTime);
       
       // Generate consistent game ID
@@ -584,6 +696,12 @@ class OddsApiService {
       console.log(`   🎰 Time Slot: ${timeSlot}`);
       console.log(`   🆔 Consistent ID: ${gameId} (${readableId})`);
       console.log(`   📆 ${weekMetadata}`);
+      
+      // Additional debug for time slot issues
+      const dayOfWeek = gameTime.getDay();
+      const hours = gameTime.getHours();
+      const localTimeString = gameTime.toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
+      console.log(`   🐛 DEBUG: UTC Day ${dayOfWeek} Hour ${hours}, Eastern: ${localTimeString}`);
       
       // Fetch player stats for completed games
       let playerStats: PlayerStats[] = [];
@@ -656,9 +774,12 @@ class OddsApiService {
       return game;
     }));
     
-    console.log(`🎯 CONVERSION COMPLETE: Successfully converted ${convertedGames.length} games`);
+    // Filter out null values (games with invalid dates)
+    const validGames = convertedGames.filter((game): game is Game => game !== null);
+    
+    console.log(`🎯 CONVERSION COMPLETE: Successfully converted ${validGames.length}/${convertedGames.length} games (filtered out ${convertedGames.length - validGames.length} games with invalid dates)`);
     console.log('📋 TIME SLOT BREAKDOWN:');
-    const timeSlotCounts = convertedGames.reduce((acc, game) => {
+    const timeSlotCounts = validGames.reduce((acc, game) => {
       acc[game.timeSlot] = (acc[game.timeSlot] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -667,7 +788,7 @@ class OddsApiService {
       console.log(`   ${slot}: ${count} games`);
     });
     
-    return convertedGames;
+    return validGames;
   }
 
   /**
@@ -712,7 +833,7 @@ class OddsApiService {
     return false;
   }
 
-  async getPlayerProps(gameId: string): Promise<PlayerProp[]> {
+  async getPlayerProps(gameId: string, gameStatus?: string): Promise<PlayerProp[]> {
     console.log(`🎯 getPlayerProps called for gameId: ${gameId}, API key exists: ${!!this.apiKey}`);
     
     // Import Firebase services
@@ -725,12 +846,21 @@ class OddsApiService {
     if (cachedData) {
       const { props, cachedAt } = cachedData;
       
-      // Check if cache is still valid (1 hour for player props)
-      if (playerPropsService.isCacheValid(cachedAt, 60)) {
-        console.log(`💾 Using valid cached player props: ${props.length} props from Firebase`);
+      // Smart caching policy for player props:
+      // - Cache permanently for completed games
+      // - For upcoming games, use strategic refresh windows
+      if (gameStatus === 'final' || gameStatus === 'live') {
+        console.log(`💾 Using permanently cached player props for ${gameStatus} game: ${props.length} props`);
+        return props;
+      }
+      
+      // For upcoming games, determine if we need a refresh based on game timing
+      const shouldRefresh = this.shouldRefreshPlayerProps(cachedAt, gameId);
+      if (!shouldRefresh) {
+        console.log(`💾 Using valid cached player props (strategic timing): ${props.length} props from Firebase`);
         return props;
       } else {
-        console.log(`⏰ Player props cache expired, fetching fresh data...`);
+        console.log(`🔄 Strategic refresh needed for player props...`);
       }
     } else {
       console.log(`📋 No cached player props found, fetching fresh data...`);
@@ -869,14 +999,33 @@ class OddsApiService {
   }
 
   private getTimeSlot(gameTime: Date): Game['timeSlot'] {
-    // Convert to both Eastern and Pacific time for proper NFL categorization
-    const easternTime = new Date(gameTime.toLocaleString("en-US", {timeZone: "America/New_York"}));
-    const pacificTime = new Date(gameTime.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}));
-    const easternDay = easternTime.getDay(); // Use Eastern time day, not UTC day
-    const easternHour = easternTime.getHours();
-    const pacificHour = pacificTime.getHours();
+    // Create proper timezone-aware dates using Intl.DateTimeFormat
+    const easternTimeOptions: Intl.DateTimeFormatOptions = { 
+      timeZone: "America/New_York", 
+      year: "numeric", month: "2-digit", day: "2-digit", 
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+    };
+    const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
+      timeZone: "America/Los_Angeles", 
+      year: "numeric", month: "2-digit", day: "2-digit", 
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
+    };
     
-    console.log(`🕐 Time slot calculation: UTC: ${gameTime.toISOString()}, ET: ${easternTime.toISOString()}, PT: ${pacificTime.toISOString()}, Day ${easternDay}, Hour ${easternHour} ET / ${pacificHour} PT`);
+    // Get timezone-aware components
+    const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(gameTime);
+    const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(gameTime);
+    
+    // Extract values
+    const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
+    const easternDay = new Date(`${easternParts.find(p => p.type === 'year')?.value}-${easternParts.find(p => p.type === 'month')?.value}-${easternParts.find(p => p.type === 'day')?.value}`).getDay();
+    const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
+    
+    console.log(`🕐 Time slot calculation for ${gameTime.toISOString()}:`);
+    console.log(`   UTC: ${gameTime.toISOString()}`);
+    console.log(`   ET: Day ${easternDay}, Hour ${easternHour}`);
+    console.log(`   PT: Hour ${pacificHour}`);
+    console.log(`   Day names: ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][easternDay]}`);
+    console.log(`🔥 CRITICAL DEBUG: Time slot function IS BEING CALLED for game time ${gameTime.toISOString()}`);
 
     if (easternDay === 4) { // Thursday
       console.log('📅 Classified as: Thursday Night');
@@ -970,6 +1119,65 @@ class OddsApiService {
       'player_reception_yds': 'receiving_yards',
     };
     return mapping[marketKey] || null;
+  }
+
+  /**
+   * Determine if player props should be refreshed based on strategic timing
+   * - Initial fetch: 2+ days before game (when props first become available)
+   * - Final refresh: 2-6 hours before game (for line movements)
+   * - Otherwise: use cached data
+   */
+  private async shouldRefreshPlayerProps(cachedAt: Date, gameId: string): Promise<boolean> {
+    try {
+      // Get game data to check timing
+      const { gamesCacheService } = await import('./games-cache');
+      const game = await gamesCacheService.getGameById(gameId);
+      
+      if (!game || (!game.gameTime && !(game as any).date)) {
+        console.log('⚠️ Game not found or no date, allowing refresh');
+        return true;
+      }
+      
+      const now = new Date();
+      const gameTime = new Date(game.gameTime || (game as any).date);
+      const hoursUntilGame = (gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+      const hoursSinceLastFetch = (now.getTime() - cachedAt.getTime()) / (1000 * 60 * 60);
+      
+      console.log(`⏰ Game timing: ${hoursUntilGame.toFixed(1)}h until game, ${hoursSinceLastFetch.toFixed(1)}h since last fetch`);
+      
+      // Game has passed or is very soon - don't refresh
+      if (hoursUntilGame <= 1) {
+        console.log('🚫 Game starting soon or has started, using cached props');
+        return false;
+      }
+      
+      // Strategic refresh windows:
+      
+      // Window 1: 2-6 hours before game (final refresh for line movements)
+      if (hoursUntilGame >= 2 && hoursUntilGame <= 6 && hoursSinceLastFetch >= 1) {
+        console.log('🎯 Final refresh window (2-6h before game)');
+        return true;
+      }
+      
+      // Window 2: More than 6 hours before game, but props haven't been fetched in 12+ hours
+      if (hoursUntilGame > 6 && hoursSinceLastFetch >= 12) {
+        console.log('🎯 Initial/early refresh window (6+ hours before game)');
+        return true;
+      }
+      
+      // Window 3: Very first fetch (no recent cache)
+      if (hoursSinceLastFetch >= 24) {
+        console.log('🎯 First time fetch (no recent cache)');
+        return true;
+      }
+      
+      console.log('✋ Using cached props - not in refresh window');
+      return false;
+      
+    } catch (error) {
+      console.warn('⚠️ Error checking refresh timing, defaulting to refresh:', error);
+      return true;
+    }
   }
 
 

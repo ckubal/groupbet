@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getCurrentNFLWeek } from '@/lib/utils';
 
 export async function POST(request: NextRequest) {
   console.log('🎰 Adding new bet manually...');
@@ -19,19 +20,38 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    // Extract NFL week from weekendId or use provided nflWeek
+    // Determine the correct week from the game data
     let nflWeek = betData.nflWeek;
-    if (!nflWeek && betData.weekendId) {
-      const weekMatch = betData.weekendId.match(/week-(\d+)/);
-      nflWeek = weekMatch ? parseInt(weekMatch[1]) : 2; // Default to week 2
-    }
-    if (!nflWeek) {
-      nflWeek = 2; // Default fallback
+    let weekendId = betData.weekendId;
+    
+    if (!nflWeek || !weekendId) {
+      // Try to get the week from the game document
+      try {
+        const gameDoc = await getDoc(doc(db, 'games', betData.gameId));
+        if (gameDoc.exists()) {
+          const gameData = gameDoc.data();
+          if (gameData.weekendId) {
+            weekendId = gameData.weekendId;
+            const weekMatch = gameData.weekendId.match(/week-(\d+)/);
+            nflWeek = weekMatch ? parseInt(weekMatch[1]) : getCurrentNFLWeek();
+          }
+        }
+      } catch (error) {
+        console.warn('Could not fetch game data for week determination:', error);
+      }
+      
+      // Final fallback to current NFL week
+      if (!nflWeek) {
+        nflWeek = getCurrentNFLWeek();
+      }
+      if (!weekendId) {
+        weekendId = `2025-week-${nflWeek}`;
+      }
     }
     
     // Add default fields
     const newBet = {
-      weekendId: betData.weekendId || '2025-week-2',
+      weekendId,
       nflWeek, // Store the NFL week number
       status: 'active', // Will be resolved by the resolve-bets API
       createdAt: new Date(),
