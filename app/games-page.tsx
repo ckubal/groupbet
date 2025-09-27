@@ -157,7 +157,13 @@ const calculateCorrectTimeSlot = (gameTime: Date | string): string => {
   
   // Extract values
   const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
-  const easternDay = new Date(`${easternParts.find(p => p.type === 'year')?.value}-${easternParts.find(p => p.type === 'month')?.value}-${easternParts.find(p => p.type === 'day')?.value}`).getDay();
+  // FIXED: Calculate day of week from Eastern timezone parts directly
+  const easternYear = parseInt(easternParts.find(p => p.type === 'year')?.value || '0');
+  const easternMonth = parseInt(easternParts.find(p => p.type === 'month')?.value || '1') - 1; // Month is 0-indexed
+  const easternDate = parseInt(easternParts.find(p => p.type === 'day')?.value || '1');
+  // Create date in UTC to avoid local timezone issues
+  const easternDateObj = new Date(Date.UTC(easternYear, easternMonth, easternDate));
+  const easternDay = easternDateObj.getUTCDay();
   const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
   
   // Apply same logic as server-side getTimeSlot function

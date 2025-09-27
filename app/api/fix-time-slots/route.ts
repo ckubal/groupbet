@@ -102,7 +102,9 @@ function calculateTimeSlot(gameTime: Date): string {
   
   // Extract values
   const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
-  const easternDay = new Date(`${easternParts.find(p => p.type === 'year')?.value}-${easternParts.find(p => p.type === 'month')?.value}-${easternParts.find(p => p.type === 'day')?.value}`).getDay();
+  // FIXED: Get Eastern day of week directly from the original game time in Eastern timezone
+  const easternDate = new Date(gameTime.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const easternDay = easternDate.getDay();
   const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
   
   console.log(`⏰ Fix time slot calculation for ${gameTime.toISOString()}:`);
