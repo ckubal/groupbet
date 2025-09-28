@@ -63,7 +63,7 @@ export async function GET() {
     console.error('Error checking weeks:', error);
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: (error as any).message
     }, { status: 500 });
   }
 }
