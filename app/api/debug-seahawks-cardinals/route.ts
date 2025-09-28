@@ -64,7 +64,7 @@ export async function GET() {
     console.error('Error debugging Seahawks game:', error);
     return NextResponse.json({
       success: false,
-      error: error.message
+      error: (error as any).message
     }, { status: 500 });
   }
 }

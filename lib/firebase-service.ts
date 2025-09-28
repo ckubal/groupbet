@@ -438,6 +438,7 @@ export const gameCacheService = {
         games.push({
           id: data.id,
           weekendId: data.weekendId,
+          week: data.week || 0,
           homeTeam: data.homeTeam,
           awayTeam: data.awayTeam,
           gameTime: data.gameTime.toDate(),
@@ -641,6 +642,7 @@ export const finalGameService = {
           const game: Game = {
             id: data.gameId,
             weekendId: data.weekendId,
+            week: data.week || 0,
             homeTeam: data.homeTeam,
             awayTeam: data.awayTeam,
             gameTime: data.gameTime.toDate(),
@@ -688,6 +690,7 @@ export const finalGameService = {
         games.push({
           id: data.gameId,
           weekendId: data.weekendId,
+          week: data.week || 0,
           homeTeam: data.homeTeam,
           awayTeam: data.awayTeam,
           gameTime: gameTime,

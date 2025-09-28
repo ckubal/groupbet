@@ -1037,6 +1037,7 @@ class OddsApiService {
     return {
       id: apiGame.id,
       weekendId: `2025-week-${weekNumber || getCurrentNFLWeek()}`,
+      week: weekNumber || getCurrentNFLWeek(),
       homeTeam: apiGame.home_team,
       awayTeam: apiGame.away_team,
       gameTime,
