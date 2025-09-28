@@ -7,10 +7,10 @@
 - **VERCEL DEPLOYMENT**: Connected to the `groupbet` GitHub repository
 
 ## 🚨 CURRENT DATE AND NFL SEASON CONTEXT
-- **TODAY IS SEPTEMBER 24, 2025**
+- **TODAY IS SEPTEMBER 27, 2025**
 - **WE ARE IN THE 2025 NFL SEASON**
-- **WEEK 3 IS COMPLETED (SEPTEMBER 18-24, 2025)**
-- **ALL WEEK 3 GAMES ARE FINAL - BETS ARE RESOLVED**
+- **WEEK 4 IS CURRENT (SEPTEMBER 26 - OCTOBER 1, 2025)**
+- **WEEK 3 IS COMPLETED - BETS ARE RESOLVED**
 
 ## 🏈 NFL WEEK 3 2025 STATUS
 - **ALL GAMES COMPLETED**: Week 3 games have finished
@@ -288,3 +288,74 @@ curl -X POST http://localhost:3000/api/add-bet \
 - **Grid Layout**: `grid-cols-2 md:grid-cols-3` with 12px gaps
 - **Card Padding**: 20px internal padding (p-5)
 - **Fintech Style**: Glassmorphism effects, gradient borders, pulsing animations
+
+## ✅ CRITICAL TIMEZONE BUG FIX (September 27, 2025)
+
+### 🐛 ISSUE: Games Appearing in Wrong Time Slots
+- **Problem**: 14 of 16 games showing as "Sunday morning games before noon PT"
+- **Affected**: Thursday and Monday night games incorrectly categorized
+- **User Report**: "thursday night as sunday morning, and monday night as sunday night"
+- **Root Cause**: Timezone calculation bug in `getTimeSlot` functions
+
+### 🔍 ROOT CAUSE ANALYSIS:
+```typescript
+// BUGGY CODE:
+const easternDay = new Date(`${year}-${month}-${day}`).getDay();
+// This creates date in LOCAL timezone (Pacific) instead of Eastern
+
+// PROBLEM:
+// Thursday 8:15 PM ET → Pacific system reads date as Wednesday → day 3 → 'sunday_early'
+// Monday 9:15 PM ET → Pacific system reads date as Sunday → day 0 → 'sunday_night'
+```
+
+### ✅ SOLUTION IMPLEMENTED:
+```typescript
+// FIXED CODE:
+const easternYear = parseInt(easternParts.find(p => p.type === 'year')?.value || '0');
+const easternMonth = parseInt(easternParts.find(p => p.type === 'month')?.value || '1') - 1;
+const easternDate = parseInt(easternParts.find(p => p.type === 'day')?.value || '1');
+const easternDateObj = new Date(Date.UTC(easternYear, easternMonth, easternDate));
+const easternDay = easternDateObj.getUTCDay();
+// Now gets correct day-of-week using timezone-neutral UTC date
+```
+
+### 📁 FILES FIXED (September 27, 2025):
+- `/lib/odds-api.ts:1074-1079` - Main game processing timezone fix
+- `/lib/firebase-service.ts:43-49` - Firebase cache timezone consistency
+- `/app/games-page.tsx:160-166` - Client-side time slot override fix
+- `/app/api/force-fix-timeslots/route.ts:115-117` - Force-fix API timezone fix
+- `/app/api/fix-time-slots/route.ts:105-107` - Manual fix API timezone fix
+
+### 🎯 STRATEGIC BETTING LINES CACHE SYSTEM:
+- **Initial Fetch**: 2+ days before game (when betting lines available)
+- **Final Refresh**: 2-6 hours before game (catch line movements)
+- **No Fetches Between**: Cache used exclusively during waiting period
+- **Freeze**: 1 hour before game starts, no more updates
+- **Expected API Calls**: ~32 per week (16 games × 2 strategic fetches)
+- **Prevents**: 3000+ API calls that occurred during testing/debugging
+
+### 🚨 FIREBASE QUOTA ISSUE:
+- **Cause**: Excessive API testing (3000+ Odds API calls) triggered Firebase quota
+- **Error**: "RESOURCE_EXHAUSTED: Quota exceeded"
+- **Impact**: Cannot write to Firebase until quota resets (midnight UTC)
+- **Temporary**: Page loads with cached data, but cannot update incorrect timeSlots
+- **Solution**: Wait for quota reset, then cached timeSlots will be corrected
+
+### 🚀 DEPLOYMENT STATUS:
+- **GitHub**: All timezone fixes pushed to main branch
+- **Vercel**: Deployed to production via `new-branch` (non-standard setup)
+- **Production**: groupbet.vercel.app has timezone fixes live
+- **Note**: Vercel configured to deploy from `new-branch` instead of `main`
+
+### 💡 PACIFIC TIMEZONE CONTEXT:
+- **User Location**: Pacific timezone
+- **Game Times**: Displayed in Pacific for user convenience
+- **Calculation**: Uses Eastern timezone for proper NFL game day determination
+- **Display**: Shows Pacific times (Thursday 5:15 PM PT, Monday 6:15 PM PT)
+- **Logic**: Categorizes by Eastern day-of-week for accurate time slot grouping
+
+### 🎯 RESULT:
+- Thursday night games → Properly categorized as "thursday"
+- Monday night games → Properly categorized as "monday"  
+- Sunday games → Correctly sorted into early/afternoon/night slots
+- No more 14/16 games showing as "Sunday morning" incorrectly
