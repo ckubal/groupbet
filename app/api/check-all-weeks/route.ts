@@ -9,7 +9,7 @@ export async function GET() {
     const games = gamesSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    } as any));
 
     // Group by week
     const gamesByWeek: Record<number, any[]> = {};

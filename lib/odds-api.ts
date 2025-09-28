@@ -801,6 +801,7 @@ class OddsApiService {
         readableId, // Human-readable version
         weekMetadata, // "Week 2, 2025"
         weekendId,
+        week: weekNumber, // Store the actual week number from ESPN
         homeTeam,
         awayTeam,
         gameTime,

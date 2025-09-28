@@ -11,7 +11,7 @@ export async function GET() {
     const allGames = gamesSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    } as any));
 
     // Filter for Week 4 games
     const games = allGames.filter(game => game.week === 4);

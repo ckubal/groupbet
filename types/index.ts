@@ -21,6 +21,7 @@ export interface Game {
   readableId?: string; // Human-readable ID: YYYYMMDD-awayteam-hometeam
   weekMetadata?: string; // "Week 2, 2025" for easy display
   weekendId: string;
+  week: number; // NFL week number (1-18 for regular season)
   homeTeam: string;
   awayTeam: string;
   gameTime: Date;
