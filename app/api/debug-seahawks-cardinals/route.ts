@@ -41,9 +41,9 @@ export async function GET() {
     const mappings = mappingsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    } as any));
 
-    const seahawksMapping = mappings.find(m => 
+    const seahawksMapping = mappings.find((m: any) => 
       m.teams?.includes('Seahawks') && m.teams?.includes('Cardinals')
     );
 
