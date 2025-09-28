@@ -22,7 +22,7 @@ export async function GET() {
     );
 
     // Check bets for this game
-    let bets = [];
+    let bets: any[] = [];
     if (seahawksGame) {
       const betsQuery = query(
         collection(db, 'bets'),
