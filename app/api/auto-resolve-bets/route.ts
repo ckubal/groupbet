@@ -269,7 +269,7 @@ export async function POST(request: NextRequest) {
               homeScore: game.homeScore,
               awayScore: game.awayScore,
               status: game.status,
-              date: game.date
+              gameTime: game.gameTime
             };
           }
           

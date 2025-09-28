@@ -1245,8 +1245,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                               {bet?.betType === 'parlay' ? 
                                 `${bet.parlayLegs?.length || 0}-Leg Parlay` : 
                                 game ? (
-                                  game.status === 'final' && game.homeScore !== undefined && game.awayScore !== undefined ?
-                                    `${game.awayTeam.split(' ').pop()} ${game.awayScore} - ${game.homeScore} ${game.homeTeam.split(' ').pop()}` :
+                                  (game.status === 'final' || game.status === 'live') && game.homeScore !== undefined && game.awayScore !== undefined ?
+                                    `${game.awayTeam.split(' ').pop()} ${game.awayScore} - ${game.homeScore} ${game.homeTeam.split(' ').pop()}${game.status === 'live' ? ' (LIVE)' : ''}` :
                                     `${game.awayTeam.split(' ').pop()} @ ${game.homeTeam.split(' ').pop()}`
                                 ) : (bet as any)?.gameData ? (
                                   `${(bet as any).gameData.awayTeam.split(' ').pop()} ${(bet as any).gameData.awayScore || 0} - ${(bet as any).gameData.homeScore || 0} ${(bet as any).gameData.homeTeam.split(' ').pop()}`
