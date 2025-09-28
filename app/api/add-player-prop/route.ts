@@ -71,10 +71,12 @@ export async function POST(request: NextRequest) {
     const updatedPlayerProps = [...existingPlayerProps, newPlayerProp];
     
     // Update the game document with the new player props
-    await setDoc(doc(db, 'games', gameId), {
+    const cleanGameData = cleanFirebaseData({
       ...gameData,
       playerProps: updatedPlayerProps
-    }, { merge: true });
+    });
+    
+    await setDoc(doc(db, 'games', gameId), cleanGameData, { merge: true });
     
     console.log(`✅ Added player prop: ${playerName} ${propType} ${line}`);
     
