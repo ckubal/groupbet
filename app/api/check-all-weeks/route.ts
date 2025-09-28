@@ -36,7 +36,7 @@ export async function GET() {
     const bets = betsSnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
-    }));
+    } as any));
 
     // Find bets related to Seahawks/Cardinals
     const seahawksBets = bets.filter(bet => 
