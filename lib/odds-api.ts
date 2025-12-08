@@ -175,9 +175,34 @@ class OddsApiService {
     try {
       realGames = await this.convertESPNEventsToGames(espnData.events, weekendId);
       console.log(`✅ Successfully converted ${realGames.length} games to internal format`);
+      
+      if (realGames.length === 0) {
+        console.warn(`⚠️ Conversion returned 0 games despite ${espnData.events.length} ESPN events`);
+        // Try to return cached games as fallback
+        if (!forceRefresh) {
+          const cachedData = await gameCacheService.getCachedGames(weekendId);
+          if (cachedData && cachedData.games && cachedData.games.length > 0) {
+            console.log(`📦 Returning ${cachedData.games.length} cached games as fallback after conversion returned 0 games`);
+            return cachedData.games;
+          }
+        }
+      }
     } catch (error) {
       console.error('❌ CRITICAL ERROR in convertESPNEventsToGames:', error);
-      throw new Error(`Failed to convert ESPN events to games: ${error}`);
+      console.error('❌ Error details:', error instanceof Error ? error.stack : String(error));
+      
+      // Try to return cached games as fallback instead of throwing
+      if (!forceRefresh) {
+        const cachedData = await gameCacheService.getCachedGames(weekendId);
+        if (cachedData && cachedData.games && cachedData.games.length > 0) {
+          console.log(`📦 Returning ${cachedData.games.length} cached games as fallback after conversion error`);
+          return cachedData.games;
+        }
+      }
+      
+      // If no cache, return empty array instead of throwing to prevent page crash
+      console.error(`⚠️ Returning empty array due to conversion error (no cache available)`);
+      return [];
     }
     
     // Enhance with betting lines using strategic caching system

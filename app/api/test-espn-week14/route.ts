@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { espnApi } from '@/lib/espn-api';
 
 export async function GET(request: NextRequest) {
   try {
     const week = 14;
     console.log(`🧪 TEST: Fetching ESPN data for Week ${week}...`);
     
+    // Import dynamically to avoid issues
+    const { espnApi } = await import('@/lib/espn-api');
     const espnData = await espnApi.getScoreboard(week);
     
     if (!espnData) {
