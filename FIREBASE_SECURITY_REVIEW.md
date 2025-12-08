@@ -300,3 +300,4 @@ const betSchema = z.object({
 - Security rules should be tested thoroughly before deployment
 - Monitor Firebase usage for unusual patterns
 
+

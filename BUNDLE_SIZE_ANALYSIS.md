@@ -233,3 +233,4 @@ import Image from 'next/image';
 - Consider using React.lazy() for component-level code splitting
 - Monitor bundle size in CI/CD to prevent regressions
 
+
