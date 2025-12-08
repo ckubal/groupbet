@@ -179,13 +179,46 @@ export async function GET(request: NextRequest) {
 
     // Get current week's games with betting lines
     const { oddsApi } = await import('@/lib/odds-api');
-    const games = await oddsApi.getNFLGames(currentWeek, false);
+    let games = await oddsApi.getNFLGames(currentWeek, false);
 
     if (games.length === 0) {
       return NextResponse.json({ error: 'No games found for this week' }, { status: 404 });
     }
 
     console.log(`🏈 Found ${games.length} games for Week ${currentWeek}`);
+
+    // For completed/live games without odds, try to get them from frozen/cached data
+    const { preGameOddsService, gameCacheService } = await import('@/lib/firebase-service');
+    const weekendId = `2025-week-${currentWeek}`;
+    
+    // Enhance games with cached/frozen odds if they don't have them
+    for (const game of games) {
+      if (!game.overUnder && game.status !== 'upcoming') {
+        try {
+          // Try frozen odds first
+          const frozenOdds = await preGameOddsService.getFrozenOdds(game.id);
+          if (frozenOdds?.overUnder) {
+            game.overUnder = frozenOdds.overUnder;
+            game.overUnderOdds = frozenOdds.overUnderOdds;
+            console.log(`💾 Restored frozen O/U for ${game.awayTeam} @ ${game.homeTeam}: ${frozenOdds.overUnder}`);
+            continue;
+          }
+          
+          // Try cached games
+          const cachedData = await gameCacheService.getCachedGames(weekendId);
+          if (cachedData?.games) {
+            const cachedGame = cachedData.games.find(g => g.id === game.id);
+            if (cachedGame?.overUnder) {
+              game.overUnder = cachedGame.overUnder;
+              game.overUnderOdds = cachedGame.overUnderOdds;
+              console.log(`💾 Restored cached O/U for ${game.awayTeam} @ ${game.homeTeam}: ${cachedGame.overUnder}`);
+            }
+          }
+        } catch (error) {
+          console.warn(`⚠️ Could not restore odds for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+        }
+      }
+    }
 
     const analyses: GameAnalysis[] = [];
 
