@@ -14,7 +14,15 @@ interface EditBetModalProps {
 }
 
 export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }: EditBetModalProps) {
-  console.log('🔧 EditBetModal render:', { isOpen, betId: bet?.id });
+  console.log('🔧 EditBetModal render:', { 
+    isOpen, 
+    betId: bet?.id,
+    hasBet: !!bet,
+    betOdds: bet?.odds,
+    betLine: bet?.line,
+    betAmount: bet?.amountPerPerson,
+    fullBet: bet
+  });
   
   const { allUsers } = useUser();
   const [isLoading, setIsLoading] = useState(false);
@@ -30,13 +38,57 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }:
 
   useEffect(() => {
     if (bet && isOpen) {
-      setFormData({
+      console.log('📝 EditBetModal: Populating form with bet data:', {
+        id: bet.id,
+        selection: bet.selection,
+        odds: bet.odds,
+        line: bet.line,
+        amountPerPerson: bet.amountPerPerson,
+        participants: bet.participants,
+        placedBy: bet.placedBy
+      });
+      
+      // Handle 0 values correctly - 0 is a valid value for odds/line
+      const oddsValue = bet.odds !== undefined && bet.odds !== null ? bet.odds.toString() : '';
+      const lineValue = bet.line !== undefined && bet.line !== null ? bet.line.toString() : '';
+      const amountValue = bet.amountPerPerson !== undefined && bet.amountPerPerson !== null ? bet.amountPerPerson.toString() : '';
+      
+      // Handle 0 values correctly - 0 is a valid value for odds/line
+      const oddsValue = bet.odds !== undefined && bet.odds !== null ? bet.odds.toString() : '';
+      const lineValue = bet.line !== undefined && bet.line !== null ? bet.line.toString() : '';
+      const amountValue = bet.amountPerPerson !== undefined && bet.amountPerPerson !== null ? bet.amountPerPerson.toString() : '';
+      
+      console.log('📝 EditBetModal: Setting form values:', {
+        odds: oddsValue,
+        line: lineValue,
+        amount: amountValue,
+        rawOdds: bet.odds,
+        rawLine: bet.line,
+        rawAmount: bet.amountPerPerson,
+        betType: bet.betType
+      });
+      
+      const newFormData = {
         selection: bet.selection || '',
-        odds: bet.odds?.toString() || '',
-        amountPerPerson: bet.amountPerPerson?.toString() || '',
-        line: bet.line?.toString() || '',
+        odds: oddsValue,
+        amountPerPerson: amountValue,
+        line: lineValue,
         participants: bet.participants || [],
         placedBy: bet.placedBy || ''
+      };
+      
+      setFormData(newFormData);
+      
+      console.log('📝 EditBetModal: Form data set successfully:', newFormData);
+    } else {
+      // Reset form when modal closes or bet is null
+      setFormData({
+        selection: '',
+        odds: '',
+        amountPerPerson: '',
+        line: '',
+        participants: [],
+        placedBy: ''
       });
     }
   }, [bet, isOpen]);
