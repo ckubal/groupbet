@@ -13,76 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 import { Bet, Game, Weekend, Settlement, PlayerProp } from '@/types';
-
-// Time slot calculation utility
-function getTimeSlot(gameTime: Date): Game['timeSlot'] {
-  // Validate gameTime - return default if invalid
-  if (!gameTime || isNaN(gameTime.getTime())) {
-    console.warn('⚠️ Invalid game time provided to getTimeSlot:', gameTime);
-    return 'sunday_early'; // Default fallback
-  }
-
-  // Create proper timezone-aware dates using Intl.DateTimeFormat (consistent with odds-api.ts)
-  const easternTimeOptions: Intl.DateTimeFormatOptions = { 
-    timeZone: "America/New_York", 
-    year: "numeric", month: "2-digit", day: "2-digit", 
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-  };
-  const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
-    timeZone: "America/Los_Angeles", 
-    year: "numeric", month: "2-digit", day: "2-digit", 
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-  };
-  
-  // Get timezone-aware components
-  const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(gameTime);
-  const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(gameTime);
-  
-  // Extract values
-  const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
-  // FIXED: Calculate day of week from Eastern timezone parts directly
-  const easternYear = parseInt(easternParts.find(p => p.type === 'year')?.value || '0');
-  const easternMonth = parseInt(easternParts.find(p => p.type === 'month')?.value || '1') - 1; // Month is 0-indexed
-  const easternDate = parseInt(easternParts.find(p => p.type === 'day')?.value || '1');
-  // Create date in UTC to avoid local timezone issues
-  const easternDateObj = new Date(Date.UTC(easternYear, easternMonth, easternDate));
-  const easternDay = easternDateObj.getUTCDay();
-  const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
-  
-  console.log(`🕐 Firebase time slot calculation for ${gameTime.toISOString()}:`);
-  console.log(`   ET: Day ${easternDay}, Hour ${easternHour} (${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][easternDay]})`);
-  console.log(`   PT: Hour ${pacificHour}`);
-
-  if (easternDay === 4) { // Thursday
-    console.log('📅 Firebase classified as: Thursday Night');
-    return 'thursday';
-  }
-  if (easternDay === 1) { // Monday
-    console.log('📅 Firebase classified as: Monday Night');
-    return 'monday';
-  }
-  if (easternDay === 0) { // Sunday
-    // Use Pacific time for Sunday game categorization
-    if (pacificHour < 12) { // Before noon PT
-      console.log('📅 Firebase classified as: Sunday Morning (before noon PT)');
-      return 'sunday_early';
-    }
-    if (pacificHour < 15) { // Noon to 3pm PT
-      console.log('📅 Firebase classified as: Sunday Afternoon (noon-3pm PT)');
-      return 'sunday_afternoon';
-    }
-    console.log('📅 Firebase classified as: Sunday Night (3pm+ PT / SNF)');
-    return 'sunday_night';        // 3pm+ PT (SNF)
-  }
-  if (easternDay === 6) { // Saturday
-    console.log('📅 Firebase classified as: Saturday (putting in Sunday Early)');
-    return 'sunday_early'; // Saturday games go in early slot
-  }
-  
-  // For any other day (Tuesday, Wednesday, Friday), put in early slot
-  console.log(`📅 Firebase classified as: Other day (${easternDay}) - putting in Sunday Early`);
-  return 'sunday_early';
-}
+import { getTimeSlot } from './time-slot-utils';
 
 // Collections
 const COLLECTIONS = {
@@ -646,7 +577,7 @@ export const finalGameService = {
             homeTeam: data.homeTeam,
             awayTeam: data.awayTeam,
             gameTime: data.gameTime.toDate(),
-            timeSlot: getTimeSlot(data.gameTime.toDate()), // Calculate correct timeSlot
+            timeSlot: getTimeSlot(data.gameTime.toDate(), true), // Calculate correct timeSlot with logging
             status: 'final',
             homeScore: data.homeScore,
             awayScore: data.awayScore,
@@ -694,7 +625,7 @@ export const finalGameService = {
           homeTeam: data.homeTeam,
           awayTeam: data.awayTeam,
           gameTime: gameTime,
-          timeSlot: getTimeSlot(gameTime), // Calculate correct timeSlot
+          timeSlot: getTimeSlot(gameTime, true), // Calculate correct timeSlot with logging
           status: 'final',
           homeScore: data.homeScore,
           awayScore: data.awayScore,

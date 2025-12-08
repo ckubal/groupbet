@@ -75,7 +75,7 @@ async function checkBetResults() {
     console.log(`   Status: ${result.toUpperCase()}`);
     
     // Check weather if available
-    const weather = competition.weather;
+    const weather = (competition as any).weather;
     if (weather) {
       console.log(`   🌤️ Weather: ${weather.displayValue || 'N/A'}`);
       if (weather.temperature) {

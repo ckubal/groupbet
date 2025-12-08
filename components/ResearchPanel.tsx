@@ -96,7 +96,7 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
       const response = await fetch(`/api/research-bets?weekendId=${weekendId}&userId=${currentUser.id}`);
       if (response.ok) {
         const data = await response.json();
-        const betKeys = new Set(data.bets.map((b: PlacedBet) => `${b.gameKey}-${b.bet}`));
+        const betKeys = new Set<string>(data.bets.map((b: PlacedBet) => `${b.gameKey}-${b.bet}`));
         setPlacedBets(betKeys);
       }
     } catch (err) {
@@ -243,7 +243,8 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 key={idx}
                 analysis={analysis}
                 placedBets={placedBets}
-                onPlaceBet={markBetPlaced}
+                onMarkBetPlaced={markBetPlaced}
+                onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
               />
@@ -265,7 +266,8 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 key={idx}
                 analysis={analysis}
                 placedBets={placedBets}
-                onPlaceBet={markBetPlaced}
+                onMarkBetPlaced={markBetPlaced}
+                onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
               />
@@ -287,7 +289,8 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 key={idx}
                 analysis={analysis}
                 placedBets={placedBets}
-                onPlaceBet={markBetPlaced}
+                onMarkBetPlaced={markBetPlaced}
+                onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
               />
@@ -302,13 +305,15 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
 function GameAnalysisCard({
   analysis,
   placedBets,
+  onMarkBetPlaced,
   onPlaceBet,
   getConfidenceColor,
   getConfidenceEmoji,
 }: {
   analysis: GameAnalysis;
   placedBets: Set<string>;
-  onPlaceBet: (analysis: GameAnalysis, bet: 'over' | 'under') => void;
+  onMarkBetPlaced: (analysis: GameAnalysis, bet: 'over' | 'under') => Promise<void>;
+  onPlaceBet: (analysis: GameAnalysis) => void;
   getConfidenceColor: (conf: string) => string;
   getConfidenceEmoji: (conf: string) => string;
 }) {
@@ -390,7 +395,7 @@ function GameAnalysisCard({
           <div className="flex gap-2">
             <button
               onClick={async () => {
-                await markBetPlaced(analysis, 'over');
+                await onMarkBetPlaced(analysis, 'over');
                 onPlaceBet(analysis);
               }}
               disabled={isOverPlaced}
@@ -406,7 +411,7 @@ function GameAnalysisCard({
             </button>
             <button
               onClick={async () => {
-                await markBetPlaced(analysis, 'under');
+                await onMarkBetPlaced(analysis, 'under');
                 onPlaceBet(analysis);
               }}
               disabled={isUnderPlaced}

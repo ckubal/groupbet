@@ -1424,10 +1424,6 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           <div className="text-center py-24 animate-fade-in">
             <p className="text-foreground-muted text-xl font-medium">select a user to view games and place bets</p>
           </div>
-        ) : (
-          <div className="card p-8 text-center">
-            <p className="text-foreground-muted">Please select a user to view bets</p>
-          </div>
         )}
       </div>
 

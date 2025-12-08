@@ -1,5 +1,6 @@
 import { Game, PlayerProp, PlayerStats } from '@/types';
 import { getCurrentNFLWeek, getNFLWeekBoundaries } from './utils';
+import { getTimeSlot } from './time-slot-utils';
 
 interface OddsApiGame {
   id: string;
@@ -1053,70 +1054,8 @@ class OddsApiService {
   }
 
   private getTimeSlot(gameTime: Date): Game['timeSlot'] {
-    // Create proper timezone-aware dates using Intl.DateTimeFormat
-    const easternTimeOptions: Intl.DateTimeFormatOptions = { 
-      timeZone: "America/New_York", 
-      year: "numeric", month: "2-digit", day: "2-digit", 
-      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-    };
-    const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
-      timeZone: "America/Los_Angeles", 
-      year: "numeric", month: "2-digit", day: "2-digit", 
-      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-    };
-    
-    // Get timezone-aware components
-    const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(gameTime);
-    const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(gameTime);
-    
-    // Extract values
-    const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
-    // FIXED: Calculate day of week from Eastern timezone parts directly
-    // The easternParts already contain the correct Eastern timezone date components
-    const easternYear = parseInt(easternParts.find(p => p.type === 'year')?.value || '0');
-    const easternMonth = parseInt(easternParts.find(p => p.type === 'month')?.value || '1') - 1; // Month is 0-indexed
-    const easternDate = parseInt(easternParts.find(p => p.type === 'day')?.value || '1');
-    // Create date in UTC to avoid local timezone issues
-    const easternDateObj = new Date(Date.UTC(easternYear, easternMonth, easternDate));
-    const easternDay = easternDateObj.getUTCDay();
-    const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
-    
-    console.log(`🕐 Time slot calculation for ${gameTime.toISOString()}:`);
-    console.log(`   UTC: ${gameTime.toISOString()}`);
-    console.log(`   ET: Day ${easternDay}, Hour ${easternHour}`);
-    console.log(`   PT: Hour ${pacificHour}`);
-    console.log(`   Day names: ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][easternDay]}`);
-    console.log(`🔥 CRITICAL DEBUG: Time slot function IS BEING CALLED for game time ${gameTime.toISOString()}`);
-
-    if (easternDay === 4) { // Thursday
-      console.log('📅 Classified as: Thursday Night');
-      return 'thursday';
-    }
-    if (easternDay === 1) { // Monday
-      console.log('📅 Classified as: Monday Night');
-      return 'monday';
-    }
-    if (easternDay === 0) { // Sunday
-      // Use Pacific time for Sunday game categorization
-      if (pacificHour < 12) { // Before noon PT
-        console.log('📅 Classified as: Sunday Morning (before noon PT)');
-        return 'sunday_early';
-      }
-      if (pacificHour < 15) { // Noon to 3pm PT
-        console.log('📅 Classified as: Sunday Afternoon (noon-3pm PT)');
-        return 'sunday_afternoon';
-      }
-      console.log('📅 Classified as: Sunday Night (3pm+ PT / SNF)');
-      return 'sunday_night';        // 3pm+ PT (SNF)
-    }
-    if (easternDay === 6) { // Saturday
-      console.log('📅 Classified as: Saturday (putting in Sunday Early)');
-      return 'sunday_early'; // Saturday games go in early slot
-    }
-    
-    // For any other day (Tuesday, Wednesday, Friday), put in early slot
-    console.log(`📅 Classified as: Other day (${easternDay}) - putting in Sunday Early`);
-    return 'sunday_early';
+    // Use shared utility for time slot calculation
+    return getTimeSlot(gameTime, true); // Enable logging for debugging
   }
 
   private extractPlayerProps(game: OddsApiGame): PlayerProp[] {

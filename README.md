@@ -86,7 +86,7 @@ The ESPN API is used for live scores and doesn't require authentication. The int
 
 The app is pre-configured with these users:
 - Will
-- Dio
+- D/O
 - Rosen
 - Charlie
 - Pat

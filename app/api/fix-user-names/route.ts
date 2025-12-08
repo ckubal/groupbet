@@ -3,7 +3,7 @@ import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/fire
 import { db } from '@/lib/firebase';
 
 export async function POST(request: NextRequest) {
-  console.log('🔧 Fixing user names from "dio" to "D/O"...');
+  console.log('🔧 Fixing user names from "dio" to "d/o"...');
   
   try {
     // Get all bets and update participant arrays
@@ -16,19 +16,19 @@ export async function POST(request: NextRequest) {
       const bet = betDoc.data();
       let needsUpdate = false;
       
-      // Fix participants array
+      // Fix participants array - convert "dio" to "d/o" (standard format)
       const updatedParticipants = bet.participants?.map((participant: string) => {
-        if (participant === 'dio') {
+        if (participant === 'dio' || participant === 'Dio' || participant === 'DIO' || participant === 'D/O') {
           needsUpdate = true;
-          return 'D/O';
+          return 'd/o'; // Standard lowercase format
         }
         return participant;
       });
       
       // Fix placedBy field
       let updatedPlacedBy = bet.placedBy;
-      if (bet.placedBy === 'dio') {
-        updatedPlacedBy = 'D/O';
+      if (bet.placedBy === 'dio' || bet.placedBy === 'Dio' || bet.placedBy === 'DIO' || bet.placedBy === 'D/O') {
+        updatedPlacedBy = 'd/o'; // Standard lowercase format
         needsUpdate = true;
       }
       
@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       updatedBets: updatedCount,
-      message: `Successfully updated ${updatedCount} bet(s) from "dio" to "D/O"`
+      message: `Successfully updated ${updatedCount} bet(s) from "dio" variants to "d/o" (standard format)`
     });
     
   } catch (error) {

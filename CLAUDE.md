@@ -171,7 +171,7 @@ Successfully implemented system to add bets from completed games and automatical
 4. **`/api/fix-participants`** - Fix participant ID mismatches
 
 ### 🔧 CRITICAL USER ID FORMAT:
-- **CORRECT**: `["will", "dio", "rosen", "charlie"]`
+- **CORRECT**: `["will", "d/o", "rosen", "charlie"]`
 - **WRONG**: `["charlie-user-id", "rosen-user-id", ...]`
 - System only shows bets where user appears in participants array
 
@@ -182,7 +182,7 @@ curl -X POST http://localhost:3000/api/add-bet \
   -d '{
     "gameId": "1cb2a8bc861116912c595087ff777756",
     "placedBy": "rosen",
-    "participants": ["will", "dio", "rosen", "charlie"],
+    "participants": ["will", "d/o", "rosen", "charlie"],
     "betType": "spread",
     "selection": "Green Bay Packers -3",
     "odds": -120,

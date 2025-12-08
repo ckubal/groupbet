@@ -3,10 +3,10 @@ import { collection, getDocs, doc, updateDoc, writeBatch } from 'firebase/firest
 import { db } from '@/lib/firebase';
 
 export async function POST(request: NextRequest) {
-  console.log('🔧 Fixing d/o vs dio user ID inconsistency...');
+  console.log('🔧 Fixing dio -> d/o user ID standardization...');
   
   try {
-    // Get all bets that contain "d/o" in participants
+    // Get all bets that contain "dio" in participants (WRONG format)
     const betsCollection = collection(db, 'bets');
     const betsSnapshot = await getDocs(betsCollection);
     
@@ -18,15 +18,15 @@ export async function POST(request: NextRequest) {
       const bet = betDoc.data();
       const betId = betDoc.id;
       
-      // Check if this bet has "d/o" in participants
-      if (bet.participants && bet.participants.includes('d/o')) {
+      // Check if this bet has "dio" in participants (should be "d/o")
+      if (bet.participants && bet.participants.includes('dio')) {
         console.log(`📝 Fixing bet ${betId}: ${bet.selection}`);
         
-        // Replace "d/o" with "dio" in participants array
-        const updatedParticipants = bet.participants.map((p: string) => p === 'd/o' ? 'dio' : p);
+        // Replace "dio" with "d/o" in participants array (CORRECT format)
+        const updatedParticipants = bet.participants.map((p: string) => p === 'dio' ? 'd/o' : p);
         
-        // Update placedBy if it's also "d/o"
-        const updatedPlacedBy = bet.placedBy === 'd/o' ? 'dio' : bet.placedBy;
+        // Update placedBy if it's also "dio"
+        const updatedPlacedBy = bet.placedBy === 'dio' ? 'd/o' : bet.placedBy;
         
         const updates = {
           participants: updatedParticipants,
@@ -51,12 +51,12 @@ export async function POST(request: NextRequest) {
     // Apply all updates in a batch
     if (fixedCount > 0) {
       await batch.commit();
-      console.log(`✅ Fixed ${fixedCount} bets with d/o -> dio`);
+      console.log(`✅ Fixed ${fixedCount} bets with dio -> d/o`);
     }
     
     return NextResponse.json({
       success: true,
-      message: `Fixed ${fixedCount} bets: changed d/o to dio`,
+      message: `Fixed ${fixedCount} bets: changed dio to d/o (standard format)`,
       fixedCount,
       updatedBets
     });
