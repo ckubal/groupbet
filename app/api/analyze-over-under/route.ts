@@ -261,6 +261,21 @@ export async function GET(request: NextRequest) {
                       game.overUnder = totals.outcomes[0].point;
                       game.overUnderOdds = totals.outcomes[0].price;
                       console.log(`📡 Fetched fresh O/U from Odds API for ${game.awayTeam} @ ${game.homeTeam}: ${game.overUnder}`);
+                      
+                      // CRITICAL: Cache these odds for future use (even if game is completed)
+                      try {
+                        await preGameOddsService.freezeOdds(game.id, {
+                          overUnder: game.overUnder,
+                          overUnderOdds: game.overUnderOdds,
+                          spread: game.spread,
+                          spreadOdds: game.spreadOdds,
+                          homeMoneyline: game.homeMoneyline,
+                          awayMoneyline: game.awayMoneyline,
+                        });
+                        console.log(`💾 Cached betting lines for ${game.awayTeam} @ ${game.homeTeam} for future research`);
+                      } catch (cacheError) {
+                        console.warn(`⚠️ Could not cache odds for ${game.awayTeam} @ ${game.homeTeam}:`, cacheError);
+                      }
                     }
                   }
                 }

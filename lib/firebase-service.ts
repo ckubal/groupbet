@@ -957,7 +957,7 @@ export const preGameOddsService = {
       // Check if already frozen to avoid overwrites
       const existingDoc = await this.getFrozenOdds(gameId);
       if (existingDoc) {
-        console.log(`❄️ Pre-game odds already frozen for game ${gameId} - skipping overwrite`);
+        // Silently skip if already cached (this is expected behavior)
         return;
       }
 

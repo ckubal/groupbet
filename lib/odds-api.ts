@@ -318,26 +318,41 @@ class OddsApiService {
           
           const enhancedUpcomingGames = await this.matchGamesWithOdds(upcomingGames, liveOddsData, 'live');
           
-          // CRITICAL: Freeze odds for games starting within 1 hour
+          // CRITICAL: Cache betting lines for ALL upcoming games (for research tab)
+          // This ensures we have lines available even after games complete
           const { preGameOddsService } = await import('./firebase-service');
           const now = new Date();
           
           for (const game of enhancedUpcomingGames) {
             const hoursUntilGame = (game.gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
             
-            // Freeze odds if game starts within 1 hour and has betting lines
-            if (hoursUntilGame <= 1 && hoursUntilGame >= 0 && game.spread !== undefined) {
-              console.log(`🧊 Proactively freezing odds for game starting soon: ${game.awayTeam} @ ${game.homeTeam} (starts in ${Math.round(hoursUntilGame * 60)} minutes)`);
-              
-              await preGameOddsService.freezeOdds(game.id, {
-                spread: game.spread,
-                spreadOdds: game.spreadOdds,
-                overUnder: game.overUnder,
-                overUnderOdds: game.overUnderOdds,
-                homeMoneyline: game.homeMoneyline,
-                awayMoneyline: game.awayMoneyline,
-                playerProps: game.playerProps
-              });
+            // Cache ALL upcoming games with betting lines (not just those starting soon)
+            // This ensures research tab has lines available after games complete
+            if (game.overUnder !== undefined || game.spread !== undefined || game.homeMoneyline !== undefined) {
+              try {
+                await preGameOddsService.freezeOdds(game.id, {
+                  spread: game.spread,
+                  spreadOdds: game.spreadOdds,
+                  overUnder: game.overUnder,
+                  overUnderOdds: game.overUnderOdds,
+                  homeMoneyline: game.homeMoneyline,
+                  awayMoneyline: game.awayMoneyline,
+                  playerProps: game.playerProps
+                });
+                
+                if (hoursUntilGame <= 1 && hoursUntilGame >= 0) {
+                  console.log(`🧊 Cached odds for game starting soon: ${game.awayTeam} @ ${game.homeTeam} (starts in ${Math.round(hoursUntilGame * 60)} minutes)`);
+                } else {
+                  console.log(`💾 Cached odds for upcoming game: ${game.awayTeam} @ ${game.homeTeam} (starts in ${Math.round(hoursUntilGame)} hours)`);
+                }
+              } catch (error) {
+                // If odds already frozen, that's fine - skip silently
+                if (error instanceof Error && error.message.includes('already frozen')) {
+                  // Already cached, skip
+                } else {
+                  console.warn(`⚠️ Could not cache odds for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+                }
+              }
             }
           }
           
