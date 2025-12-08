@@ -192,10 +192,13 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
     return Math.abs(b.difference) - Math.abs(a.difference);
   });
 
-  // Group by confidence
+  // Group by confidence - include games with lines for recommendations
   const highConfidence = sortedGames.filter(g => g.confidence === 'high' && g.bovadaOverUnder);
   const mediumConfidence = sortedGames.filter(g => g.confidence === 'medium' && g.bovadaOverUnder);
   const lowConfidence = sortedGames.filter(g => g.confidence === 'low' && g.bovadaOverUnder);
+  
+  // Also show games without lines (for reference, but can't make recommendations)
+  const gamesWithoutLines = sortedGames.filter(g => !g.bovadaOverUnder);
 
   return (
     <div className="p-6 space-y-6">
@@ -285,6 +288,32 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
           </h3>
           <div className="space-y-4">
             {lowConfidence.map((analysis, idx) => (
+              <GameAnalysisCard
+                key={idx}
+                analysis={analysis}
+                placedBets={placedBets}
+                onMarkBetPlaced={markBetPlaced}
+                onPlaceBet={onPlaceBet}
+                getConfidenceColor={getConfidenceColor}
+                getConfidenceEmoji={getConfidenceEmoji}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Games Without Betting Lines */}
+      {gamesWithoutLines.length > 0 && (
+        <div>
+          <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+            <span>⚪ Games Without Betting Lines</span>
+            <span className="text-sm font-normal text-gray-600">({gamesWithoutLines.length})</span>
+          </h3>
+          <p className="text-sm text-gray-500 mb-4">
+            These games don't have betting lines available (may be completed or lines not yet posted). Projections shown for reference.
+          </p>
+          <div className="space-y-4">
+            {gamesWithoutLines.map((analysis, idx) => (
               <GameAnalysisCard
                 key={idx}
                 analysis={analysis}
