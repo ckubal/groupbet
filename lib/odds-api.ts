@@ -668,6 +668,7 @@ class OddsApiService {
       const readableId = generateReadableGameId(espnGame.gameTime, espnGame.awayTeam, espnGame.homeTeam);
 
       // Extract betting lines from the best bookmaker
+      const availableBookmakers = matchingOddsGame.bookmakers.map((b: any) => b.key);
       const bookmaker = matchingOddsGame.bookmakers.find(b => 
         ['bovada', 'draftkings', 'fanduel'].includes(b.key)
       ) || matchingOddsGame.bookmakers[0];
@@ -675,6 +676,14 @@ class OddsApiService {
       if (!bookmaker) {
         console.log(`⚠️ No bookmaker data for ${readableId}`);
         return espnGame;
+      }
+      
+      // Log which bookmaker was selected
+      const isBovada = bookmaker.key === 'bovada';
+      if (!isBovada) {
+        console.warn(`⚠️ Bovada not available for ${readableId}, using ${bookmaker.key} instead. Available: ${availableBookmakers.join(', ')}`);
+      } else {
+        console.log(`✅ Using Bovada odds for ${readableId}`);
       }
 
       // Extract spread

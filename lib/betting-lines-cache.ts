@@ -57,10 +57,12 @@ export interface WeekBettingLinesStatus {
 
 export class BettingLinesCacheService {
   // Strategic timing constants (in hours)
-  private readonly INITIAL_FETCH_HOURS = 48; // 2+ days before game
-  private readonly FINAL_REFRESH_START = 6; // 6 hours before game
-  private readonly FINAL_REFRESH_END = 2; // 2 hours before game
-  private readonly FREEZE_THRESHOLD = 1; // 1 hour before game
+  private readonly FREQUENT_REFRESH_START = 3; // Start frequent refreshes 3 hours before game
+  private readonly FREEZE_THRESHOLD = 0; // Freeze at game start (0 hours = game time)
+  
+  // Cache refresh intervals (in milliseconds)
+  private readonly DAILY_REFRESH_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours = 1x per day
+  private readonly FREQUENT_REFRESH_INTERVAL = 30 * 60 * 1000; // 30 minutes
 
   /**
    * Main entry point: Ensure betting lines are cached for all games in a week
@@ -129,21 +131,14 @@ export class BettingLinesCacheService {
       // GAME STARTED/COMPLETED: Freeze current lines
       await this.handleGameStarted(game, cachedLines);
       
-    } else if (hoursUntilGame <= this.FREEZE_THRESHOLD) {
-      // FREEZE WINDOW: Game starting very soon
-      await this.handleFreezeWindow(game, cachedLines);
-      
-    } else if (hoursUntilGame >= this.FINAL_REFRESH_START && hoursUntilGame <= this.FINAL_REFRESH_END) {
-      // FINAL REFRESH WINDOW: 2-6 hours before game
-      await this.handleFinalRefreshWindow(game, cachedLines);
-      
-    } else if (hoursUntilGame >= this.INITIAL_FETCH_HOURS) {
-      // INITIAL FETCH WINDOW: 2+ days before game
-      await this.handleInitialFetchWindow(game, cachedLines);
+    } else if (hoursUntilGame <= this.FREQUENT_REFRESH_START) {
+      // FREQUENT REFRESH WINDOW: 0-3 hours before game - refresh every 30 minutes
+      // (When hoursUntilGame <= 0, game has started and we freeze instead)
+      await this.handleFrequentRefreshWindow(game, cachedLines);
       
     } else {
-      // QUIET PERIOD: Between initial fetch and final refresh
-      await this.handleQuietPeriod(game, cachedLines);
+      // DAILY REFRESH WINDOW: More than 3 hours before game - refresh once per day
+      await this.handleDailyRefreshWindow(game, cachedLines);
     }
   }
 
@@ -158,59 +153,40 @@ export class BettingLinesCacheService {
   }
 
   /**
-   * Handle freeze window (1 hour before game)
+   * Handle frequent refresh window (0-3 hours before game) - refresh every 30 minutes
    */
-  private async handleFreezeWindow(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
-    if (cachedLines && !cachedLines.isFrozen) {
-      console.log(`🧊 Freeze window: Freezing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.freezeBettingLines(game, cachedLines);
-    } else if (!cachedLines) {
-      console.log(`⚠️ Emergency fetch in freeze window for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.fetchAndCacheBettingLines(game, { isInitialFetch: false, isFinalRefresh: false });
-    }
-  }
-
-  /**
-   * Handle initial fetch window (2+ days before game)
-   */
-  private async handleInitialFetchWindow(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
-    // Only fetch if we don't have any lines yet, or haven't tried in 24+ hours
-    const shouldFetch = !cachedLines || 
-      (Date.now() - cachedLines.fetchedAt.getTime()) > (24 * 60 * 60 * 1000);
+  private async handleFrequentRefreshWindow(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
+    const now = Date.now();
+    const shouldRefresh = !cachedLines || 
+      (now - cachedLines.fetchedAt.getTime()) >= this.FREQUENT_REFRESH_INTERVAL;
     
-    if (shouldFetch) {
-      console.log(`🎯 Initial fetch window: Getting betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.fetchAndCacheBettingLines(game, { isInitialFetch: true, isFinalRefresh: false });
-    } else {
-      console.log(`✅ Recent lines available for ${game.awayTeam} @ ${game.homeTeam}`);
-    }
-  }
-
-  /**
-   * Handle final refresh window (2-6 hours before game)
-   */
-  private async handleFinalRefreshWindow(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
-    // Always do final refresh if we haven't done it yet
-    const needsFinalRefresh = !cachedLines?.isFinalRefresh;
-    
-    if (needsFinalRefresh) {
-      console.log(`🎯 Final refresh window: Updating betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+    if (shouldRefresh) {
+      const hoursUntilGame = (game.gameTime.getTime() - now) / (1000 * 60 * 60);
+      console.log(`🔄 Frequent refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
       await this.fetchAndCacheBettingLines(game, { isInitialFetch: false, isFinalRefresh: true });
     } else {
-      console.log(`✅ Final refresh already completed for ${game.awayTeam} @ ${game.homeTeam}`);
+      const minutesSinceFetch = Math.round((now - cachedLines.fetchedAt.getTime()) / (60 * 1000));
+      const nextRefreshIn = Math.round((this.FREQUENT_REFRESH_INTERVAL - (now - cachedLines.fetchedAt.getTime())) / (60 * 1000));
+      console.log(`✅ Lines refreshed ${minutesSinceFetch} minutes ago for ${game.awayTeam} @ ${game.homeTeam} (next refresh in ${nextRefreshIn} min)`);
     }
   }
 
   /**
-   * Handle quiet period (between initial and final)
+   * Handle daily refresh window (more than 3 hours before game) - refresh once per day
    */
-  private async handleQuietPeriod(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
-    // Only fetch if we have no lines at all (emergency fallback)
-    if (!cachedLines) {
-      console.log(`⚠️ Emergency fetch in quiet period: No betting lines found for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.fetchAndCacheBettingLines(game, { isInitialFetch: false, isFinalRefresh: false });
+  private async handleDailyRefreshWindow(game: Game, cachedLines: BettingLinesCache | null): Promise<void> {
+    const now = Date.now();
+    const shouldRefresh = !cachedLines || 
+      (now - cachedLines.fetchedAt.getTime()) >= this.DAILY_REFRESH_INTERVAL;
+    
+    if (shouldRefresh) {
+      const hoursUntilGame = (game.gameTime.getTime() - now) / (1000 * 60 * 60);
+      console.log(`📅 Daily refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+      await this.fetchAndCacheBettingLines(game, { isInitialFetch: !cachedLines, isFinalRefresh: false });
     } else {
-      console.log(`😴 Quiet period: Lines cached for ${game.awayTeam} @ ${game.homeTeam}`);
+      const hoursSinceFetch = Math.round((now - cachedLines.fetchedAt.getTime()) / (60 * 60 * 1000));
+      const nextRefreshIn = Math.round((this.DAILY_REFRESH_INTERVAL - (now - cachedLines.fetchedAt.getTime())) / (60 * 60 * 1000));
+      console.log(`✅ Lines refreshed ${hoursSinceFetch} hours ago for ${game.awayTeam} @ ${game.homeTeam} (next refresh in ${nextRefreshIn} hours)`);
     }
   }
 
@@ -299,12 +275,21 @@ export class BettingLinesCacheService {
       }
 
       // Extract betting lines from best bookmaker
+      const availableBookmakers = matchingOddsGame.bookmakers.map((b: any) => b.key);
       const bookmaker = matchingOddsGame.bookmakers.find((b: any) => 
         ['bovada', 'draftkings', 'fanduel'].includes(b.key)
       ) || matchingOddsGame.bookmakers[0];
 
       if (!bookmaker) {
         throw new Error('No bookmaker data found in Odds API response');
+      }
+      
+      // Log which bookmaker was selected
+      const isBovada = bookmaker.key === 'bovada';
+      if (!isBovada) {
+        console.warn(`⚠️ Bovada not available for ${game.awayTeam} @ ${game.homeTeam}, using ${bookmaker.key} instead. Available: ${availableBookmakers.join(', ')}`);
+      } else {
+        console.log(`✅ Using Bovada odds for ${game.awayTeam} @ ${game.homeTeam}`);
       }
 
       // Extract spread
