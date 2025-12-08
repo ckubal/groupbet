@@ -11,6 +11,7 @@ import ParlayBuilder from '@/components/ParlayBuilder';
 import ParlayPanel, { ParlaySelection } from '@/components/ParlayPanel';
 import UserSelector from '@/components/UserSelector';
 import ResearchPanel from '@/components/ResearchPanel';
+import ImageBetUpload from '@/components/ImageBetUpload';
 import { format } from 'date-fns';
 import { getCurrentNFLWeek } from '@/lib/utils';
 import { betService } from '@/lib/firebase-service';
@@ -134,6 +135,17 @@ const calculateCorrectTimeSlot = (gameTime: Date | string): string => {
 
 export default function GamesPage({ initialGames, initialWeek }: GamesPageProps) {
   console.log('🎯 GAMES PAGE RENDERING with', initialGames.length, 'games');
+  console.log('🎯 Initial week:', initialWeek);
+  if (initialGames.length > 0) {
+    console.log('🎯 Sample game:', {
+      id: initialGames[0].id,
+      teams: `${initialGames[0].awayTeam} @ ${initialGames[0].homeTeam}`,
+      weekendId: initialGames[0].weekendId,
+      timeSlot: initialGames[0].timeSlot
+    });
+  } else {
+    console.warn('⚠️ WARNING: No initial games provided to GamesPage component');
+  }
   
   const { currentUser, allUsers } = useUser();
   const { clearGroupSession } = useGroup();
@@ -679,8 +691,14 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const currentWeekGames = games.filter(game => {
     // Check if game belongs to current week being viewed
     const gameWeek = game.weekendId?.match(/week-(\d+)/) ? parseInt(game.weekendId.match(/week-(\d+)/)![1]) : null;
-    return gameWeek === currentWeek;
+    const matches = gameWeek === currentWeek;
+    if (!matches && game.weekendId) {
+      console.log(`🔍 Game filtered out: ${game.awayTeam} @ ${game.homeTeam} (weekendId: ${game.weekendId}, expected: 2025-week-${currentWeek})`);
+    }
+    return matches;
   });
+  
+  console.log(`📊 Filtered games: ${games.length} total → ${currentWeekGames.length} for Week ${currentWeek}`);
   
   // Group games by time slot for display (only current week)
   // Use client-side calculation to override incorrect cached timeSlot values
@@ -839,6 +857,45 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           <ResearchPanel week={currentWeek} onPlaceBet={handleResearchBetPlacement} />
         ) : currentUser ? (
           <div className="space-y-16">
+            {/* Image Upload Button */}
+            <div className="flex justify-center mb-6">
+              <ImageBetUpload
+                onBetExtracted={(betData) => {
+                  betService.createBet({
+                    ...betData,
+                    bettingMode: 'group',
+                  }).then(() => {
+                    // Refresh bets (same logic as BetPopup)
+                    if (currentUser) {
+                      const weekendId = `2025-week-${currentWeek}`;
+                      const allUpdatedBets: Bet[] = [];
+                      
+                      Promise.all([
+                        betService.getBetsForUser(currentUser.id, weekendId),
+                        betService.getBetsForUser(currentUser.id, `2025-week-2`)
+                      ]).then(([currentWeekBets, week2Bets]) => {
+                        allUpdatedBets.push(...currentWeekBets, ...week2Bets);
+                        
+                        const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
+                          if (!acc.find(bet => bet.id === current.id)) {
+                            acc.push(current);
+                          }
+                          return acc;
+                        }, []);
+                        
+                        setUserBets(uniqueUpdatedBets);
+                        setLastUpdated(Date.now());
+                      });
+                    }
+                  }).catch((error) => {
+                    console.error('Failed to create bet from image:', error);
+                  });
+                }}
+                currentUser={currentUser.id}
+                defaultParticipants={allUsers.slice(0, 4).map(u => u.id)}
+              />
+            </div>
+            
             {/* Summary and Settlement - Side by Side */}
             <div className="grid grid-cols-2 gap-6">
               {/* Betting Summary - Left Half */}
@@ -1417,6 +1474,14 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             {totalGames === 0 && (
               <div className="text-center py-24">
                 <p className="text-foreground-muted text-xl font-medium">no games found for this week</p>
+                <p className="text-foreground-subtle text-sm mt-4">
+                  Week {currentWeek} • Total games loaded: {games.length}
+                </p>
+                {games.length > 0 && (
+                  <p className="text-warning text-sm mt-2">
+                    Games found but don't match Week {currentWeek}. Check weekendId values.
+                  </p>
+                )}
               </div>
             )}
           </div>
