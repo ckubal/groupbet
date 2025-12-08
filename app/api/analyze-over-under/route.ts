@@ -192,8 +192,11 @@ export async function GET(request: NextRequest) {
     const weekendId = `2025-week-${currentWeek}`;
     
     // Enhance games with cached/frozen odds if they don't have them
-    for (const game of games) {
-      if (!game.overUnder && game.status !== 'upcoming') {
+    const gamesNeedingOdds = games.filter(g => !g.overUnder);
+    if (gamesNeedingOdds.length > 0) {
+      console.log(`🔍 ${gamesNeedingOdds.length} games missing betting lines, checking cache/frozen data...`);
+      
+      for (const game of gamesNeedingOdds) {
         try {
           // Try frozen odds first
           const frozenOdds = await preGameOddsService.getFrozenOdds(game.id);
@@ -212,6 +215,58 @@ export async function GET(request: NextRequest) {
               game.overUnder = cachedGame.overUnder;
               game.overUnderOdds = cachedGame.overUnderOdds;
               console.log(`💾 Restored cached O/U for ${game.awayTeam} @ ${game.homeTeam}: ${cachedGame.overUnder}`);
+              continue;
+            }
+          }
+          
+          // Last resort: Try to fetch from Odds API directly (even for completed games)
+          const apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY;
+          if (apiKey) {
+            try {
+              const { getNFLWeekBoundaries } = await import('@/lib/utils');
+              const { start, end } = getNFLWeekBoundaries(currentWeek, 2025);
+              
+              const oddsResponse = await fetch(
+                `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds?${new URLSearchParams({
+                  apiKey: apiKey,
+                  regions: 'us',
+                  markets: 'totals',
+                  oddsFormat: 'american',
+                  bookmakers: 'bovada',
+                })}`
+              );
+              
+              if (oddsResponse.ok) {
+                const allOdds = await oddsResponse.json();
+                const weekOdds = allOdds.filter((oddsGame: any) => {
+                  const gameTime = new Date(oddsGame.commence_time);
+                  return gameTime >= start && gameTime < end;
+                });
+                
+                // Try to match this game
+                const matchingOdds = weekOdds.find((oddsGame: any) => {
+                  const oddsHome = oddsGame.home_team.toLowerCase();
+                  const oddsAway = oddsGame.away_team.toLowerCase();
+                  return (
+                    (oddsHome.includes(game.homeTeam.toLowerCase()) || game.homeTeam.toLowerCase().includes(oddsHome)) &&
+                    (oddsAway.includes(game.awayTeam.toLowerCase()) || game.awayTeam.toLowerCase().includes(oddsAway))
+                  );
+                });
+                
+                if (matchingOdds) {
+                  const bovada = matchingOdds.bookmakers?.find((b: any) => b.key === 'bovada');
+                  if (bovada) {
+                    const totals = bovada.markets?.find((m: any) => m.key === 'totals');
+                    if (totals && totals.outcomes && totals.outcomes.length > 0) {
+                      game.overUnder = totals.outcomes[0].point;
+                      game.overUnderOdds = totals.outcomes[0].price;
+                      console.log(`📡 Fetched fresh O/U from Odds API for ${game.awayTeam} @ ${game.homeTeam}: ${game.overUnder}`);
+                    }
+                  }
+                }
+              }
+            } catch (error) {
+              console.warn(`⚠️ Could not fetch from Odds API for ${game.awayTeam} @ ${game.homeTeam}:`, error);
             }
           }
         } catch (error) {
