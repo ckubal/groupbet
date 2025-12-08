@@ -10,11 +10,13 @@ import EditBetModal from '@/components/EditBetModal';
 import ParlayBuilder from '@/components/ParlayBuilder';
 import ParlayPanel, { ParlaySelection } from '@/components/ParlayPanel';
 import UserSelector from '@/components/UserSelector';
+import ResearchPanel from '@/components/ResearchPanel';
 import { format } from 'date-fns';
 import { getCurrentNFLWeek } from '@/lib/utils';
 import { betService } from '@/lib/firebase-service';
 import { calculatePayout, formatOdds } from '@/lib/betting-odds';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getTimeSlot } from '@/lib/time-slot-utils';
 
 interface Settlement {
   from: string;
@@ -125,68 +127,9 @@ const simplifyPlayerName = (text: string): string => {
 };
 
 // Client-side function to calculate correct time slot based on actual game time
+// Uses shared utility for consistency
 const calculateCorrectTimeSlot = (gameTime: Date | string): string => {
-  let date: Date;
-  
-  if (typeof gameTime === 'string') {
-    date = new Date(gameTime);
-  } else {
-    date = gameTime;
-  }
-  
-  if (!date || isNaN(date.getTime())) {
-    console.warn('⚠️ Invalid game time provided to calculateCorrectTimeSlot:', gameTime);
-    return 'sunday_early';
-  }
-
-  // Use timezone-aware calculations (same logic as server-side getTimeSlot)
-  const easternTimeOptions: Intl.DateTimeFormatOptions = { 
-    timeZone: "America/New_York", 
-    year: "numeric", month: "2-digit", day: "2-digit", 
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-  };
-  const pacificTimeOptions: Intl.DateTimeFormatOptions = { 
-    timeZone: "America/Los_Angeles", 
-    year: "numeric", month: "2-digit", day: "2-digit", 
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false 
-  };
-  
-  // Get timezone-aware components using formatToParts
-  const easternParts = new Intl.DateTimeFormat('en-CA', easternTimeOptions).formatToParts(date);
-  const pacificParts = new Intl.DateTimeFormat('en-CA', pacificTimeOptions).formatToParts(date);
-  
-  // Extract values
-  const easternHour = parseInt(easternParts.find(p => p.type === 'hour')?.value || '0');
-  // FIXED: Calculate day of week from Eastern timezone parts directly
-  const easternYear = parseInt(easternParts.find(p => p.type === 'year')?.value || '0');
-  const easternMonth = parseInt(easternParts.find(p => p.type === 'month')?.value || '1') - 1; // Month is 0-indexed
-  const easternDate = parseInt(easternParts.find(p => p.type === 'day')?.value || '1');
-  // Create date in UTC to avoid local timezone issues
-  const easternDateObj = new Date(Date.UTC(easternYear, easternMonth, easternDate));
-  const easternDay = easternDateObj.getUTCDay();
-  const pacificHour = parseInt(pacificParts.find(p => p.type === 'hour')?.value || '0');
-  
-  // Apply same logic as server-side getTimeSlot function
-  if (easternDay === 4) { // Thursday
-    return 'thursday';
-  }
-  if (easternDay === 1) { // Monday
-    return 'monday';
-  }
-  if (easternDay === 0) { // Sunday
-    if (pacificHour < 12) {
-      return 'sunday_early';      // Before noon PT
-    }
-    if (pacificHour < 15) {
-      return 'sunday_afternoon';  // Noon to 3pm PT
-    }
-    return 'sunday_night';        // 3pm+ PT (SNF)
-  }
-  if (easternDay === 6) { // Saturday
-    return 'sunday_early';        // Saturday games go in early slot
-  }
-  
-  return 'sunday_early'; // Default
+  return getTimeSlot(gameTime, false); // Disable logging on client side
 };
 
 export default function GamesPage({ initialGames, initialWeek }: GamesPageProps) {
@@ -724,6 +667,9 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [editBetModalOpen, setEditBetModalOpen] = useState(false);
   const [betToEdit, setBetToEdit] = useState<Bet | null>(null);
   
+  // Tab state for Bets vs Research
+  const [activeTab, setActiveTab] = useState<'bets' | 'research'>('bets');
+  
   // Update collapsed sections when games change (e.g., week navigation)
   useEffect(() => {
     setCollapsedSections(getDefaultCollapsedSections());
@@ -774,6 +720,23 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const totalGames = currentWeekGames.length;
   const completedGames = currentWeekGames.filter(g => g.status === 'final').length;
   
+  // Handle bet placement from research
+  const handleResearchBetPlacement = (analysis: any) => {
+    // Find the matching game
+    const matchingGame = games.find(g => 
+      g.awayTeam === analysis.awayTeam && g.homeTeam === analysis.homeTeam
+    );
+    
+    if (matchingGame) {
+      setSelectedBet({
+        game: matchingGame,
+        betType: 'over_under',
+        selection: analysis.recommendation === 'over' ? 'over' : 'under',
+      });
+      setIsBetPopupOpen(true);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-6 py-12 animate-fade-in">
@@ -804,7 +767,32 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               </div>
             </div>
             
+            {/* Tabs - Bets vs Research */}
+            <div className="flex gap-2 mb-6 border-b border-surface-border">
+              <button
+                onClick={() => setActiveTab('bets')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'bets'
+                    ? 'text-foreground border-b-2 border-primary'
+                    : 'text-foreground-muted hover:text-foreground'
+                }`}
+              >
+                Bets
+              </button>
+              <button
+                onClick={() => setActiveTab('research')}
+                className={`px-6 py-3 font-medium transition-colors ${
+                  activeTab === 'research'
+                    ? 'text-foreground border-b-2 border-primary'
+                    : 'text-foreground-muted hover:text-foreground'
+                }`}
+              >
+                Research
+              </button>
+            </div>
+            
             {/* Week Navigation - Modern */}
+            {activeTab === 'bets' && (
             <div className="flex items-center gap-4">
               <button
                 onClick={() => handleWeekChange(Math.max(1, currentWeek - 1))}
@@ -838,6 +826,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 </svg>
               </button>
             </div>
+            )}
           </div>
           
           {/* User Selection - Modern */}
@@ -846,7 +835,9 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           </div>
         </div>
 
-        {currentUser ? (
+        {activeTab === 'research' ? (
+          <ResearchPanel week={currentWeek} onPlaceBet={handleResearchBetPlacement} />
+        ) : currentUser ? (
           <div className="space-y-16">
             {/* Summary and Settlement - Side by Side */}
             <div className="grid grid-cols-2 gap-6">
@@ -1432,6 +1423,10 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         ) : (
           <div className="text-center py-24 animate-fade-in">
             <p className="text-foreground-muted text-xl font-medium">select a user to view games and place bets</p>
+          </div>
+        ) : (
+          <div className="card p-8 text-center">
+            <p className="text-foreground-muted">Please select a user to view bets</p>
           </div>
         )}
       </div>
