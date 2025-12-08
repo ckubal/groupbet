@@ -127,15 +127,48 @@ class OddsApiService {
     }
     
     // Get fresh ESPN data
-    console.log('📺 Fetching fresh ESPN data...');
+    console.log(`📺 Fetching fresh ESPN data for Week ${currentWeek}...`);
     const espnData = await espnApi.getScoreboard(currentWeek);
     
-    if (!espnData || !espnData.events || espnData.events.length === 0) {
-      console.error('❌ CRITICAL: No ESPN data available');
-      throw new Error('No real NFL data available. Cannot display fake data.');
+    if (!espnData) {
+      console.error(`❌ ESPN API returned null for Week ${currentWeek}`);
+      // Try to return cached games as fallback
+      if (!forceRefresh) {
+        const cachedData = await gameCacheService.getCachedGames(weekendId);
+        if (cachedData && cachedData.games && cachedData.games.length > 0) {
+          console.log(`📦 Returning ${cachedData.games.length} cached games as fallback for Week ${currentWeek}`);
+          return cachedData.games;
+        }
+      }
+      console.warn(`⚠️ No games available for Week ${currentWeek} (ESPN API returned null and no cache)`);
+      return [];
     }
     
-    console.log(`📺 Found ${espnData.events.length} games from ESPN`);
+    if (!espnData.events || espnData.events.length === 0) {
+      console.warn(`⚠️ ESPN API returned empty events array for Week ${currentWeek}`);
+      console.log(`📋 ESPN Response:`, {
+        week: espnData.week,
+        season: espnData.season,
+        eventsLength: espnData.events?.length,
+        hasEvents: !!espnData.events
+      });
+      
+      // Try to return cached games as fallback before returning empty
+      if (!forceRefresh) {
+        const cachedData = await gameCacheService.getCachedGames(weekendId);
+        if (cachedData && cachedData.games && cachedData.games.length > 0) {
+          console.log(`📦 Returning ${cachedData.games.length} cached games as fallback for Week ${currentWeek}`);
+          return cachedData.games;
+        }
+      }
+      
+      // If no cache available, return empty array instead of throwing
+      // This allows the UI to show "no games found" instead of crashing
+      console.warn(`⚠️ No games available for Week ${currentWeek} (no ESPN events and no cache)`);
+      return [];
+    }
+    
+    console.log(`✅ ESPN API Success: Found ${espnData.events.length} games for Week ${currentWeek}`);
     
     // Convert ESPN events to our Game format
     let realGames: Game[];

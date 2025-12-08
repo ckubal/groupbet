@@ -10,7 +10,7 @@ export class GamesCacheService {
     console.log(`🎯 GamesCacheService: Getting Week ${week} games (forceRefresh: ${forceRefresh})`);
     
     try {
-      // Temporarily disable Firebase cache to isolate the infinite loop issue
+      // Check Firebase cache first (unless force refresh)
       if (!forceRefresh) {
         console.log(`🔍 Checking Firebase cache for Week ${week} games...`);
         const cachedGames = await this.getGamesFromFirebase(week);
@@ -18,28 +18,54 @@ export class GamesCacheService {
         if (cachedGames.length > 0) {
           console.log(`✅ Found ${cachedGames.length} games in Firebase cache for Week ${week}`);
           return cachedGames;
+        } else {
+          console.log(`📭 No games found in Firebase cache for Week ${week}`);
         }
       }
       
       // Get from Odds API with skipCaching to prevent circular dependencies
       console.log(`📡 Fetching Week ${week} games from Odds API...`);
-      const apiGames = await oddsApi.getNFLGames(week, forceRefresh, true);
-      
-      if (apiGames.length > 0) {
-        console.log(`✅ Got ${apiGames.length} games from Odds API`);
+      try {
+        const apiGames = await oddsApi.getNFLGames(week, forceRefresh, true);
         
-        // Skip complex merge and caching for now to avoid infinite loops
-        if (!forceRefresh) {
-          // Simple cache without merge logic
-          await this.simpleCacheGames(apiGames);
+        if (apiGames.length > 0) {
+          console.log(`✅ Got ${apiGames.length} games from Odds API`);
+          
+          // Cache the games for future use (unless force refresh)
+          if (!forceRefresh) {
+            // Simple cache without merge logic
+            await this.simpleCacheGames(apiGames);
+          }
+          
+          return apiGames;
+        } else {
+          console.warn(`⚠️ Odds API returned 0 games for Week ${week}`);
+          // Try to return cached games as fallback even if they're stale
+          if (!forceRefresh) {
+            const staleCachedGames = await this.getGamesFromFirebase(week);
+            if (staleCachedGames.length > 0) {
+              console.log(`📦 Returning ${staleCachedGames.length} stale cached games as fallback`);
+              return staleCachedGames;
+            }
+          }
         }
-        
-        return apiGames;
+      } catch (apiError) {
+        console.error(`❌ Error fetching from Odds API:`, apiError);
+        // Try to return cached games as fallback
+        if (!forceRefresh) {
+          const fallbackGames = await this.getGamesFromFirebase(week);
+          if (fallbackGames.length > 0) {
+            console.log(`📦 Returning ${fallbackGames.length} cached games as fallback after API error`);
+            return fallbackGames;
+          }
+        }
+        throw apiError; // Re-throw if no fallback available
       }
       
       return [];
     } catch (error) {
       console.error('❌ Error in getGamesForWeek:', error);
+      console.error('❌ Error details:', error instanceof Error ? error.message : String(error));
       return [];
     }
   }

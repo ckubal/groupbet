@@ -17,22 +17,33 @@ export default async function Home({ searchParams }: HomeProps) {
   
   try {
     console.log(`🖥️ SERVER: Fetching games for Week ${week} on server-side`);
-    // Force refresh to get all games for the specified week
-    const forceRefresh = true;
-    games = await oddsApi.getNFLGames(week, forceRefresh);
+    // Try without force refresh first to use cache if available
+    games = await oddsApi.getNFLGames(week, false);
     console.log(`✅ SERVER: Successfully fetched ${games.length} games for Week ${week} on server-side`);
     
+    // If no games found, try force refresh
+    if (games.length === 0) {
+      console.log(`⚠️ SERVER: No games found in cache, trying force refresh...`);
+      games = await oddsApi.getNFLGames(week, true);
+      console.log(`✅ SERVER: Force refresh returned ${games.length} games for Week ${week}`);
+    }
+    
     // Log game breakdown
-    console.log('📊 SERVER: Game breakdown by time slot:');
-    const slotCounts: Record<string, number> = {};
-    games.forEach(game => {
-      slotCounts[game.timeSlot] = (slotCounts[game.timeSlot] || 0) + 1;
-    });
-    Object.entries(slotCounts).forEach(([slot, count]) => {
-      console.log(`   ${slot}: ${count} games`);
-    });
+    if (games.length > 0) {
+      console.log('📊 SERVER: Game breakdown by time slot:');
+      const slotCounts: Record<string, number> = {};
+      games.forEach(game => {
+        slotCounts[game.timeSlot] = (slotCounts[game.timeSlot] || 0) + 1;
+      });
+      Object.entries(slotCounts).forEach(([slot, count]) => {
+        console.log(`   ${slot}: ${count} games`);
+      });
+    } else {
+      console.error(`❌ SERVER: No games found for Week ${week} after both cache and force refresh attempts`);
+    }
   } catch (error) {
     console.error(`❌ SERVER: Failed to fetch Week ${week} games on server-side:`, error);
+    console.error(`❌ SERVER: Error details:`, error instanceof Error ? error.message : String(error));
     games = [];
   }
 

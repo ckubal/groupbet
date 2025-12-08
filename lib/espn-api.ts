@@ -193,11 +193,23 @@ class ESPNApiService {
       if (data.events && data.events.length > 0) {
         console.log('🏈 Real ESPN games received:');
         data.events.forEach((event, i) => {
-          const comp = event.competitions[0];
-          const home = comp.competitors.find((c: any) => c.homeAway === 'home');
-          const away = comp.competitors.find((c: any) => c.homeAway === 'away');
-          const status = comp.status.type.description;
-          console.log(`   ${i+1}. ${away?.team.displayName} @ ${home?.team.displayName} | ${status} | ${away?.score || 0}-${home?.score || 0}`);
+          const comp = event.competitions?.[0];
+          if (comp) {
+            const home = comp.competitors?.find((c: any) => c.homeAway === 'home');
+            const away = comp.competitors?.find((c: any) => c.homeAway === 'away');
+            const status = comp.status?.type?.description || 'Unknown';
+            console.log(`   ${i+1}. ${away?.team?.displayName || 'Away'} @ ${home?.team?.displayName || 'Home'} | ${status} | ${away?.score || 0}-${home?.score || 0}`);
+          } else {
+            console.log(`   ${i+1}. Event ${event.id} - Missing competition data`);
+          }
+        });
+      } else {
+        console.warn(`⚠️ ESPN API returned empty events array for Week ${week}`);
+        console.log(`📋 Response structure:`, {
+          hasEvents: !!data.events,
+          eventsLength: data.events?.length,
+          week: data.week,
+          season: data.season
         });
       }
       
