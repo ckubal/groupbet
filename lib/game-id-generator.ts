@@ -157,10 +157,12 @@ export function generateReadableGameId(gameTime: Date | string, awayTeam: string
 
 /**
  * Match games by teams and date (for finding games across different APIs)
+ * STRICT MODE: Also checks that times are within 2 hours of each other to prevent wrong matches
  */
 export function doGamesMatch(
   game1: { gameTime: Date | string; awayTeam: string; homeTeam: string },
-  game2: { gameTime: Date | string; awayTeam: string; homeTeam: string }
+  game2: { gameTime: Date | string; awayTeam: string; homeTeam: string },
+  strictTimeCheck: boolean = true
 ): boolean {
   // Check if teams match (normalized)
   const away1 = normalizeTeamName(game1.awayTeam);
@@ -176,11 +178,32 @@ export function doGamesMatch(
   const date1 = typeof game1.gameTime === 'string' ? new Date(game1.gameTime) : game1.gameTime;
   const date2 = typeof game2.gameTime === 'string' ? new Date(game2.gameTime) : game2.gameTime;
   
-  return (
+  const sameDay = (
     date1.getFullYear() === date2.getFullYear() &&
     date1.getMonth() === date2.getMonth() &&
     date1.getDate() === date2.getDate()
   );
+  
+  if (!sameDay) {
+    return false;
+  }
+  
+  // STRICT: Also check that game times are within 2 hours of each other
+  // This prevents matching wrong games on the same day (e.g., early vs late games)
+  if (strictTimeCheck) {
+    const timeDiff = Math.abs(date1.getTime() - date2.getTime());
+    const hoursDiff = timeDiff / (1000 * 60 * 60);
+    
+    if (hoursDiff > 2) {
+      console.warn(`⚠️ Games match teams/date but times differ by ${hoursDiff.toFixed(1)} hours:`, {
+        game1: `${game1.awayTeam} @ ${game1.homeTeam} at ${date1.toISOString()}`,
+        game2: `${game2.awayTeam} @ ${game2.homeTeam} at ${date2.toISOString()}`
+      });
+      return false;
+    }
+  }
+  
+  return true;
 }
 
 /**

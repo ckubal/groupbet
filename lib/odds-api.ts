@@ -309,7 +309,32 @@ class OddsApiService {
           const cachedLines = await bettingLinesCacheService.getCachedBettingLines(game.id);
           
           if (cachedLines) {
-            console.log(`💾 Applied cached betting lines to ${game.awayTeam} @ ${game.homeTeam}`);
+            // VALIDATION: Verify cached lines match this game (prevent wrong odds being applied)
+            const { doGamesMatch } = require('./game-id-generator');
+            const cachedGameTime = cachedLines.gameTime instanceof Date ? cachedLines.gameTime : new Date(cachedLines.gameTime);
+            const currentGameTime = game.gameTime instanceof Date ? game.gameTime : new Date(game.gameTime);
+            
+            const linesMatchGame = doGamesMatch(
+              { gameTime: currentGameTime, awayTeam: game.awayTeam, homeTeam: game.homeTeam },
+              { gameTime: cachedGameTime, awayTeam: game.awayTeam, homeTeam: game.homeTeam },
+              true // Strict time check
+            );
+            
+            if (!linesMatchGame) {
+              console.error(`❌ CRITICAL: Cached betting lines don't match game!`, {
+                game: `${game.awayTeam} @ ${game.homeTeam} (${currentGameTime.toISOString()})`,
+                cached: `Game time: ${cachedGameTime.toISOString()}, GameId: ${cachedLines.gameId}`,
+                cachedOdds: {
+                  spread: cachedLines.spread,
+                  overUnder: cachedLines.overUnder,
+                  bookmaker: cachedLines.bookmaker
+                }
+              });
+              // Don't apply mismatched odds - return game without odds
+              return game;
+            }
+            
+            console.log(`💾 Applied cached betting lines to ${game.awayTeam} @ ${game.homeTeam} from ${cachedLines.bookmaker || 'unknown'} (fetched ${Math.round((Date.now() - cachedLines.fetchedAt.getTime()) / (60 * 1000))} min ago)`);
             
             // Apply cached betting lines to the game
             return {
@@ -322,7 +347,7 @@ class OddsApiService {
               awayMoneyline: cachedLines.awayMoneyline,
             };
           } else {
-            console.log(`⚠️ No cached betting lines available for ${game.awayTeam} @ ${game.homeTeam}`);
+            console.log(`⚠️ No cached betting lines available for ${game.awayTeam} @ ${game.homeTeam} (gameId: ${game.id})`);
             return game;
           }
         } catch (error) {
@@ -643,8 +668,8 @@ class OddsApiService {
     const enhancedGames = await Promise.all(games.map(async espnGame => {
       // Find matching Odds API game using our consistent matching logic
       const matchingOddsGame = oddsData.find(oddsGame => {
-        // Check if it's the same game based on teams and date
-        return doGamesMatch(
+        // Check if it's the same game based on teams and date (with strict time check)
+        const matches = doGamesMatch(
           { 
             gameTime: espnGame.gameTime, 
             awayTeam: espnGame.awayTeam, 
@@ -654,8 +679,15 @@ class OddsApiService {
             gameTime: oddsGame.commence_time, 
             awayTeam: oddsGame.away_team, 
             homeTeam: oddsGame.home_team 
-          }
+          },
+          true // Use strict time checking to prevent wrong matches
         );
+        
+        if (matches) {
+          console.log(`✅ Matched ESPN game ${espnGame.awayTeam} @ ${espnGame.homeTeam} with Odds API: ${oddsGame.away_team} @ ${oddsGame.home_team}`);
+        }
+        
+        return matches;
       });
 
       if (!matchingOddsGame) {

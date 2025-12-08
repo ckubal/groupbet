@@ -233,7 +233,7 @@ export class BettingLinesCacheService {
         // Import game matching utilities
         const { doGamesMatch } = require('./game-id-generator');
         
-        return doGamesMatch(
+        const matches = doGamesMatch(
           { 
             gameTime: game.gameTime, 
             awayTeam: game.awayTeam, 
@@ -243,8 +243,15 @@ export class BettingLinesCacheService {
             gameTime: oddsGame.commence_time, 
             awayTeam: oddsGame.away_team, 
             homeTeam: oddsGame.home_team 
-          }
+          },
+          true // Use strict time checking
         );
+        
+        if (matches) {
+          console.log(`✅ Matched ${game.awayTeam} @ ${game.homeTeam} with Odds API game: ${oddsGame.away_team} @ ${oddsGame.home_team}`);
+        }
+        
+        return matches;
       });
 
       if (!matchingOddsGame) {
@@ -325,6 +332,18 @@ export class BettingLinesCacheService {
         isFinalRefresh: options.isFinalRefresh,
         isFrozen: false
       };
+      
+      // VALIDATION: Log what we're caching to verify it matches the game
+      console.log(`💾 Caching betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, {
+        gameId: game.id,
+        gameTime: game.gameTime instanceof Date ? game.gameTime.toISOString() : game.gameTime,
+        bookmaker: bookmaker.key,
+        spread: homeSpread?.point,
+        overUnder: overTotal?.point,
+        homeMoneyline: homeML?.price,
+        awayMoneyline: awayML?.price,
+        matchedOddsGame: `${matchingOddsGame.away_team} @ ${matchingOddsGame.home_team} at ${matchingOddsGame.commence_time}`
+      });
       
       await this.saveBettingLines(game.id, bettingLines);
       console.log(`✅ Cached live betting lines for ${game.awayTeam} @ ${game.homeTeam} from ${bookmaker.key}`);
