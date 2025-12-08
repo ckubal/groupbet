@@ -847,8 +847,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             )}
           </div>
           
-          {/* User Selection - Modern */}
-          <div className="border-b border-surface-border pb-8">
+          {/* User Selection - Compact */}
+          <div className="flex items-center justify-between mb-6">
             <UserSelector />
           </div>
         </div>

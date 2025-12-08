@@ -2,24 +2,28 @@
 
 import { useState } from 'react';
 import { useUser } from '@/lib/user-context';
-import { User as UserIcon, Check } from 'lucide-react';
+import { User as UserIcon, Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function UserSelector() {
   const { currentUser, allUsers, switchUser } = useUser();
   const [isOpen, setIsOpen] = useState(false);
 
+  // If no user selected, show a compact banner at top instead of full-screen modal
   if (!currentUser) {
     return (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-          <h2 className="text-xl font-semibold mb-4">Select User</h2>
-          <div className="space-y-2">
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-blue-900 mb-1">Select Your User</h3>
+            <p className="text-xs text-blue-700">Choose who you are to view your bets</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
             {allUsers.map((user) => (
               <button
                 key={user.id}
                 onClick={() => switchUser(user.id)}
-                className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                className="px-3 py-1.5 text-sm rounded-md bg-white border border-blue-200 hover:bg-blue-100 hover:border-blue-300 transition-colors font-medium text-blue-900"
               >
                 {user.name}
               </button>
@@ -31,13 +35,17 @@ export default function UserSelector() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-colors bg-white shadow-sm"
       >
-        <UserIcon className="w-4 h-4" />
-        <span className="font-medium">{currentUser.name}</span>
+        <UserIcon className="w-4 h-4 text-gray-600" />
+        <span className="font-medium text-gray-900">{currentUser.name}</span>
+        <ChevronDown className={cn(
+          "w-4 h-4 text-gray-500 transition-transform",
+          isOpen && "transform rotate-180"
+        )} />
       </button>
 
       {isOpen && (
@@ -46,25 +54,35 @@ export default function UserSelector() {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
-            {allUsers.map((user) => (
-              <button
-                key={user.id}
-                onClick={() => {
-                  switchUser(user.id);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors flex items-center justify-between",
-                  user.id === currentUser.id && "bg-blue-50"
-                )}
-              >
-                <span>{user.name}</span>
-                {user.id === currentUser.id && (
-                  <Check className="w-4 h-4 text-blue-600" />
-                )}
-              </button>
-            ))}
+          <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 z-20 overflow-hidden">
+            <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Switch User</p>
+            </div>
+            <div className="py-1">
+              {allUsers.map((user) => (
+                <button
+                  key={user.id}
+                  onClick={() => {
+                    switchUser(user.id);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full px-4 py-2.5 text-left hover:bg-gray-50 transition-colors flex items-center justify-between",
+                    user.id === currentUser.id && "bg-blue-50"
+                  )}
+                >
+                  <span className={cn(
+                    "font-medium",
+                    user.id === currentUser.id ? "text-blue-900" : "text-gray-900"
+                  )}>
+                    {user.name}
+                  </span>
+                  {user.id === currentUser.id && (
+                    <Check className="w-4 h-4 text-blue-600" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </>
       )}
