@@ -44,6 +44,9 @@ export default async function Home({ searchParams }: HomeProps) {
         const { bettingLinesCacheService } = await import('@/lib/betting-lines-cache');
         const now = new Date();
         let refreshedCount = 0;
+        let errorCount = 0;
+        
+        console.log(`🔄 Checking ${games.length} games for betting lines refresh...`);
         
         for (const game of games) {
           if (game.gameTime && game.gameTime instanceof Date) {
@@ -52,10 +55,14 @@ export default async function Home({ searchParams }: HomeProps) {
             // Refresh if game is within 3 hours and hasn't started
             if (hoursUntilGame > 0 && hoursUntilGame <= 3) {
               try {
+                console.log(`🔄 Auto-refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam} (${hoursUntilGame.toFixed(1)}h until game)`);
                 await bettingLinesCacheService.ensureBettingLinesForGame(game);
                 refreshedCount++;
+                console.log(`✅ Successfully refreshed betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
               } catch (error) {
-                console.warn(`⚠️ Failed to refresh betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+                errorCount++;
+                console.error(`❌ CRITICAL: Failed to refresh betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+                console.error(`❌ Error details:`, error instanceof Error ? error.stack : String(error));
               }
             }
           }
@@ -64,8 +71,12 @@ export default async function Home({ searchParams }: HomeProps) {
         if (refreshedCount > 0) {
           console.log(`🔄 Auto-refreshed betting lines for ${refreshedCount} games within 3 hours`);
         }
+        if (errorCount > 0) {
+          console.error(`❌ Failed to refresh betting lines for ${errorCount} games`);
+        }
       } catch (error) {
-        console.warn('⚠️ Failed to auto-refresh betting lines:', error);
+        console.error('❌ CRITICAL: Failed to auto-refresh betting lines:', error);
+        console.error('❌ Error details:', error instanceof Error ? error.stack : String(error));
       }
     } else {
       console.error(`❌ SERVER: No games found for Week ${week} after both cache and force refresh attempts`);

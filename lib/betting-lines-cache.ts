@@ -162,8 +162,18 @@ export class BettingLinesCacheService {
     
     if (shouldRefresh) {
       const hoursUntilGame = (game.gameTime.getTime() - now) / (1000 * 60 * 60);
-      console.log(`🔄 Frequent refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.fetchAndCacheBettingLines(game, { isInitialFetch: false, isFinalRefresh: true });
+      if (!cachedLines) {
+        console.log(`🔄 NO CACHED LINES - Fetching betting lines for ${game.awayTeam} @ ${game.homeTeam} (${hoursUntilGame.toFixed(1)}h until game)`);
+      } else {
+        console.log(`🔄 Frequent refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+      }
+      try {
+        await this.fetchAndCacheBettingLines(game, { isInitialFetch: !cachedLines, isFinalRefresh: true });
+        console.log(`✅ Successfully fetched and cached betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+      } catch (error) {
+        console.error(`❌ CRITICAL: Failed to fetch betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+        throw error; // Re-throw to surface the error
+      }
     } else {
       const minutesSinceFetch = Math.round((now - cachedLines.fetchedAt.getTime()) / (60 * 1000));
       const nextRefreshIn = Math.round((this.FREQUENT_REFRESH_INTERVAL - (now - cachedLines.fetchedAt.getTime())) / (60 * 1000));
@@ -181,8 +191,18 @@ export class BettingLinesCacheService {
     
     if (shouldRefresh) {
       const hoursUntilGame = (game.gameTime.getTime() - now) / (1000 * 60 * 60);
-      console.log(`📅 Daily refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
-      await this.fetchAndCacheBettingLines(game, { isInitialFetch: !cachedLines, isFinalRefresh: false });
+      if (!cachedLines) {
+        console.log(`📅 NO CACHED LINES - Fetching betting lines for ${game.awayTeam} @ ${game.homeTeam} (${hoursUntilGame.toFixed(1)}h until game)`);
+      } else {
+        console.log(`📅 Daily refresh window (${hoursUntilGame.toFixed(1)}h until game): Refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+      }
+      try {
+        await this.fetchAndCacheBettingLines(game, { isInitialFetch: !cachedLines, isFinalRefresh: false });
+        console.log(`✅ Successfully fetched and cached betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
+      } catch (error) {
+        console.error(`❌ CRITICAL: Failed to fetch betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+        throw error; // Re-throw to surface the error
+      }
     } else {
       const hoursSinceFetch = Math.round((now - cachedLines.fetchedAt.getTime()) / (60 * 60 * 1000));
       const nextRefreshIn = Math.round((this.DAILY_REFRESH_INTERVAL - (now - cachedLines.fetchedAt.getTime())) / (60 * 60 * 1000));
