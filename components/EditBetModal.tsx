@@ -45,13 +45,22 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }:
         line: bet.line,
         amountPerPerson: bet.amountPerPerson,
         participants: bet.participants,
-        placedBy: bet.placedBy
+        placedBy: bet.placedBy,
+        betType: bet.betType,
+        fullBetObject: JSON.stringify(bet, null, 2)
       });
       
       // Handle 0 values correctly - 0 is a valid value for odds/line
-      const oddsValue = bet.odds !== undefined && bet.odds !== null ? bet.odds.toString() : '';
-      const lineValue = bet.line !== undefined && bet.line !== null ? bet.line.toString() : '';
-      const amountValue = bet.amountPerPerson !== undefined && bet.amountPerPerson !== null ? bet.amountPerPerson.toString() : '';
+      // Also handle NaN and undefined explicitly
+      const oddsValue = (bet.odds !== undefined && bet.odds !== null && !isNaN(bet.odds)) 
+        ? bet.odds.toString() 
+        : '';
+      const lineValue = (bet.line !== undefined && bet.line !== null && !isNaN(bet.line)) 
+        ? bet.line.toString() 
+        : '';
+      const amountValue = (bet.amountPerPerson !== undefined && bet.amountPerPerson !== null && !isNaN(bet.amountPerPerson)) 
+        ? bet.amountPerPerson.toString() 
+        : '';
       
       console.log('📝 EditBetModal: Setting form values:', {
         odds: oddsValue,
@@ -60,7 +69,9 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }:
         rawOdds: bet.odds,
         rawLine: bet.line,
         rawAmount: bet.amountPerPerson,
-        betType: bet.betType
+        betType: bet.betType,
+        oddsIsNaN: isNaN(bet.odds as number),
+        lineIsNaN: isNaN(bet.line as number)
       });
       
       const newFormData = {

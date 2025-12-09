@@ -334,17 +334,25 @@ class OddsApiService {
               return game;
             }
             
-            console.log(`💾 Applied cached betting lines to ${game.awayTeam} @ ${game.homeTeam} from ${cachedLines.bookmaker || 'unknown'} (fetched ${Math.round((Date.now() - cachedLines.fetchedAt.getTime()) / (60 * 1000))} min ago)`);
-            
-            // Apply cached betting lines to the game
-            return {
-              ...game,
+            console.log(`💾 Applied cached betting lines to ${game.awayTeam} @ ${game.homeTeam} from ${cachedLines.bookmaker || 'unknown'} (fetched ${Math.round((Date.now() - cachedLines.fetchedAt.getTime()) / (60 * 1000))} min ago)`, {
               spread: cachedLines.spread,
               spreadOdds: cachedLines.spreadOdds,
               overUnder: cachedLines.overUnder,
               overUnderOdds: cachedLines.overUnderOdds,
               homeMoneyline: cachedLines.homeMoneyline,
               awayMoneyline: cachedLines.awayMoneyline,
+              gameId: game.id
+            });
+            
+            // Apply cached betting lines to the game (only if they exist - don't overwrite with undefined)
+            return {
+              ...game,
+              spread: cachedLines.spread !== undefined ? cachedLines.spread : game.spread,
+              spreadOdds: cachedLines.spreadOdds !== undefined ? cachedLines.spreadOdds : game.spreadOdds,
+              overUnder: cachedLines.overUnder !== undefined ? cachedLines.overUnder : game.overUnder,
+              overUnderOdds: cachedLines.overUnderOdds !== undefined ? cachedLines.overUnderOdds : game.overUnderOdds,
+              homeMoneyline: cachedLines.homeMoneyline !== undefined ? cachedLines.homeMoneyline : game.homeMoneyline,
+              awayMoneyline: cachedLines.awayMoneyline !== undefined ? cachedLines.awayMoneyline : game.awayMoneyline,
             };
           } else {
             console.log(`⚠️ No cached betting lines available for ${game.awayTeam} @ ${game.homeTeam} (gameId: ${game.id})`);
