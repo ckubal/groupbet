@@ -49,14 +49,30 @@ export default async function Home({ searchParams }: HomeProps) {
         console.log(`🔄 Checking ${games.length} games for betting lines refresh...`);
         
         for (const game of games) {
-          if (game.gameTime && game.gameTime instanceof Date) {
-            const hoursUntilGame = (game.gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+          // Handle gameTime which might be Date, Firebase Timestamp, or string
+          let gameTime: Date | null = null;
+          if (game.gameTime) {
+            if (game.gameTime instanceof Date) {
+              gameTime = game.gameTime;
+            } else if (typeof game.gameTime === 'object' && 'toDate' in game.gameTime) {
+              // Firebase Timestamp
+              gameTime = (game.gameTime as any).toDate();
+            } else if (typeof game.gameTime === 'string' || typeof game.gameTime === 'number') {
+              // String or timestamp number
+              gameTime = new Date(game.gameTime);
+            }
+          }
+          
+          if (gameTime && !isNaN(gameTime.getTime())) {
+            const hoursUntilGame = (gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
             
             // Refresh if game is within 3 hours and hasn't started
             if (hoursUntilGame > 0 && hoursUntilGame <= 3) {
               try {
+                // Ensure game has Date object for gameTime
+                const gameWithDate = { ...game, gameTime };
                 console.log(`🔄 Auto-refreshing betting lines for ${game.awayTeam} @ ${game.homeTeam} (${hoursUntilGame.toFixed(1)}h until game)`);
-                await bettingLinesCacheService.ensureBettingLinesForGame(game);
+                await bettingLinesCacheService.ensureBettingLinesForGame(gameWithDate);
                 refreshedCount++;
                 console.log(`✅ Successfully refreshed betting lines for ${game.awayTeam} @ ${game.homeTeam}`);
               } catch (error) {
@@ -65,6 +81,8 @@ export default async function Home({ searchParams }: HomeProps) {
                 console.error(`❌ Error details:`, error instanceof Error ? error.stack : String(error));
               }
             }
+          } else {
+            console.warn(`⚠️ Skipping ${game.awayTeam} @ ${game.homeTeam} - invalid gameTime:`, game.gameTime);
           }
         }
         

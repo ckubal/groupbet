@@ -102,43 +102,60 @@ export class BettingLinesCacheService {
    * Strategic betting lines management for individual games
    */
   async ensureBettingLinesForGame(game: Game): Promise<void> {
-    if (!game.gameTime || !(game.gameTime instanceof Date)) {
-      console.warn(`⚠️ Invalid game time for ${game.awayTeam} @ ${game.homeTeam}, skipping betting lines`);
+    // Handle gameTime which might be Date, Firebase Timestamp, or string
+    let gameTime: Date | null = null;
+    if (game.gameTime) {
+      if (game.gameTime instanceof Date) {
+        gameTime = game.gameTime;
+      } else if (typeof game.gameTime === 'object' && 'toDate' in game.gameTime) {
+        // Firebase Timestamp
+        gameTime = (game.gameTime as any).toDate();
+      } else if (typeof game.gameTime === 'string' || typeof game.gameTime === 'number') {
+        // String or timestamp number
+        gameTime = new Date(game.gameTime);
+      }
+    }
+    
+    if (!gameTime || isNaN(gameTime.getTime())) {
+      console.warn(`⚠️ Invalid game time for ${game.awayTeam} @ ${game.homeTeam}, skipping betting lines. gameTime:`, game.gameTime);
       return;
     }
     
-    const now = new Date();
-    const hoursUntilGame = (game.gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    // Use normalized Date object for calculations
+    const normalizedGame = { ...game, gameTime };
     
-    console.log(`⏰ ${game.awayTeam} @ ${game.homeTeam}: ${hoursUntilGame.toFixed(1)} hours until game`);
+    const now = new Date();
+    const hoursUntilGame = (gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+    
+    console.log(`⏰ ${normalizedGame.awayTeam} @ ${normalizedGame.homeTeam}: ${hoursUntilGame.toFixed(1)} hours until game`);
     
     // Check if lines are already frozen (post-game)
     try {
-      const frozenLines = await preGameOddsService.getFrozenOdds(game.id);
+      const frozenLines = await preGameOddsService.getFrozenOdds(normalizedGame.id);
       if (frozenLines) {
-        console.log(`🧊 Lines already frozen for ${game.awayTeam} @ ${game.homeTeam}`);
+        console.log(`🧊 Lines already frozen for ${normalizedGame.awayTeam} @ ${normalizedGame.homeTeam}`);
         return;
       }
     } catch (error) {
-      console.warn(`⚠️ Could not check frozen odds for ${game.id}:`, error);
+      console.warn(`⚠️ Could not check frozen odds for ${normalizedGame.id}:`, error);
     }
     
     // Check existing cache
-    const cachedLines = await this.getCachedBettingLines(game.id);
+    const cachedLines = await this.getCachedBettingLines(normalizedGame.id);
     
     // Strategic decision tree based on timing
     if (hoursUntilGame <= 0) {
       // GAME STARTED/COMPLETED: Freeze current lines
-      await this.handleGameStarted(game, cachedLines);
+      await this.handleGameStarted(normalizedGame, cachedLines);
       
     } else if (hoursUntilGame <= this.FREQUENT_REFRESH_START) {
       // FREQUENT REFRESH WINDOW: 0-3 hours before game - refresh every 30 minutes
       // (When hoursUntilGame <= 0, game has started and we freeze instead)
-      await this.handleFrequentRefreshWindow(game, cachedLines);
+      await this.handleFrequentRefreshWindow(normalizedGame, cachedLines);
       
     } else {
       // DAILY REFRESH WINDOW: More than 3 hours before game - refresh once per day
-      await this.handleDailyRefreshWindow(game, cachedLines);
+      await this.handleDailyRefreshWindow(normalizedGame, cachedLines);
     }
   }
 
