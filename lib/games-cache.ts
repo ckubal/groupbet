@@ -179,28 +179,59 @@ export class GamesCacheService {
   private async getGamesFromFirebase(week: number): Promise<Game[]> {
     try {
       // Use Admin SDK for server-side operations to bypass security rules
-      const gamesQuery = adminDb.collection('games')
-        .where('weekendId', '==', `2025-week-${week}`);
+      const adminDbInstance = await getAdminDb();
       
-      const snapshot = await gamesQuery.get();
-      const games: Game[] = [];
-      
-      snapshot.forEach(doc => {
-        const gameData = doc.data() as Game;
-        // Convert Firebase Timestamps to JavaScript Dates
-        const convertedGameData = {
-          ...gameData,
-          id: doc.id,
-          gameTime: (gameData as any).gameTime?.toDate ? (gameData as any).gameTime.toDate() : 
-                   (gameData.gameTime instanceof Date ? gameData.gameTime : new Date(gameData.gameTime)),
-          // Convert any other timestamp fields that might exist
-          ...(((gameData as any).cachedAt?.toDate) && { cachedAt: (gameData as any).cachedAt.toDate() }),
-          ...(((gameData as any).playerPropsUpdatedAt?.toDate) && { playerPropsUpdatedAt: (gameData as any).playerPropsUpdatedAt.toDate() })
-        };
-        games.push(convertedGameData);
-      });
-      
-      return games;
+      // Check if it's Admin SDK (has .collection method) or client SDK
+      if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+        // Admin SDK
+        const gamesQuery = adminDbInstance.collection('games')
+          .where('weekendId', '==', `2025-week-${week}`);
+        
+        const snapshot = await gamesQuery.get();
+        const games: Game[] = [];
+        
+        snapshot.forEach(doc => {
+          const gameData = doc.data() as Game;
+          // Convert Firebase Timestamps to JavaScript Dates
+          const convertedGameData = {
+            ...gameData,
+            id: doc.id,
+            gameTime: (gameData as any).gameTime?.toDate ? (gameData as any).gameTime.toDate() : 
+                     (gameData.gameTime instanceof Date ? gameData.gameTime : new Date(gameData.gameTime)),
+            // Convert any other timestamp fields that might exist
+            ...(((gameData as any).cachedAt?.toDate) && { cachedAt: (gameData as any).cachedAt.toDate() }),
+            ...(((gameData as any).playerPropsUpdatedAt?.toDate) && { playerPropsUpdatedAt: (gameData as any).playerPropsUpdatedAt.toDate() })
+          };
+          games.push(convertedGameData);
+        });
+        
+        return games;
+      } else {
+        // Fallback to client SDK
+        const gamesQuery = query(
+          collection(db, 'games'),
+          where('weekendId', '==', `2025-week-${week}`)
+        );
+        
+        const snapshot = await getDocs(gamesQuery);
+        const games: Game[] = [];
+        
+        snapshot.forEach(doc => {
+          const gameData = doc.data() as Game;
+          // Convert Firebase Timestamps to JavaScript Dates
+          const convertedGameData = {
+            ...gameData,
+            id: doc.id,
+            gameTime: (gameData as any).gameTime?.toDate ? (gameData as any).gameTime.toDate() : gameData.gameTime,
+            // Convert any other timestamp fields that might exist
+            ...(((gameData as any).cachedAt?.toDate) && { cachedAt: (gameData as any).cachedAt.toDate() }),
+            ...(((gameData as any).playerPropsUpdatedAt?.toDate) && { playerPropsUpdatedAt: (gameData as any).playerPropsUpdatedAt.toDate() })
+          };
+          games.push(convertedGameData);
+        });
+        
+        return games;
+      }
     } catch (error) {
       console.error('❌ Error reading games from Firebase:', error);
       return [];
@@ -232,30 +263,63 @@ export class GamesCacheService {
             readable: game.readableId || null
           };
           
-          // Check if game already exists to preserve any manually added player props
-          const existingGameDoc = await getDoc(doc(db, 'games', gameId));
+          // Use Admin SDK for server-side operations to bypass security rules
+          const adminDbInstance = await getAdminDb();
           
-          if (existingGameDoc.exists()) {
-            const existingData = existingGameDoc.data();
-            console.log(`🔄 Preserving data for existing game ${gameId}: ${existingData.awayTeam} @ ${existingData.homeTeam}`);
+          // Check if it's Admin SDK (has .collection method) or client SDK
+          if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+            // Admin SDK
+            const gameRef = adminDbInstance.collection('games').doc(gameId);
+            const existingGameDoc = await gameRef.get();
             
-            // Preserve existing player props if they exist
-            if (existingData.playerProps && existingData.playerProps.length > 0) {
-              console.log(`📦 Preserving ${existingData.playerProps.length} player props for ${existingData.awayTeam} @ ${existingData.homeTeam}`);
-              cleanedGame.playerProps = existingData.playerProps;
+            if (existingGameDoc.exists) {
+              const existingData = existingGameDoc.data();
+              console.log(`🔄 Preserving data for existing game ${gameId}: ${existingData?.awayTeam} @ ${existingData?.homeTeam}`);
+              
+              // Preserve existing player props if they exist
+              if (existingData?.playerProps && existingData.playerProps.length > 0) {
+                console.log(`📦 Preserving ${existingData.playerProps.length} player props for ${existingData.awayTeam} @ ${existingData.homeTeam}`);
+                cleanedGame.playerProps = existingData.playerProps;
+              }
+              
+              // Preserve existing game ID mappings if they exist
+              if (existingData?.gameIds) {
+                cleanedGame.gameIds = {
+                  ...cleanedGame.gameIds,
+                  ...existingData.gameIds
+                };
+              }
             }
             
-            // Preserve existing game ID mappings if they exist
-            if (existingData.gameIds) {
-              cleanedGame.gameIds = {
-                ...cleanedGame.gameIds,
-                ...existingData.gameIds
-              };
+            // Use set with merge to ensure we preserve existing data
+            await gameRef.set(cleanedGame, { merge: true });
+          } else {
+            // Fallback to client SDK
+            // Check if game already exists to preserve any manually added player props
+            const existingGameDoc = await getDoc(doc(db, 'games', gameId));
+            
+            if (existingGameDoc.exists()) {
+              const existingData = existingGameDoc.data();
+              console.log(`🔄 Preserving data for existing game ${gameId}: ${existingData.awayTeam} @ ${existingData.homeTeam}`);
+              
+              // Preserve existing player props if they exist
+              if (existingData.playerProps && existingData.playerProps.length > 0) {
+                console.log(`📦 Preserving ${existingData.playerProps.length} player props for ${existingData.awayTeam} @ ${existingData.homeTeam}`);
+                cleanedGame.playerProps = existingData.playerProps;
+              }
+              
+              // Preserve existing game ID mappings if they exist
+              if (existingData.gameIds) {
+                cleanedGame.gameIds = {
+                  ...cleanedGame.gameIds,
+                  ...existingData.gameIds
+                };
+              }
             }
+            
+            // Use setDoc with merge to ensure we preserve existing data
+            await setDoc(doc(db, 'games', gameId), cleanedGame, { merge: true });
           }
-          
-          // Use setDoc with merge to ensure we preserve existing data
-          await setDoc(doc(db, 'games', gameId), cleanedGame, { merge: true });
           
         } catch (error) {
           console.error(`❌ Error caching individual game:`, error, game);
@@ -299,28 +363,60 @@ export class GamesCacheService {
 
   async findGameByAnyId(gameId: string): Promise<Game | null> {
     try {
-      // First try direct ID lookup
-      const directDoc = await getDoc(doc(db, 'games', gameId));
-      if (directDoc.exists()) {
-        return { id: directDoc.id, ...directDoc.data() } as Game;
-      }
-
-      // Then search by stored game IDs
-      const gamesQuery = query(collection(db, 'games'));
-      const snapshot = await getDocs(gamesQuery);
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDbInstance = await getAdminDb();
       
-      for (const docSnapshot of snapshot.docs) {
-        const gameData = docSnapshot.data() as Game;
-        const gameIds = (gameData as any).gameIds;
+      // Check if it's Admin SDK (has .collection method) or client SDK
+      if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+        // Admin SDK
+        // First try direct ID lookup
+        const directDoc = await adminDbInstance.collection('games').doc(gameId).get();
+        if (directDoc.exists) {
+          return { id: directDoc.id, ...directDoc.data() } as Game;
+        }
+
+        // Then search by stored game IDs
+        const snapshot = await adminDbInstance.collection('games').get();
         
-        if (gameIds?.oddsApi === gameId || 
-            gameIds?.espn === gameId || 
-            gameIds?.readable === gameId ||
-            gameIds?.consistent === gameId ||
-            (gameData as any).originalId === gameId ||
-            gameData.espnId === gameId ||
-            gameData.readableId === gameId) {
-          return { ...gameData, id: docSnapshot.id };
+        for (const docSnapshot of snapshot.docs) {
+          const gameData = docSnapshot.data() as Game;
+          const gameIds = (gameData as any).gameIds;
+          
+          if (gameIds?.oddsApi === gameId || 
+              gameIds?.espn === gameId || 
+              gameIds?.readable === gameId ||
+              gameIds?.consistent === gameId ||
+              (gameData as any).originalId === gameId ||
+              gameData.espnId === gameId ||
+              gameData.readableId === gameId) {
+            return { ...gameData, id: docSnapshot.id };
+          }
+        }
+      } else {
+        // Fallback to client SDK
+        // First try direct ID lookup
+        const directDoc = await getDoc(doc(db, 'games', gameId));
+        if (directDoc.exists()) {
+          return { id: directDoc.id, ...directDoc.data() } as Game;
+        }
+
+        // Then search by stored game IDs
+        const gamesQuery = query(collection(db, 'games'));
+        const snapshot = await getDocs(gamesQuery);
+        
+        for (const docSnapshot of snapshot.docs) {
+          const gameData = docSnapshot.data() as Game;
+          const gameIds = (gameData as any).gameIds;
+          
+          if (gameIds?.oddsApi === gameId || 
+              gameIds?.espn === gameId || 
+              gameIds?.readable === gameId ||
+              gameIds?.consistent === gameId ||
+              (gameData as any).originalId === gameId ||
+              gameData.espnId === gameId ||
+              gameData.readableId === gameId) {
+            return { ...gameData, id: docSnapshot.id };
+          }
         }
       }
       
@@ -330,16 +426,33 @@ export class GamesCacheService {
       return null;
     }
   }
-  
+
   async getGameById(gameId: string): Promise<Game | null> {
     try {
-      const gameDoc = await getDoc(doc(db, 'games', gameId));
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDbInstance = await getAdminDb();
       
-      if (gameDoc.exists()) {
-        return {
-          id: gameDoc.id,
-          ...gameDoc.data()
-        } as Game;
+      // Check if it's Admin SDK (has .collection method) or client SDK
+      if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+        // Admin SDK
+        const gameDoc = await adminDbInstance.collection('games').doc(gameId).get();
+        
+        if (gameDoc.exists) {
+          return {
+            id: gameDoc.id,
+            ...gameDoc.data()
+          } as Game;
+        }
+      } else {
+        // Fallback to client SDK
+        const gameDoc = await getDoc(doc(db, 'games', gameId));
+        
+        if (gameDoc.exists()) {
+          return {
+            id: gameDoc.id,
+            ...gameDoc.data()
+          } as Game;
+        }
       }
       
       return null;
