@@ -31,6 +31,8 @@ interface GameAnalysis {
   difference: number;
   recommendation: 'over' | 'under' | 'neutral';
   confidence: 'high' | 'medium' | 'low';
+  adjustments?: string[];
+  gameContext?: string[];
 }
 
 interface ResearchData {
@@ -411,6 +413,34 @@ function GameAnalysisCard({
           )}
         </div>
       </div>
+
+      {/* Game Context & Adjustments */}
+      {(analysis.gameContext && analysis.gameContext.length > 0) || (analysis.adjustments && analysis.adjustments.length > 0) ? (
+        <div className="bg-gray-50 rounded p-3 mb-4 text-sm">
+          {analysis.gameContext && analysis.gameContext.length > 0 && (
+            <div className="mb-2">
+              <div className="text-gray-600 font-medium mb-1">Game Context:</div>
+              <div className="flex flex-wrap gap-2">
+                {analysis.gameContext.map((context, idx) => (
+                  <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                    {context}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          {analysis.adjustments && analysis.adjustments.length > 0 && (
+            <div>
+              <div className="text-gray-600 font-medium mb-1">Adjustments Applied:</div>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                {analysis.adjustments.map((adj, idx) => (
+                  <li key={idx} className="text-gray-700">{adj}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      ) : null}
 
       {/* Recommendation & Actions */}
       {hasLine && analysis.recommendation !== 'neutral' && (

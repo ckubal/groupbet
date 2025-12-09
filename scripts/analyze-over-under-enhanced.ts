@@ -7,6 +7,14 @@
 
 import { getCurrentNFLWeek } from '../lib/utils';
 import { espnApi } from '../lib/espn-api';
+import {
+  calculateWeatherAdjustment,
+  getRestDaysInfo,
+  calculateRestDaysAdjustment,
+  calculateTravelAdjustment,
+  calculateAltitudeAdjustment,
+  isDivisionalGame,
+} from '../lib/nfl-adjustments';
 
 interface TeamStats {
   teamName: string;
@@ -55,6 +63,8 @@ interface GameAnalysis {
   confidence: 'high' | 'medium' | 'low';
   weather?: WeatherInfo;
   injuries?: InjuryInfo;
+  adjustments?: string[];
+  gameContext?: string[];
 }
 
 async function getTeamRecentGames(teamName: string, currentWeek: number, numGames: number = 4): Promise<TeamStats> {
@@ -145,6 +155,44 @@ async function getTeamRecentGames(teamName: string, currentWeek: number, numGame
 }
 
 /**
+ * Check if this is a rematch (second time these teams play each other this season)
+ */
+async function isRematch(awayTeam: string, homeTeam: string, currentWeek: number): Promise<boolean> {
+  if (currentWeek <= 1) return false; // Can't be a rematch in week 1
+  
+  try {
+    // Check all previous weeks to see if these teams already played
+    for (let week = 1; week < currentWeek; week++) {
+      const scoreboard = await espnApi.getScoreboard(week);
+      if (!scoreboard || !scoreboard.events) continue;
+      
+      for (const event of scoreboard.events) {
+        const competition = event.competitions[0];
+        if (!competition) continue;
+        
+        const homeCompetitor = competition.competitors.find((c: any) => c.homeAway === 'home');
+        const awayCompetitor = competition.competitors.find((c: any) => c.homeAway === 'away');
+        
+        if (!homeCompetitor || !awayCompetitor) continue;
+        
+        const prevHomeTeam = homeCompetitor.team.displayName;
+        const prevAwayTeam = awayCompetitor.team.displayName;
+        
+        // Check if teams match (either direction)
+        if ((prevHomeTeam === homeTeam && prevAwayTeam === awayTeam) ||
+            (prevHomeTeam === awayTeam && prevAwayTeam === homeTeam)) {
+          return true; // Found previous matchup
+        }
+      }
+    }
+    return false; // No previous matchup found
+  } catch (error) {
+    console.warn(`⚠️ Could not check rematch for ${awayTeam} @ ${homeTeam}:`, error);
+    return false;
+  }
+}
+
+/**
  * Check if a team is coming off a bye week
  * Returns true if team didn't play in the previous week
  */
@@ -205,14 +253,16 @@ function getGameTypeAdjustment(gameTime: Date): { adjustment: number; reason: st
  * Enhanced projection with statistical adjustments
  */
 async function projectTotalPoints(
-  awayStats: TeamStats, 
-  homeStats: TeamStats, 
+  awayStats: TeamStats,
+  homeStats: TeamStats,
   awayTeam: string,
   homeTeam: string,
   currentWeek: number,
   gameTime: Date,
+  weather?: WeatherInfo,
+  venue?: any,
   useMedian: boolean = false
-): Promise<{ total: number; adjustments: string[] }> {
+): Promise<{ total: number; adjustments: string[]; gameContext: string[] }> {
   const awayOffense = useMedian ? awayStats.medianPointsScored : awayStats.avgPointsScored;
   const awayDefense = useMedian ? awayStats.medianPointsAllowed : awayStats.avgPointsAllowed;
   const homeOffense = useMedian ? homeStats.medianPointsScored : homeStats.avgPointsScored;
@@ -229,21 +279,21 @@ async function projectTotalPoints(
   projectedTotal += (homeFieldAdvantage * 0.5);
   adjustments.push(`Home field: +${(homeFieldAdvantage * 0.5).toFixed(1)}`);
   
-  // Check for bye week adjustments
+  // Bye week adjustments (based on historical data analysis)
+  // One team off bye: -1.5 points (22 games analyzed, -3.28 point difference)
+  // Both teams off bye: No adjustment (only 3 games, sample size too small)
   const [awayBye, homeBye] = await Promise.all([
     isComingOffBye(awayTeam, currentWeek),
     isComingOffBye(homeTeam, currentWeek),
   ]);
   
-  if (awayBye) {
-    projectedTotal += 1.5; // Teams coming off bye typically score ~1.5 more points
-    adjustments.push(`${awayTeam} off bye: +1.5`);
+  if ((awayBye && !homeBye) || (!awayBye && homeBye)) {
+    // Only one team off bye - slight negative adjustment
+    projectedTotal -= 1.5;
+    const byeTeam = awayBye ? awayTeam : homeTeam;
+    adjustments.push(`${byeTeam} off bye: -1.5`);
   }
-  
-  if (homeBye) {
-    projectedTotal += 1.5;
-    adjustments.push(`${homeTeam} off bye: +1.5`);
-  }
+  // Note: Both teams off bye shows +6 points in data, but only 3 games (too small sample)
   
   // Game type adjustment (Thursday/Monday night)
   const gameType = getGameTypeAdjustment(gameTime);
@@ -252,13 +302,66 @@ async function projectTotalPoints(
     adjustments.push(`${gameType.reason}: ${gameType.adjustment > 0 ? '+' : ''}${gameType.adjustment.toFixed(1)}`);
   }
   
-  // Divisional game check (same division teams)
-  // Note: This would require division data - for now, we'll skip this
-  // Divisional games can be more competitive but don't have a clear over/under bias
+  // Weather adjustments
+  if (weather) {
+    const weatherAdj = calculateWeatherAdjustment(weather);
+    if (weatherAdj.adjustment !== 0) {
+      projectedTotal += weatherAdj.adjustment;
+      adjustments.push(`Weather (${weatherAdj.reason}): ${weatherAdj.adjustment > 0 ? '+' : ''}${weatherAdj.adjustment.toFixed(1)}`);
+    }
+  }
+  
+  // Rest days adjustments
+  try {
+    const restDaysInfo = await getRestDaysInfo(awayTeam, homeTeam, gameTime, currentWeek, espnApi);
+    const restAdj = calculateRestDaysAdjustment(restDaysInfo);
+    if (restAdj.adjustment !== 0) {
+      projectedTotal += restAdj.adjustment;
+      restAdj.reasons.forEach(reason => adjustments.push(`Rest (${reason})`));
+    }
+  } catch (error) {
+    console.warn(`    ⚠️ Could not calculate rest days:`, error);
+  }
+  
+  // Travel and time zone adjustments
+  if (venue) {
+    const travelAdj = calculateTravelAdjustment(awayTeam, homeTeam, gameTime, venue);
+    if (travelAdj.adjustment !== 0) {
+      projectedTotal += travelAdj.adjustment;
+      adjustments.push(`Travel (${travelAdj.reason}): ${travelAdj.adjustment > 0 ? '+' : ''}${travelAdj.adjustment.toFixed(1)}`);
+    }
+    
+    // Altitude adjustment (Denver)
+    const altitudeAdj = calculateAltitudeAdjustment(venue);
+    if (altitudeAdj.adjustment !== 0) {
+      projectedTotal += altitudeAdj.adjustment;
+      adjustments.push(`Altitude (${altitudeAdj.reason}): +${altitudeAdj.adjustment.toFixed(1)}`);
+    }
+  }
+  
+  // Note: Efficiency matchups are already captured in the base projection
+  // (avgPointsScored/allowed already reflect offensive/defensive strength)
+  // Adding efficiency adjustments would double-count these factors.
+  
+  // Game context factors (informational, no adjustment)
+  const gameContext: string[] = [];
+  
+  // Check if divisional game
+  const isDivisional = isDivisionalGame(awayTeam, homeTeam);
+  if (isDivisional) {
+    gameContext.push('Divisional game');
+  }
+  
+  // Check if rematch (second time playing)
+  const isRematchGame = await isRematch(awayTeam, homeTeam, currentWeek);
+  if (isRematchGame) {
+    gameContext.push('Rematch (2nd meeting)');
+  }
   
   return {
     total: Math.round(projectedTotal * 10) / 10,
-    adjustments
+    adjustments,
+    gameContext
   };
 }
 
@@ -521,15 +624,20 @@ async function main() {
     console.log(`   🕐 ${game.gameTime.toLocaleString()}`);
     console.log(`   🎰 Bovada O/U: ${game.overUnder || 'N/A'}\n`);
 
+    // Get weather and venue information first (needed for adjustments)
+    console.log(`   🌤️ Fetching weather information...`);
+    const weather = await getWeatherInfo(game.competition, game.gameTime);
+    const venue = game.competition?.venue;
+
     const [awayStats, homeStats] = await Promise.all([
       getTeamRecentGames(game.awayTeam, currentWeek, 4),
       getTeamRecentGames(game.homeTeam, currentWeek, 4),
     ]);
 
-    // Get enhanced projections with adjustments
+    // Get enhanced projections with adjustments (including weather, rest days, travel)
     const [projectionMean, projectionMedian] = await Promise.all([
-      projectTotalPoints(awayStats, homeStats, game.awayTeam, game.homeTeam, currentWeek, game.gameTime, false),
-      projectTotalPoints(awayStats, homeStats, game.awayTeam, game.homeTeam, currentWeek, game.gameTime, true),
+      projectTotalPoints(awayStats, homeStats, game.awayTeam, game.homeTeam, currentWeek, game.gameTime, weather, venue, false),
+      projectTotalPoints(awayStats, homeStats, game.awayTeam, game.homeTeam, currentWeek, game.gameTime, weather, venue, true),
     ]);
 
     const projectedTotalMean = projectionMean.total;
@@ -537,10 +645,10 @@ async function main() {
     const bovadaOverUnder = game.overUnder;
     const differenceMean = bovadaOverUnder ? projectedTotalMean - bovadaOverUnder : 0;
     const differenceMedian = bovadaOverUnder ? projectedTotalMedian - bovadaOverUnder : 0;
-    const { recommendation: recMean, confidence: confMean } = bovadaOverUnder 
+    const { recommendation: recMean, confidence: confMean } = bovadaOverUnder
       ? getRecommendation(projectedTotalMean, bovadaOverUnder)
       : { recommendation: 'neutral' as const, confidence: 'low' as const };
-    const { recommendation: recMedian, confidence: confMedian } = bovadaOverUnder 
+    const { recommendation: recMedian, confidence: confMedian } = bovadaOverUnder
       ? getRecommendation(projectedTotalMedian, bovadaOverUnder)
       : { recommendation: 'neutral' as const, confidence: 'low' as const };
     
@@ -550,10 +658,7 @@ async function main() {
     const recommendation = recMedian;
     const confidence = confMedian;
     const adjustments = projectionMedian.adjustments;
-
-    // Get weather information
-    console.log(`   🌤️ Fetching weather information...`);
-    const weather = await getWeatherInfo(game.competition, game.gameTime);
+    const gameContext = projectionMedian.gameContext;
     
     // Get injury information
     console.log(`   🏥 Checking injury information...`);
@@ -572,10 +677,17 @@ async function main() {
       confidence,
       weather,
       injuries,
+      adjustments,
+      gameContext,
     });
 
     console.log(`\n   💡 PROJECTION:`);
     console.log(`      Mean Projection: ${projectedTotalMean.toFixed(1)} | Median Projection: ${projectedTotalMedian.toFixed(1)}`);
+    
+    // Show game context (divisional, rematch, etc.)
+    if (gameContext.length > 0) {
+      console.log(`      📋 Game Context: ${gameContext.join(', ')}`);
+    }
     
     // Show adjustments
     if (adjustments.length > 0) {
@@ -583,6 +695,8 @@ async function main() {
       adjustments.forEach(adj => {
         console.log(`         • ${adj}`);
       });
+    } else {
+      console.log(`      📊 Adjustments Applied: None`);
     }
     
     if (bovadaOverUnder) {
@@ -648,6 +762,54 @@ async function main() {
 
     console.log('\n' + '='.repeat(80));
   }
+
+  // Full table with adjustments
+  console.log('\n\n📊 FULL WEEK 15 OVER/UNDER TABLE\n');
+  console.log('='.repeat(140));
+  console.log(
+    'Game'.padEnd(45) + '|' +
+    'Bovada'.padEnd(8) + '|' +
+    'Projected'.padEnd(10) + '|' +
+    'Diff'.padEnd(7) + '|' +
+    'Bet'.padEnd(8) + '|' +
+    'Adjustments & Context'
+  );
+  console.log('='.repeat(140));
+  
+  analyses.forEach(analysis => {
+    const gameName = `${analysis.awayTeam} @ ${analysis.homeTeam}`;
+    const bovada = analysis.bovadaOverUnder ? analysis.bovadaOverUnder.toString() : 'N/A';
+    const projected = analysis.projectedTotal.toFixed(1);
+    const diff = analysis.difference > 0 ? `+${analysis.difference.toFixed(1)}` : analysis.difference.toFixed(1);
+    const emoji = analysis.recommendation === 'over' ? '⬆️' : analysis.recommendation === 'under' ? '⬇️' : '➡️';
+    const confEmoji = analysis.confidence === 'high' ? '🟢' : analysis.confidence === 'medium' ? '🟡' : '🔴';
+    const bet = `${emoji} ${confEmoji} ${analysis.recommendation.toUpperCase()}`;
+    
+    // Combine all adjustments and context
+    const allFactors: string[] = [];
+    
+    // Add game context (divisional, rematch)
+    if (analysis.gameContext && analysis.gameContext.length > 0) {
+      allFactors.push(...analysis.gameContext);
+    }
+    
+    // Add adjustments (bye week, game type, altitude, weather, etc.)
+    if (analysis.adjustments && analysis.adjustments.length > 0) {
+      allFactors.push(...analysis.adjustments);
+    }
+    
+    const adjustmentsStr = allFactors.length > 0 ? allFactors.join('; ') : 'None';
+    
+    console.log(
+      gameName.padEnd(45) + '|' +
+      bovada.padEnd(8) + '|' +
+      projected.padEnd(10) + '|' +
+      diff.padEnd(7) + '|' +
+      bet.padEnd(8) + '|' +
+      adjustmentsStr
+    );
+  });
+  console.log('='.repeat(140));
 
   // Summary
   console.log('\n\n📊 SUMMARY\n');
