@@ -38,6 +38,35 @@ export default async function Home({ searchParams }: HomeProps) {
       Object.entries(slotCounts).forEach(([slot, count]) => {
         console.log(`   ${slot}: ${count} games`);
       });
+      
+      // Auto-refresh betting lines for games within 3 hours (frequent refresh window)
+      try {
+        const { bettingLinesCacheService } = await import('@/lib/betting-lines-cache');
+        const now = new Date();
+        let refreshedCount = 0;
+        
+        for (const game of games) {
+          if (game.gameTime && game.gameTime instanceof Date) {
+            const hoursUntilGame = (game.gameTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+            
+            // Refresh if game is within 3 hours and hasn't started
+            if (hoursUntilGame > 0 && hoursUntilGame <= 3) {
+              try {
+                await bettingLinesCacheService.ensureBettingLinesForGame(game);
+                refreshedCount++;
+              } catch (error) {
+                console.warn(`⚠️ Failed to refresh betting lines for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+              }
+            }
+          }
+        }
+        
+        if (refreshedCount > 0) {
+          console.log(`🔄 Auto-refreshed betting lines for ${refreshedCount} games within 3 hours`);
+        }
+      } catch (error) {
+        console.warn('⚠️ Failed to auto-refresh betting lines:', error);
+      }
     } else {
       console.error(`❌ SERVER: No games found for Week ${week} after both cache and force refresh attempts`);
     }
