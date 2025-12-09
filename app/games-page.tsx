@@ -161,6 +161,26 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [showSettlement, setShowSettlement] = useState(false);
   const [lastUpdated, setLastUpdated] = useState(Date.now());
   
+  // Helper function to fetch bets via API (avoids Firebase permission errors)
+  const fetchUserBetsViaAPI = async (userId: string, weekendId?: string): Promise<Bet[]> => {
+    try {
+      const url = `/api/get-user-bets?userId=${encodeURIComponent(userId)}${weekendId ? `&weekendId=${encodeURIComponent(weekendId)}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch bets: ${response.statusText}`);
+      }
+      const data = await response.json();
+      return data.bets.map((bet: any) => ({
+        ...bet,
+        createdAt: bet.createdAt ? new Date(bet.createdAt) : new Date(),
+        resolvedAt: bet.resolvedAt ? new Date(bet.resolvedAt) : undefined
+      })) as Bet[];
+    } catch (error) {
+      console.error(`❌ Error fetching bets for user ${userId}:`, error);
+      return [];
+    }
+  };
+  
   // Parlay builder state
   const [isParlayMode, setIsParlayMode] = useState(false);
   const [parlaySelections, setParlaySelections] = useState<ParlaySelection[]>([]);
@@ -201,7 +221,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 // Reload user bets for current week
                 if (currentUser) {
                   const weekendId = `2025-week-${currentNFLWeek}`;
-                  const freshUserBets = await betService.getBetsForUser(currentUser.id, weekendId);
+                  const freshUserBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
                   setUserBets(freshUserBets);
                   console.log(`✅ Refreshed ${freshUserBets.length} user bets for Week ${currentNFLWeek}`);
                 }
@@ -213,7 +233,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 
                 for (const userId of allUserIds) {
                   try {
-                    const userWeekBets = await betService.getBetsForUser(userId, weekendId);
+                    const userWeekBets = await fetchUserBetsViaAPI(userId, weekendId);
                     allFreshBets.push(...userWeekBets);
                   } catch (error) {
                     // Ignore
@@ -339,7 +359,18 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         // ONLY get bets for current week being viewed - no past or future weeks
         const weekendId = `2025-week-${currentWeek}`;
         console.log(`📊 Loading bets ONLY for current Week ${currentWeek}`);
-        const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        
+        // Use API route instead of direct Firebase access to avoid permission errors
+        const response = await fetch(`/api/get-user-bets?userId=${encodeURIComponent(currentUser.id)}&weekendId=${encodeURIComponent(weekendId)}`);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch bets: ${response.statusText}`);
+        }
+        const data = await response.json();
+        const currentWeekBets: Bet[] = data.bets.map((bet: any) => ({
+          ...bet,
+          createdAt: bet.createdAt ? new Date(bet.createdAt) : new Date(),
+          resolvedAt: bet.resolvedAt ? new Date(bet.resolvedAt) : undefined
+        }));
         
         // Use only current week bets
         const allBets: Bet[] = [...currentWeekBets];
@@ -391,7 +422,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         // Fetch bets for all users for this week
         for (const userId of allUserIds) {
           try {
-            const userWeekBets = await betService.getBetsForUser(userId, weekendId);
+            const userWeekBets = await fetchUserBetsViaAPI(userId, weekendId);
             allBets.push(...userWeekBets);
           } catch (error) {
             console.log(`No bets found for user ${userId} in Week ${currentWeek}`);
@@ -447,7 +478,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         const allUpdatedBets: Bet[] = [];
         
         // Current week
-        const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        const currentWeekBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
         allUpdatedBets.push(...currentWeekBets);
         
         // Adjacent weeks
@@ -456,7 +487,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           if (week >= 1 && week <= 18 && week !== currentWeek) {
             try {
               const weekEndId = `2025-week-${week}`;
-              const weekBets = await betService.getBetsForUser(currentUser.id, weekEndId);
+              const weekBets = await fetchUserBetsViaAPI(currentUser.id, weekEndId);
               allUpdatedBets.push(...weekBets);
             } catch (error) {
               console.log(`No bets found for Week ${week}`);
@@ -505,7 +536,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         const allUpdatedBets: Bet[] = [];
         
         // Current week
-        const currentWeekBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        const currentWeekBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
         allUpdatedBets.push(...currentWeekBets);
         
         // Adjacent weeks
@@ -514,7 +545,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           if (week >= 1 && week <= 18 && week !== currentWeek) {
             try {
               const weekEndId = `2025-week-${week}`;
-              const weekBets = await betService.getBetsForUser(currentUser.id, weekEndId);
+              const weekBets = await fetchUserBetsViaAPI(currentUser.id, weekEndId);
               allUpdatedBets.push(...weekBets);
             } catch (error) {
               console.log(`No bets found for Week ${week}`);
@@ -635,7 +666,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
       // Refresh bets
       if (currentUser) {
         const weekendId = `2025-week-${currentWeek}`;
-        const freshUserBets = await betService.getBetsForUser(currentUser.id, weekendId);
+        const freshUserBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
         setUserBets(freshUserBets);
       }
       
@@ -871,8 +902,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                       const allUpdatedBets: Bet[] = [];
                       
                       Promise.all([
-                        betService.getBetsForUser(currentUser.id, weekendId),
-                        betService.getBetsForUser(currentUser.id, `2025-week-2`)
+                        fetchUserBetsViaAPI(currentUser.id, weekendId),
+                        fetchUserBetsViaAPI(currentUser.id, `2025-week-2`)
                       ]).then(([currentWeekBets, week2Bets]) => {
                         allUpdatedBets.push(...currentWeekBets, ...week2Bets);
                         
@@ -1600,7 +1631,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             // Refresh user bets
             if (currentUser) {
               const weekendId = `2025-week-${currentWeek}`;
-              const updatedBets = await betService.getBetsForUser(currentUser.id, weekendId);
+              const updatedBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
               setUserBets(updatedBets);
             }
           } catch (error) {
