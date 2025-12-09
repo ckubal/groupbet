@@ -1,5 +1,6 @@
 import { collection, doc, getDocs, getDoc, setDoc, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getAdminDb } from '@/lib/firebase-admin';
 import { oddsApi } from '@/lib/odds-api';
 import { cleanFirebaseData } from '@/lib/firebase-utils';
 import { Game } from '@/types';
@@ -177,12 +178,11 @@ export class GamesCacheService {
   
   private async getGamesFromFirebase(week: number): Promise<Game[]> {
     try {
-      const gamesQuery = query(
-        collection(db, 'games'),
-        where('weekendId', '==', `2025-week-${week}`)
-      );
+      // Use Admin SDK for server-side operations to bypass security rules
+      const gamesQuery = adminDb.collection('games')
+        .where('weekendId', '==', `2025-week-${week}`);
       
-      const snapshot = await getDocs(gamesQuery);
+      const snapshot = await gamesQuery.get();
       const games: Game[] = [];
       
       snapshot.forEach(doc => {
@@ -191,7 +191,8 @@ export class GamesCacheService {
         const convertedGameData = {
           ...gameData,
           id: doc.id,
-          gameTime: (gameData as any).gameTime?.toDate ? (gameData as any).gameTime.toDate() : gameData.gameTime,
+          gameTime: (gameData as any).gameTime?.toDate ? (gameData as any).gameTime.toDate() : 
+                   (gameData.gameTime instanceof Date ? gameData.gameTime : new Date(gameData.gameTime)),
           // Convert any other timestamp fields that might exist
           ...(((gameData as any).cachedAt?.toDate) && { cachedAt: (gameData as any).cachedAt.toDate() }),
           ...(((gameData as any).playerPropsUpdatedAt?.toDate) && { playerPropsUpdatedAt: (gameData as any).playerPropsUpdatedAt.toDate() })

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { betService } from '@/lib/firebase-service';
+import { adminDb } from '@/lib/firebase-admin';
+import { Bet } from '@/types';
+import { Timestamp } from 'firebase-admin/firestore';
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,10 +15,27 @@ export async function GET(request: NextRequest) {
       }, { status: 400 });
     }
     
-    console.log(`📊 API: Fetching bets for user ${userId}${weekendId ? ` for ${weekendId}` : ''}`);
+    console.log(`📊 API: Fetching bets for user ${userId}${weekendId ? ` for ${weekendId}` : ''} using Admin SDK`);
     
-    // Use server-side betService which has proper Firebase admin access
-    const bets = await betService.getBetsForUser(userId, weekendId || undefined);
+    // Use Firebase Admin SDK to bypass security rules
+    let query = adminDb.collection('bets').where('participants', 'array-contains', userId);
+    
+    if (weekendId) {
+      query = query.where('weekendId', '==', weekendId);
+    }
+    
+    const snapshot = await query.get();
+    const bets: Bet[] = [];
+    
+    snapshot.forEach((doc) => {
+      const data = doc.data();
+      bets.push({
+        id: doc.id,
+        ...data,
+        createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt instanceof Date ? data.createdAt : new Date()),
+        resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : (data.resolvedAt instanceof Date ? data.resolvedAt : undefined)
+      } as Bet);
+    });
     
     console.log(`✅ API: Found ${bets.length} bets for user ${userId}`);
     

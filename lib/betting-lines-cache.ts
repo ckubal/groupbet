@@ -7,6 +7,7 @@
 
 import { collection, doc, getDocs, getDoc, setDoc, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { getAdminDb } from '@/lib/firebase-admin';
 import { Game } from '@/types';
 import { getCurrentNFLWeek } from '@/lib/utils';
 import { gamesCacheService } from '@/lib/games-cache';
@@ -443,16 +444,40 @@ export class BettingLinesCacheService {
    */
   async getCachedBettingLines(gameId: string): Promise<BettingLinesCache | null> {
     try {
-      const docRef = doc(db, 'betting_lines_cache', gameId);
-      const docSnap = await getDoc(docRef);
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDb = await getAdminDb();
       
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        return {
-          ...data,
-          fetchedAt: data.fetchedAt?.toDate(),
-          gameTime: data.gameTime?.toDate()
-        } as BettingLinesCache;
+      // Check if it's Admin SDK (has .collection method) or client SDK (has different API)
+      if (adminDb && typeof adminDb.collection === 'function') {
+        // Admin SDK
+        const docRef = adminDb.collection('betting_lines_cache').doc(gameId);
+        const docSnap = await docRef.get();
+        
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          if (!data) return null;
+          
+          return {
+            ...data,
+            fetchedAt: data.fetchedAt?.toDate ? data.fetchedAt.toDate() : 
+                       (data.fetchedAt instanceof Date ? data.fetchedAt : new Date(data.fetchedAt)),
+            gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : 
+                      (data.gameTime instanceof Date ? data.gameTime : new Date(data.gameTime))
+          } as BettingLinesCache;
+        }
+      } else {
+        // Fallback to client SDK
+        const docRef = doc(db, 'betting_lines_cache', gameId);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          return {
+            ...data,
+            fetchedAt: data.fetchedAt?.toDate(),
+            gameTime: data.gameTime?.toDate()
+          } as BettingLinesCache;
+        }
       }
       
       return null;
@@ -467,21 +492,47 @@ export class BettingLinesCacheService {
    */
   async saveBettingLines(gameId: string, lines: BettingLinesCache): Promise<void> {
     try {
-      const docRef = doc(db, 'betting_lines_cache', gameId);
-      const data = {
-        ...lines,
-        fetchedAt: Timestamp.fromDate(lines.fetchedAt),
-        gameTime: Timestamp.fromDate(lines.gameTime)
-      };
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDbInstance = await getAdminDb();
       
-      // CRITICAL: Remove undefined values to prevent Firebase errors
-      Object.keys(data).forEach(key => {
-        if (data[key as keyof typeof data] === undefined) {
-          delete data[key as keyof typeof data];
-        }
-      });
-      
-      await setDoc(docRef, data, { merge: true });
+      // Check if it's Admin SDK (has .collection method) or client SDK
+      if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+        // Admin SDK
+        const docRef = adminDbInstance.collection('betting_lines_cache').doc(gameId);
+        const { Timestamp: AdminTimestamp } = await import('firebase-admin/firestore');
+        
+        const data = {
+          ...lines,
+          fetchedAt: AdminTimestamp.fromDate(lines.fetchedAt),
+          gameTime: AdminTimestamp.fromDate(lines.gameTime)
+        };
+        
+        // CRITICAL: Remove undefined values to prevent Firebase errors
+        Object.keys(data).forEach(key => {
+          if (data[key as keyof typeof data] === undefined) {
+            delete data[key as keyof typeof data];
+          }
+        });
+        
+        await docRef.set(data, { merge: true });
+      } else {
+        // Fallback to client SDK
+        const docRef = doc(db, 'betting_lines_cache', gameId);
+        const data = {
+          ...lines,
+          fetchedAt: Timestamp.fromDate(lines.fetchedAt),
+          gameTime: Timestamp.fromDate(lines.gameTime)
+        };
+        
+        // CRITICAL: Remove undefined values to prevent Firebase errors
+        Object.keys(data).forEach(key => {
+          if (data[key as keyof typeof data] === undefined) {
+            delete data[key as keyof typeof data];
+          }
+        });
+        
+        await setDoc(docRef, data, { merge: true });
+      }
     } catch (error) {
       console.error(`❌ Error saving betting lines for ${gameId}:`, error);
       throw error;
@@ -493,7 +544,8 @@ export class BettingLinesCacheService {
    */
   async updateCacheMetadata(gameId: string, updates: Partial<BettingLinesCache>): Promise<void> {
     try {
-      const docRef = doc(db, 'betting_lines_cache', gameId);
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDbInstance = await getAdminDb();
       
       // CRITICAL: Remove undefined values to prevent Firebase errors
       const cleanedUpdates = { ...updates };
@@ -503,7 +555,16 @@ export class BettingLinesCacheService {
         }
       });
       
-      await setDoc(docRef, cleanedUpdates, { merge: true });
+      // Check if it's Admin SDK (has .collection method) or client SDK
+      if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+        // Admin SDK
+        const docRef = adminDbInstance.collection('betting_lines_cache').doc(gameId);
+        await docRef.set(cleanedUpdates, { merge: true });
+      } else {
+        // Fallback to client SDK
+        const docRef = doc(db, 'betting_lines_cache', gameId);
+        await setDoc(docRef, cleanedUpdates, { merge: true });
+      }
     } catch (error) {
       console.error(`❌ Error updating cache metadata for ${gameId}:`, error);
     }
