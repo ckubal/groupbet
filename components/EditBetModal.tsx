@@ -53,11 +53,6 @@ export default function EditBetModal({ bet, isOpen, onClose, onSave, onDelete }:
       const lineValue = bet.line !== undefined && bet.line !== null ? bet.line.toString() : '';
       const amountValue = bet.amountPerPerson !== undefined && bet.amountPerPerson !== null ? bet.amountPerPerson.toString() : '';
       
-      // Handle 0 values correctly - 0 is a valid value for odds/line
-      const oddsValue = bet.odds !== undefined && bet.odds !== null ? bet.odds.toString() : '';
-      const lineValue = bet.line !== undefined && bet.line !== null ? bet.line.toString() : '';
-      const amountValue = bet.amountPerPerson !== undefined && bet.amountPerPerson !== null ? bet.amountPerPerson.toString() : '';
-      
       console.log('📝 EditBetModal: Setting form values:', {
         odds: oddsValue,
         line: lineValue,
