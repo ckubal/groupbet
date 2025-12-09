@@ -337,6 +337,9 @@ export class GamesCacheService {
     try {
       console.log(`💾 Simple caching ${games.length} games in Firebase...`);
       
+      // Use Admin SDK for server-side operations to bypass security rules
+      const adminDbInstance = await getAdminDb();
+      
       const promises = games.map(async (game) => {
         try {
           const gameId = game.id;
@@ -344,11 +347,26 @@ export class GamesCacheService {
           
           // Convert JavaScript dates to Firebase Timestamps before storing
           if (cleanedGame.gameTime && cleanedGame.gameTime instanceof Date) {
-            cleanedGame.gameTime = Timestamp.fromDate(cleanedGame.gameTime);
+            // Check if it's Admin SDK or client SDK
+            if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+              // Admin SDK - use Admin Timestamp
+              const { Timestamp: AdminTimestamp } = await import('firebase-admin/firestore');
+              cleanedGame.gameTime = AdminTimestamp.fromDate(cleanedGame.gameTime);
+            } else {
+              // Client SDK
+              cleanedGame.gameTime = Timestamp.fromDate(cleanedGame.gameTime);
+            }
           }
           
-          // Just store the basic game data without complex logic
-          await setDoc(doc(db, 'games', gameId), cleanedGame, { merge: true });
+          // Check if it's Admin SDK (has .collection method) or client SDK
+          if (adminDbInstance && typeof adminDbInstance.collection === 'function') {
+            // Admin SDK
+            const gameRef = adminDbInstance.collection('games').doc(gameId);
+            await gameRef.set(cleanedGame, { merge: true });
+          } else {
+            // Fallback to client SDK
+            await setDoc(doc(db, 'games', gameId), cleanedGame, { merge: true });
+          }
         } catch (error) {
           console.error(`❌ Error caching game ${game.id}:`, error);
         }
