@@ -437,6 +437,13 @@ export class BettingLinesCacheService {
         gameTime: Timestamp.fromDate(lines.gameTime)
       };
       
+      // CRITICAL: Remove undefined values to prevent Firebase errors
+      Object.keys(data).forEach(key => {
+        if (data[key as keyof typeof data] === undefined) {
+          delete data[key as keyof typeof data];
+        }
+      });
+      
       await setDoc(docRef, data, { merge: true });
     } catch (error) {
       console.error(`❌ Error saving betting lines for ${gameId}:`, error);
@@ -450,7 +457,16 @@ export class BettingLinesCacheService {
   async updateCacheMetadata(gameId: string, updates: Partial<BettingLinesCache>): Promise<void> {
     try {
       const docRef = doc(db, 'betting_lines_cache', gameId);
-      await setDoc(docRef, updates, { merge: true });
+      
+      // CRITICAL: Remove undefined values to prevent Firebase errors
+      const cleanedUpdates = { ...updates };
+      Object.keys(cleanedUpdates).forEach(key => {
+        if (cleanedUpdates[key as keyof typeof cleanedUpdates] === undefined) {
+          delete cleanedUpdates[key as keyof typeof cleanedUpdates];
+        }
+      });
+      
+      await setDoc(docRef, cleanedUpdates, { merge: true });
     } catch (error) {
       console.error(`❌ Error updating cache metadata for ${gameId}:`, error);
     }
