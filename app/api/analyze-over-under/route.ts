@@ -126,16 +126,14 @@ function projectTotalPoints(awayStats: TeamStats, homeStats: TeamStats, useMedia
   const homeOffense = useMedian ? homeStats.medianPointsScored : homeStats.avgPointsScored;
   const homeDefense = useMedian ? homeStats.medianPointsAllowed : homeStats.avgPointsAllowed;
   
-  // Method 1: Average of both team's expected points
+  // Average of both teams' expected points
   const awayExpectedPoints = (awayOffense + homeDefense) / 2;
   const homeExpectedPoints = (homeOffense + awayDefense) / 2;
   const projectedTotal = awayExpectedPoints + homeExpectedPoints;
 
-  // Apply home field advantage (typically +2.5 points for home team)
-  const homeFieldAdvantage = 2.5;
-  const adjustedTotal = projectedTotal + (homeFieldAdvantage * 0.5); // Half the advantage goes to total
-
-  return Math.round(adjustedTotal * 10) / 10; // Round to 1 decimal
+  // Note: we intentionally do NOT add a home-field bump to totals
+  // because historical scoring already bakes in home/away splits.
+  return Math.round(projectedTotal * 10) / 10; // Round to 1 decimal
 }
 
 /**
