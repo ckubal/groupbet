@@ -32,7 +32,7 @@ export function calculateTotalReturn(stake: number, odds: number): number {
 export function getNFLWeekBoundaries(weekNumber: number, year: number = 2025): { start: Date; end: Date } {
   // For 2025 NFL season, which starts in September 2025
   let seasonStart: Date;
-  
+
   if (year === 2025) {
     // For 2025 season - Week 1 starts Thursday September 4, 2025
     seasonStart = new Date(2025, 8, 4); // September 4, 2025 (Thursday)
@@ -46,27 +46,33 @@ export function getNFLWeekBoundaries(weekNumber: number, year: number = 2025): {
     firstThursday.setDate(1 + ((4 - septFirst.getDay() + 7) % 7));
     seasonStart = firstThursday;
   }
-  
-  // Each NFL week starts on Thursday and ends the following Wednesday (not Tuesday!)
-  const weekStart = new Date(seasonStart);
-  weekStart.setDate(seasonStart.getDate() + (weekNumber - 1) * 7);
-  
+
+  // Align week boundaries to run Tuesday -> Monday so the new week rolls over
+  // right after the Monday night game (Tuesday 00:00 local time).
+  const firstWeekStart = new Date(seasonStart);
+  const daysSinceTuesday = (firstWeekStart.getDay() - 2 + 7) % 7; // 2 = Tuesday
+  firstWeekStart.setDate(firstWeekStart.getDate() - daysSinceTuesday);
+  firstWeekStart.setHours(0, 0, 0, 0); // Start of the Tuesday that anchors Week 1
+
+  const weekStart = new Date(firstWeekStart);
+  weekStart.setDate(firstWeekStart.getDate() + (weekNumber - 1) * 7);
+
   const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 6); // Thursday + 6 days = Wednesday
-  
+  weekEnd.setDate(weekStart.getDate() + 6); // Tuesday + 6 days = Monday
+
   // Set times to cover the full day range
-  weekStart.setHours(0, 0, 0, 0); // Start of Thursday
-  weekEnd.setHours(23, 59, 59, 999); // End of Wednesday
-  
+  weekStart.setHours(0, 0, 0, 0); // Start of Tuesday
+  weekEnd.setHours(23, 59, 59, 999); // End of Monday
+
   console.log(`📅 Week ${weekNumber} boundaries: ${weekStart.toISOString()} to ${weekEnd.toISOString()}`);
-  
+
   return { start: weekStart, end: weekEnd };
 }
 
 export function getCurrentNFLWeek(): number {
   const today = new Date();
   const year = today.getFullYear();
-  
+
   // For 2025 NFL season - Week 1 starts Thursday September 4, 2025
   let seasonStart: Date;
   if (year === 2025) {
@@ -80,15 +86,23 @@ export function getCurrentNFLWeek(): number {
     firstThursday.setDate(1 + ((4 - septFirst.getDay() + 7) % 7));
     seasonStart = firstThursday;
   }
-  
-  // Calculate weeks since season start
-  const timeDiff = today.getTime() - seasonStart.getTime();
+
+  // Anchor Week 1 to the Tuesday of the week that contains the season opener.
+  // This makes the week roll over at midnight between Monday and Tuesday so
+  // the upcoming slate shows as soon as MNF ends.
+  const firstWeekStart = new Date(seasonStart);
+  const daysSinceTuesday = (firstWeekStart.getDay() - 2 + 7) % 7; // 2 = Tuesday
+  firstWeekStart.setDate(firstWeekStart.getDate() - daysSinceTuesday);
+  firstWeekStart.setHours(0, 0, 0, 0);
+
+  // Calculate weeks since the anchored Tuesday start
+  const timeDiff = today.getTime() - firstWeekStart.getTime();
   const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
   const currentWeek = Math.floor(daysDiff / 7) + 1;
-  
+
   // Ensure we're within valid NFL weeks (1-18 for regular season)
   const validWeek = Math.max(1, Math.min(18, currentWeek));
-  
-  console.log(`📅 Today: ${today.toDateString()}, Season started: ${seasonStart.toDateString()}, Current NFL Week: ${validWeek}`);
+
+  console.log(`📅 Today: ${today.toDateString()}, Week 1 starts: ${firstWeekStart.toDateString()}, Current NFL Week: ${validWeek}`);
   return validWeek;
 }

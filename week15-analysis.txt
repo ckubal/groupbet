@@ -1,0 +1,873 @@
+
+🏈 ENHANCED OVER/UNDER ANALYSIS FOR WEEK 15
+
+📅 Today: 12/8/2025
+
+📺 Fetching ESPN Week 15 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=15&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 15
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Atlanta Falcons @ Tampa Bay Buccaneers | Scheduled | 0-0
+   2. Cleveland Browns @ Chicago Bears | Scheduled | 0-0
+   3. Baltimore Ravens @ Cincinnati Bengals | Scheduled | 0-0
+   4. Los Angeles Chargers @ Kansas City Chiefs | Scheduled | 0-0
+   5. Buffalo Bills @ New England Patriots | Scheduled | 0-0
+   6. Washington Commanders @ New York Giants | Scheduled | 0-0
+   7. Las Vegas Raiders @ Philadelphia Eagles | Scheduled | 0-0
+   8. New York Jets @ Jacksonville Jaguars | Scheduled | 0-0
+   9. Arizona Cardinals @ Houston Texans | Scheduled | 0-0
+   10. Green Bay Packers @ Denver Broncos | Scheduled | 0-0
+   11. Detroit Lions @ Los Angeles Rams | Scheduled | 0-0
+   12. Carolina Panthers @ New Orleans Saints | Scheduled | 0-0
+   13. Tennessee Titans @ San Francisco 49ers | Scheduled | 0-0
+   14. Indianapolis Colts @ Seattle Seahawks | Scheduled | 0-0
+   15. Minnesota Vikings @ Dallas Cowboys | Scheduled | 0-0
+   16. Miami Dolphins @ Pittsburgh Steelers | Scheduled | 0-0
+✅ ESPN data cached for 1800s
+📅 Week 15 boundaries: 2025-12-11T08:00:00.000Z to 2025-12-18T07:59:59.999Z
+📊 Found 16 games for Week 15
+
+================================================================================
+
+📈 Atlanta Falcons @ Tampa Bay Buccaneers
+   🕐 12/11/2025, 5:15:00 PM
+   🎰 Bovada O/U: 44.5
+
+  📊 Fetching last 4 games for Atlanta Falcons...
+📺 Fetching ESPN Week 14 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=14&seasontype=2&year=2025
+  📊 Fetching last 4 games for Tampa Bay Buccaneers...
+📺 Fetching ESPN Week 14 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=14&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 14
+📊 Found 14 real NFL games
+🏈 Real ESPN games received:
+   1. Dallas Cowboys @ Detroit Lions | Final | 30-44
+   2. Seattle Seahawks @ Atlanta Falcons | Final | 37-9
+   3. Cincinnati Bengals @ Buffalo Bills | Final | 34-39
+   4. Tennessee Titans @ Cleveland Browns | Final | 31-29
+   5. Washington Commanders @ Minnesota Vikings | Final | 0-31
+   6. Miami Dolphins @ New York Jets | Final | 34-10
+   7. New Orleans Saints @ Tampa Bay Buccaneers | Final | 24-20
+   8. Indianapolis Colts @ Jacksonville Jaguars | Final | 19-36
+   9. Pittsburgh Steelers @ Baltimore Ravens | Final | 27-22
+   10. Denver Broncos @ Las Vegas Raiders | Final | 24-17
+   11. Chicago Bears @ Green Bay Packers | Final | 21-28
+   12. Los Angeles Rams @ Arizona Cardinals | Final | 45-17
+   13. Houston Texans @ Kansas City Chiefs | Final | 20-10
+   14. Philadelphia Eagles @ Los Angeles Chargers | Final | 19-22
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 13 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=13&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 14
+📊 Found 14 real NFL games
+🏈 Real ESPN games received:
+   1. Dallas Cowboys @ Detroit Lions | Final | 30-44
+   2. Seattle Seahawks @ Atlanta Falcons | Final | 37-9
+   3. Cincinnati Bengals @ Buffalo Bills | Final | 34-39
+   4. Tennessee Titans @ Cleveland Browns | Final | 31-29
+   5. Washington Commanders @ Minnesota Vikings | Final | 0-31
+   6. Miami Dolphins @ New York Jets | Final | 34-10
+   7. New Orleans Saints @ Tampa Bay Buccaneers | Final | 24-20
+   8. Indianapolis Colts @ Jacksonville Jaguars | Final | 19-36
+   9. Pittsburgh Steelers @ Baltimore Ravens | Final | 27-22
+   10. Denver Broncos @ Las Vegas Raiders | Final | 24-17
+   11. Chicago Bears @ Green Bay Packers | Final | 21-28
+   12. Los Angeles Rams @ Arizona Cardinals | Final | 45-17
+   13. Houston Texans @ Kansas City Chiefs | Final | 20-10
+   14. Philadelphia Eagles @ Los Angeles Chargers | Final | 19-22
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 13 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=13&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 13
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Green Bay Packers @ Detroit Lions | Final | 31-24
+   2. Kansas City Chiefs @ Dallas Cowboys | Final | 28-31
+   3. Cincinnati Bengals @ Baltimore Ravens | Final | 32-14
+   4. Chicago Bears @ Philadelphia Eagles | Final | 24-15
+   5. San Francisco 49ers @ Cleveland Browns | Final | 26-8
+   6. Jacksonville Jaguars @ Tennessee Titans | Final | 25-3
+   7. Houston Texans @ Indianapolis Colts | Final | 20-16
+   8. New Orleans Saints @ Miami Dolphins | Final | 17-21
+   9. Atlanta Falcons @ New York Jets | Final | 24-27
+   10. Arizona Cardinals @ Tampa Bay Buccaneers | Final | 17-20
+   11. Los Angeles Rams @ Carolina Panthers | Final | 28-31
+   12. Minnesota Vikings @ Seattle Seahawks | Final | 0-26
+   13. Buffalo Bills @ Pittsburgh Steelers | Final | 26-7
+   14. Las Vegas Raiders @ Los Angeles Chargers | Final | 14-31
+   15. Denver Broncos @ Washington Commanders | Final | 27-26
+   16. New York Giants @ New England Patriots | Final | 15-33
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 12 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=12&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 13
+📊 Found 16 real NFL games
+🏈 Real ESPN games received:
+   1. Green Bay Packers @ Detroit Lions | Final | 31-24
+   2. Kansas City Chiefs @ Dallas Cowboys | Final | 28-31
+   3. Cincinnati Bengals @ Baltimore Ravens | Final | 32-14
+   4. Chicago Bears @ Philadelphia Eagles | Final | 24-15
+   5. San Francisco 49ers @ Cleveland Browns | Final | 26-8
+   6. Jacksonville Jaguars @ Tennessee Titans | Final | 25-3
+   7. Houston Texans @ Indianapolis Colts | Final | 20-16
+   8. New Orleans Saints @ Miami Dolphins | Final | 17-21
+   9. Atlanta Falcons @ New York Jets | Final | 24-27
+   10. Arizona Cardinals @ Tampa Bay Buccaneers | Final | 17-20
+   11. Los Angeles Rams @ Carolina Panthers | Final | 28-31
+   12. Minnesota Vikings @ Seattle Seahawks | Final | 0-26
+   13. Buffalo Bills @ Pittsburgh Steelers | Final | 26-7
+   14. Las Vegas Raiders @ Los Angeles Chargers | Final | 14-31
+   15. Denver Broncos @ Washington Commanders | Final | 27-26
+   16. New York Giants @ New England Patriots | Final | 15-33
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 12 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=12&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 12
+📊 Found 14 real NFL games
+🏈 Real ESPN games received:
+   1. Buffalo Bills @ Houston Texans | Final | 19-23
+   2. Pittsburgh Steelers @ Chicago Bears | Final | 28-31
+   3. New England Patriots @ Cincinnati Bengals | Final | 26-20
+   4. New York Giants @ Detroit Lions | Final | 27-34
+   5. Minnesota Vikings @ Green Bay Packers | Final | 6-23
+   6. Seattle Seahawks @ Tennessee Titans | Final | 30-24
+   7. Indianapolis Colts @ Kansas City Chiefs | Final | 20-23
+   8. New York Jets @ Baltimore Ravens | Final | 10-23
+   9. Cleveland Browns @ Las Vegas Raiders | Final | 24-10
+   10. Jacksonville Jaguars @ Arizona Cardinals | Final | 27-24
+   11. Philadelphia Eagles @ Dallas Cowboys | Final | 21-24
+   12. Atlanta Falcons @ New Orleans Saints | Final | 24-10
+   13. Tampa Bay Buccaneers @ Los Angeles Rams | Final | 7-34
+   14. Carolina Panthers @ San Francisco 49ers | Final | 9-20
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 11 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=11&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 12
+📊 Found 14 real NFL games
+🏈 Real ESPN games received:
+   1. Buffalo Bills @ Houston Texans | Final | 19-23
+   2. Pittsburgh Steelers @ Chicago Bears | Final | 28-31
+   3. New England Patriots @ Cincinnati Bengals | Final | 26-20
+   4. New York Giants @ Detroit Lions | Final | 27-34
+   5. Minnesota Vikings @ Green Bay Packers | Final | 6-23
+   6. Seattle Seahawks @ Tennessee Titans | Final | 30-24
+   7. Indianapolis Colts @ Kansas City Chiefs | Final | 20-23
+   8. New York Jets @ Baltimore Ravens | Final | 10-23
+   9. Cleveland Browns @ Las Vegas Raiders | Final | 24-10
+   10. Jacksonville Jaguars @ Arizona Cardinals | Final | 27-24
+   11. Philadelphia Eagles @ Dallas Cowboys | Final | 21-24
+   12. Atlanta Falcons @ New Orleans Saints | Final | 24-10
+   13. Tampa Bay Buccaneers @ Los Angeles Rams | Final | 7-34
+   14. Carolina Panthers @ San Francisco 49ers | Final | 9-20
+✅ ESPN data cached for 1800s
+📺 Fetching ESPN Week 11 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=11&seasontype=2&year=2025
+✅ ESPN API Success: Season 2025, Week 11
+📊 Found 15 real NFL games
+🏈 Real ESPN games received:
+   1. New York Jets @ New England Patriots | Final | 14-27
+   2. Washington Commanders @ Miami Dolphins | Final | 13-16
+   3. Carolina Panthers @ Atlanta Falcons | Final | 30-27
+   4. Tampa Bay Buccaneers @ Buffalo Bills | Final | 32-44
+   5. Houston Texans @ Tennessee Titans | Final | 16-13
+   6. Chicago Bears @ Minnesota Vikings | Final | 19-17
+   7. Green Bay Packers @ New York Giants | Final | 27-20
+   8. Cincinnati Bengals @ Pittsburgh Steelers | Final | 12-34
+   9. Los Angeles Chargers @ Jacksonville Jaguars | Final | 6-35
+   10. Seattle Seahawks @ Los Angeles Rams | Final | 19-21
+   11. San Francisco 49ers @ Arizona Cardinals | Final | 41-22
+   12. Baltimore Ravens @ Cleveland Browns | Final | 23-16
+   13. Kansas City Chiefs @ Denver Broncos | Final | 19-22
+   14. Detroit Lions @ Philadelphia Eagles | Final | 9-16
+   15. Dallas Cowboys @ Las Vegas Raiders | Final | 33-16
+✅ ESPN data cached for 1800s
+    ✅ Found 4 games
+    📈 Mean Points Scored: 19.8 | Median: 20.0
+    📉 Mean Points Allowed: 29.8 | Median: 29.0
+✅ ESPN API Success: Season 2025, Week 11
+📊 Found 15 real NFL games
+🏈 Real ESPN games received:
+   1. New York Jets @ New England Patriots | Final | 14-27
+   2. Washington Commanders @ Miami Dolphins | Final | 13-16
+   3. Carolina Panthers @ Atlanta Falcons | Final | 30-27
+   4. Tampa Bay Buccaneers @ Buffalo Bills | Final | 32-44
+   5. Houston Texans @ Tennessee Titans | Final | 16-13
+   6. Chicago Bears @ Minnesota Vikings | Final | 19-17
+   7. Green Bay Packers @ New York Giants | Final | 27-20
+   8. Cincinnati Bengals @ Pittsburgh Steelers | Final | 12-34
+   9. Los Angeles Chargers @ Jacksonville Jaguars | Final | 6-35
+   10. Seattle Seahawks @ Los Angeles Rams | Final | 19-21
+   11. San Francisco 49ers @ Arizona Cardinals | Final | 41-22
+   12. Baltimore Ravens @ Cleveland Browns | Final | 23-16
+   13. Kansas City Chiefs @ Denver Broncos | Final | 19-22
+   14. Detroit Lions @ Philadelphia Eagles | Final | 9-16
+   15. Dallas Cowboys @ Las Vegas Raiders | Final | 33-16
+✅ ESPN data cached for 1800s
+    ✅ Found 4 games
+    📈 Mean Points Scored: 21.0 | Median: 24.0
+    📉 Mean Points Allowed: 26.0 | Median: 28.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 49.1 | Median Projection: 52.0
+      Bovada Line: 44.5
+      Mean Difference: +4.6 | Median Difference: +7.5
+      Mean Recommendation: OVER (high) | Median Recommendation: OVER (high)
+      ⬆️ 🟢 BET (MEDIAN): OVER 44.5
+
+   🌤️ WEATHER:
+      🏟️ Raymond James Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Cleveland Browns @ Chicago Bears
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 41
+
+  📊 Fetching last 4 games for Cleveland Browns...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Chicago Bears...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 19.3 | Median: 20.0
+    📉 Mean Points Allowed: 22.5 | Median: 24.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 23.8 | Median: 22.5
+    📉 Mean Points Allowed: 22.0 | Median: 22.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 45.3 | Median Projection: 46.0
+      Bovada Line: 41
+      Mean Difference: +4.3 | Median Difference: +5.0
+      Mean Recommendation: OVER (high) | Median Recommendation: OVER (high)
+      ⬆️ 🟢 BET (MEDIAN): OVER 41
+
+   🌤️ WEATHER:
+      🏟️ Soldier Field
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Baltimore Ravens @ Cincinnati Bengals
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 51.5
+
+  📊 Fetching last 4 games for Baltimore Ravens...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Cincinnati Bengals...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 20.5 | Median: 22.5
+    📉 Mean Points Allowed: 21.3 | Median: 21.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 24.5 | Median: 26.0
+    📉 Mean Points Allowed: 28.3 | Median: 30.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 49.4 | Median Projection: 51.3
+      Bovada Line: 51.5
+      Mean Difference: -2.1 | Median Difference: -0.2
+      Mean Recommendation: UNDER (medium) | Median Recommendation: NEUTRAL (low)
+      ⬇️ 🔴 BET (MEDIAN): NEUTRAL 51.5
+      ⚠️ CHANGED FROM MEAN: ⬇️ 🟡 UNDER (medium)
+
+   🌤️ WEATHER:
+      🏟️ Paycor Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Los Angeles Chargers @ Kansas City Chiefs
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: N/A
+
+  📊 Fetching last 4 games for Los Angeles Chargers...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Kansas City Chiefs...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📺 Fetching ESPN Week 10 2025 with specific parameters
+📡 ESPN API call: https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?week=10&seasontype=2&year=2025
+    ✅ Found 4 games
+    📈 Mean Points Scored: 20.0 | Median: 21.0
+    📉 Mean Points Allowed: 23.3 | Median: 21.0
+✅ ESPN API Success: Season 2025, Week 10
+📊 Found 14 real NFL games
+🏈 Real ESPN games received:
+   1. Las Vegas Raiders @ Denver Broncos | Final | 7-10
+   2. Atlanta Falcons @ Indianapolis Colts | Final | 25-31
+   3. New York Giants @ Chicago Bears | Final | 20-24
+   4. Buffalo Bills @ Miami Dolphins | Final | 13-30
+   5. Baltimore Ravens @ Minnesota Vikings | Final | 27-19
+   6. Cleveland Browns @ New York Jets | Final | 20-27
+   7. New England Patriots @ Tampa Bay Buccaneers | Final | 28-23
+   8. New Orleans Saints @ Carolina Panthers | Final | 17-7
+   9. Jacksonville Jaguars @ Houston Texans | Final | 29-36
+   10. Arizona Cardinals @ Seattle Seahawks | Final | 22-44
+   11. Los Angeles Rams @ San Francisco 49ers | Final | 42-26
+   12. Detroit Lions @ Washington Commanders | Final | 44-22
+   13. Pittsburgh Steelers @ Los Angeles Chargers | Final | 10-25
+   14. Philadelphia Eagles @ Green Bay Packers | Final | 10-7
+✅ ESPN data cached for 1800s
+    ✅ Found 4 games
+    📈 Mean Points Scored: 21.0 | Median: 23.5
+    📉 Mean Points Allowed: 19.5 | Median: 16.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 42.0 | Median Projection: 42.3
+      ⚠️ No Bovada line available
+
+   🌤️ WEATHER:
+      🏟️ GEHA Field at Arrowhead Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Buffalo Bills @ New England Patriots
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 49.5
+
+  📊 Fetching last 4 games for Buffalo Bills...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for New England Patriots...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 32.0 | Median: 32.5
+    📉 Mean Points Allowed: 24.0 | Median: 27.5
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 28.5 | Median: 27.5
+    📉 Mean Points Allowed: 18.0 | Median: 17.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 52.3 | Median Projection: 53.8
+      Bovada Line: 49.5
+      Mean Difference: +2.8 | Median Difference: +4.3
+      Mean Recommendation: OVER (medium) | Median Recommendation: OVER (high)
+      ⬆️ 🟢 BET (MEDIAN): OVER 49.5
+
+   🌤️ WEATHER:
+      🏟️ Gillette Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Washington Commanders @ New York Giants
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 47.5
+
+  📊 Fetching last 4 games for Washington Commanders...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for New York Giants...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 15.3 | Median: 17.5
+    📉 Mean Points Allowed: 29.5 | Median: 29.0
+    ✅ Found 4 games
+    📈 Mean Points Scored: 20.5 | Median: 20.0
+    📉 Mean Points Allowed: 29.5 | Median: 30.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 48.9 | Median Projection: 49.5
+      Bovada Line: 47.5
+      Mean Difference: +1.4 | Median Difference: +2.0
+      Mean Recommendation: OVER (low) | Median Recommendation: OVER (medium)
+      ⬆️ 🟡 BET (MEDIAN): OVER 47.5
+
+   🌤️ WEATHER:
+      🏟️ MetLife Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Las Vegas Raiders @ Philadelphia Eagles
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: N/A
+
+  📊 Fetching last 4 games for Las Vegas Raiders...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Philadelphia Eagles...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 14.3 | Median: 15.0
+    📉 Mean Points Allowed: 28.0 | Median: 27.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 17.8 | Median: 17.5
+    📉 Mean Points Allowed: 19.8 | Median: 23.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 42.8 | Median Projection: 42.8
+      ⚠️ No Bovada line available
+
+   🌤️ WEATHER:
+      🏟️ Lincoln Financial Field
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 New York Jets @ Jacksonville Jaguars
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 41.5
+
+  📊 Fetching last 4 games for New York Jets...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Jacksonville Jaguars...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 15.3 | Median: 12.0
+    📉 Mean Points Allowed: 27.0 | Median: 25.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 30.8 | Median: 31.0
+    📉 Mean Points Allowed: 13.0 | Median: 12.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 44.0 | Median Projection: 41.8
+      Bovada Line: 41.5
+      Mean Difference: +2.5 | Median Difference: +0.3
+      Mean Recommendation: OVER (medium) | Median Recommendation: NEUTRAL (low)
+      ⬇️ 🔴 BET (MEDIAN): NEUTRAL 41.5
+      ⚠️ CHANGED FROM MEAN: ⬆️ 🟡 OVER (medium)
+
+   🌤️ WEATHER:
+      🏟️ EverBank Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Arizona Cardinals @ Houston Texans
+   🕐 12/14/2025, 10:00:00 AM
+   🎰 Bovada O/U: 42.5
+
+  📊 Fetching last 4 games for Arizona Cardinals...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Houston Texans...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 20.0 | Median: 19.5
+    📉 Mean Points Allowed: 33.3 | Median: 34.0
+    ✅ Found 4 games
+    📈 Mean Points Scored: 19.8 | Median: 20.0
+    📉 Mean Points Allowed: 14.5 | Median: 14.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 45.0 | Median Projection: 45.3
+      Bovada Line: 42.5
+      Mean Difference: +2.5 | Median Difference: +2.8
+      Mean Recommendation: OVER (medium) | Median Recommendation: OVER (medium)
+      ⬆️ 🟡 BET (MEDIAN): OVER 42.5
+
+   🌤️ WEATHER:
+      🏟️ NRG Stadium - INDOOR (Weather not a factor)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Green Bay Packers @ Denver Broncos
+   🕐 12/14/2025, 1:25:00 PM
+   🎰 Bovada O/U: 43
+
+  📊 Fetching last 4 games for Green Bay Packers...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Denver Broncos...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 27.3 | Median: 27.5
+    📉 Mean Points Allowed: 17.8 | Median: 20.5
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 20.8 | Median: 23.0
+    📉 Mean Points Allowed: 17.3 | Median: 18.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 43.1 | Median Projection: 45.8
+      Bovada Line: 43
+      Mean Difference: +0.1 | Median Difference: +2.8
+      Mean Recommendation: NEUTRAL (low) | Median Recommendation: OVER (medium)
+      ⬆️ 🟡 BET (MEDIAN): OVER 43
+      ⚠️ CHANGED FROM MEAN: ⬇️ 🔴 NEUTRAL (low)
+
+   🌤️ WEATHER:
+      🏟️ Empower Field at Mile High
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Detroit Lions @ Los Angeles Rams
+   🕐 12/14/2025, 1:25:00 PM
+   🎰 Bovada O/U: 55
+
+  📊 Fetching last 4 games for Detroit Lions...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Los Angeles Rams...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 27.8 | Median: 29.0
+    📉 Mean Points Allowed: 26.0 | Median: 28.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 32.0 | Median: 31.0
+    📉 Mean Points Allowed: 18.5 | Median: 18.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 53.1 | Median Projection: 54.5
+      Bovada Line: 55
+      Mean Difference: -1.9 | Median Difference: -0.5
+      Mean Recommendation: UNDER (low) | Median Recommendation: NEUTRAL (low)
+      ⬇️ 🔴 BET (MEDIAN): NEUTRAL 55
+      ⚠️ CHANGED FROM MEAN: ⬇️ 🔴 UNDER (low)
+
+   🌤️ WEATHER:
+      🏟️ SoFi Stadium - INDOOR (Weather not a factor)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Carolina Panthers @ New Orleans Saints
+   🕐 12/14/2025, 1:25:00 PM
+   🎰 Bovada O/U: 40
+
+  📊 Fetching last 4 games for Carolina Panthers...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for New Orleans Saints...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 19.3 | Median: 19.5
+    📉 Mean Points Allowed: 23.0 | Median: 23.5
+    ✅ Found 4 games
+    📈 Mean Points Scored: 17.0 | Median: 17.0
+    📉 Mean Points Allowed: 18.0 | Median: 20.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 41.1 | Median Projection: 41.5
+      Bovada Line: 40
+      Mean Difference: +1.1 | Median Difference: +1.5
+      Mean Recommendation: OVER (low) | Median Recommendation: OVER (low)
+      ⬆️ 🔴 BET (MEDIAN): OVER 40
+
+   🌤️ WEATHER:
+      🏟️ Caesars Superdome - INDOOR (Weather not a factor)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Tennessee Titans @ San Francisco 49ers
+   🕐 12/14/2025, 1:25:00 PM
+   🎰 Bovada O/U: 44.5
+
+  📊 Fetching last 4 games for Tennessee Titans...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for San Francisco 49ers...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 17.8 | Median: 18.5
+    📉 Mean Points Allowed: 25.0 | Median: 27.0
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 28.3 | Median: 26.0
+    📉 Mean Points Allowed: 20.3 | Median: 15.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 44.5 | Median Projection: 44.8
+      Bovada Line: 44.5
+      Mean Difference: 0.0 | Median Difference: +0.3
+      Mean Recommendation: NEUTRAL (low) | Median Recommendation: NEUTRAL (low)
+      ⬇️ 🔴 BET (MEDIAN): NEUTRAL 44.5
+
+   🌤️ WEATHER:
+      🏟️ Levi's Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Indianapolis Colts @ Seattle Seahawks
+   🕐 12/14/2025, 1:25:00 PM
+   🎰 Bovada O/U: 42.5
+
+  📊 Fetching last 4 games for Indianapolis Colts...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Seattle Seahawks...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 28.0 | Median: 28.0
+    📉 Mean Points Allowed: 13.5 | Median: 15.0
+    ✅ Found 4 games
+    📈 Mean Points Scored: 21.5 | Median: 19.5
+    📉 Mean Points Allowed: 26.0 | Median: 24.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 46.5 | Median Projection: 44.5
+      Bovada Line: 42.5
+      Mean Difference: +4.0 | Median Difference: +2.0
+      Mean Recommendation: OVER (high) | Median Recommendation: OVER (medium)
+      ⬆️ 🟡 BET (MEDIAN): OVER 42.5
+
+   🌤️ WEATHER:
+      🏟️ Lumen Field
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Minnesota Vikings @ Dallas Cowboys
+   🕐 12/14/2025, 5:20:00 PM
+   🎰 Bovada O/U: 47.5
+
+  📊 Fetching last 4 games for Minnesota Vikings...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Dallas Cowboys...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 13.5 | Median: 11.5
+    📉 Mean Points Allowed: 17.0 | Median: 21.0
+    ✅ Found 4 games
+    📈 Mean Points Scored: 29.5 | Median: 30.5
+    📉 Mean Points Allowed: 27.3 | Median: 24.5
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 43.5 | Median Projection: 45.0
+      Bovada Line: 47.5
+      Mean Difference: -4.0 | Median Difference: -2.5
+      Mean Recommendation: UNDER (high) | Median Recommendation: UNDER (medium)
+      ⬇️ 🟡 BET (MEDIAN): UNDER 47.5
+
+   🌤️ WEATHER:
+      🏟️ AT&T Stadium - INDOOR (Weather not a factor)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+📈 Miami Dolphins @ Pittsburgh Steelers
+   🕐 12/15/2025, 5:15:00 PM
+   🎰 Bovada O/U: 41.5
+
+  📊 Fetching last 4 games for Miami Dolphins...
+📦 Returning cached ESPN scoreboard
+  📊 Fetching last 4 games for Pittsburgh Steelers...
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+📦 Returning cached ESPN scoreboard
+    ✅ Found 4 games
+    📈 Mean Points Scored: 24.0 | Median: 27.5
+    📉 Mean Points Allowed: 22.8 | Median: 24.0
+    ✅ Found 4 games
+    📈 Mean Points Scored: 25.3 | Median: 25.5
+    📉 Mean Points Allowed: 13.3 | Median: 13.0
+   🌤️ Fetching weather information...
+   🏥 Checking injury information...
+
+   💡 PROJECTION:
+      Mean Projection: 44.5 | Median Projection: 46.3
+      Bovada Line: 41.5
+      Mean Difference: +3.0 | Median Difference: +4.8
+      Mean Recommendation: OVER (medium) | Median Recommendation: OVER (high)
+      ⬆️ 🟢 BET (MEDIAN): OVER 41.5
+
+   🌤️ WEATHER:
+      🏟️ Acrisure Stadium
+      ℹ️ Weather forecast not yet available (check closer to game time)
+
+   🏥 INJURIES:
+      ℹ️ Injury data not automatically available. Check ESPN or team injury reports manually. Key players to monitor: Starting QBs, RBs, WR1s, and defensive stars.
+
+================================================================================
+
+
+📊 SUMMARY
+
+Total Games: 16
+Games with Lines: 14
+High Confidence Bets: 4
+Medium Confidence Bets: 5
+Low Confidence Bets: 5
+
+🎯 TOP RECOMMENDATIONS:
+
+1. ⬆️ 🟢 Atlanta Falcons @ Tampa Bay Buccaneers
+   OVER 44.5 (Projected: 52.0, Diff: +7.5)
+2. ⬆️ 🟢 Cleveland Browns @ Chicago Bears
+   OVER 41 (Projected: 46.0, Diff: +5.0)
+3. ⬆️ 🟢 Miami Dolphins @ Pittsburgh Steelers
+   OVER 41.5 (Projected: 46.3, Diff: +4.8)
+4. ⬆️ 🟢 Buffalo Bills @ New England Patriots
+   OVER 49.5 (Projected: 53.8, Diff: +4.3)
+5. ⬆️ 🟡 Arizona Cardinals @ Houston Texans
+   OVER 42.5 (Projected: 45.3, Diff: +2.8)
+
+🌤️ WEATHER SUMMARY FOR OUTDOOR GAMES:
+
+Atlanta Falcons @ Tampa Bay Buccaneers:
+Cleveland Browns @ Chicago Bears:
+Baltimore Ravens @ Cincinnati Bengals:
+Los Angeles Chargers @ Kansas City Chiefs:
+Buffalo Bills @ New England Patriots:
+Washington Commanders @ New York Giants:
+Las Vegas Raiders @ Philadelphia Eagles:
+New York Jets @ Jacksonville Jaguars:
+Green Bay Packers @ Denver Broncos:
+Tennessee Titans @ San Francisco 49ers:
+Indianapolis Colts @ Seattle Seahawks:
+Miami Dolphins @ Pittsburgh Steelers:
