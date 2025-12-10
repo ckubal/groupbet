@@ -185,21 +185,25 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
     );
   }
 
-  // Sort games by confidence and difference
+  // Sort games by confidence (high, medium, low) then by absolute difference
   const sortedGames = [...researchData.games].sort((a, b) => {
-    if (a.confidence !== b.confidence) {
-      const order = { high: 0, medium: 1, low: 2 };
-      return order[a.confidence] - order[b.confidence];
+    // First sort by confidence
+    const order = { high: 0, medium: 1, low: 2, neutral: 3 };
+    const aOrder = order[a.confidence as keyof typeof order] ?? 3;
+    const bOrder = order[b.confidence as keyof typeof order] ?? 3;
+    if (aOrder !== bOrder) {
+      return aOrder - bOrder;
     }
+    // Then by absolute difference (larger differences first)
     return Math.abs(b.difference) - Math.abs(a.difference);
   });
 
-  // Group by confidence - include games with lines for recommendations
-  const highConfidence = sortedGames.filter(g => g.confidence === 'high' && g.bovadaOverUnder);
-  const mediumConfidence = sortedGames.filter(g => g.confidence === 'medium' && g.bovadaOverUnder);
-  const lowConfidence = sortedGames.filter(g => g.confidence === 'low' && g.bovadaOverUnder);
+  // Group by confidence - show ALL games, not just those with lines
+  const highConfidence = sortedGames.filter(g => g.confidence === 'high');
+  const mediumConfidence = sortedGames.filter(g => g.confidence === 'medium');
+  const lowConfidence = sortedGames.filter(g => g.confidence === 'low');
   
-  // Also show games without lines (for reference, but can't make recommendations)
+  // Games without lines (for reference)
   const gamesWithoutLines = sortedGames.filter(g => !g.bovadaOverUnder);
 
   return (
@@ -416,13 +420,16 @@ function GameAnalysisCard({
 
       {/* Game Context & Adjustments */}
       {(analysis.gameContext && analysis.gameContext.length > 0) || (analysis.adjustments && analysis.adjustments.length > 0) ? (
-        <div className="bg-gray-50 rounded p-3 mb-4 text-sm">
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-4 mb-4 border border-gray-200">
           {analysis.gameContext && analysis.gameContext.length > 0 && (
-            <div className="mb-2">
-              <div className="text-gray-600 font-medium mb-1">Game Context:</div>
+            <div className="mb-3">
+              <div className="text-gray-700 font-semibold mb-2 text-sm flex items-center gap-2">
+                <span>📋</span>
+                <span>Game Context</span>
+              </div>
               <div className="flex flex-wrap gap-2">
                 {analysis.gameContext.map((context, idx) => (
-                  <span key={idx} className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  <span key={idx} className="px-3 py-1.5 bg-blue-100 text-blue-800 rounded-md text-xs font-medium shadow-sm">
                     {context}
                   </span>
                 ))}
@@ -431,16 +438,26 @@ function GameAnalysisCard({
           )}
           {analysis.adjustments && analysis.adjustments.length > 0 && (
             <div>
-              <div className="text-gray-600 font-medium mb-1">Adjustments Applied:</div>
-              <ul className="list-disc list-inside space-y-1 text-xs">
+              <div className="text-gray-700 font-semibold mb-2 text-sm flex items-center gap-2">
+                <span>📊</span>
+                <span>Adjustments Applied</span>
+              </div>
+              <div className="space-y-1.5">
                 {analysis.adjustments.map((adj, idx) => (
-                  <li key={idx} className="text-gray-700">{adj}</li>
+                  <div key={idx} className="flex items-start gap-2 text-xs text-gray-700 bg-white rounded px-3 py-2 border border-gray-200">
+                    <span className="text-gray-400 mt-0.5">•</span>
+                    <span className="flex-1">{adj}</span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
         </div>
-      ) : null}
+      ) : (
+        <div className="bg-gray-50 rounded-lg p-3 mb-4 text-xs text-gray-500 text-center border border-gray-200">
+          No adjustments or special context
+        </div>
+      )}
 
       {/* Recommendation & Actions */}
       {hasLine && analysis.recommendation !== 'neutral' && (

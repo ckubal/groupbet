@@ -851,23 +851,23 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             </div>
             
             {/* Tabs - Bets vs Research */}
-            <div className="flex gap-2 mb-6 border-b border-surface-border">
+            <div className="flex gap-2 mb-6 border-b-2 border-surface-border">
               <button
                 onClick={() => setActiveTab('bets')}
-                className={`px-6 py-3 font-medium transition-colors ${
+                className={`px-6 py-3 font-semibold text-base transition-all duration-200 relative ${
                   activeTab === 'bets'
-                    ? 'text-foreground border-b-2 border-primary'
-                    : 'text-foreground-muted hover:text-foreground'
+                    ? 'text-foreground bg-primary/10 border-b-2 border-primary -mb-0.5'
+                    : 'text-gray-400 hover:text-foreground hover:bg-surface-hover/50'
                 }`}
               >
                 Bets
               </button>
               <button
                 onClick={() => setActiveTab('research')}
-                className={`px-6 py-3 font-medium transition-colors ${
+                className={`px-6 py-3 font-semibold text-base transition-all duration-200 relative ${
                   activeTab === 'research'
-                    ? 'text-foreground border-b-2 border-primary'
-                    : 'text-foreground-muted hover:text-foreground'
+                    ? 'text-foreground bg-primary/10 border-b-2 border-primary -mb-0.5'
+                    : 'text-gray-400 hover:text-foreground hover:bg-surface-hover/50'
                 }`}
               >
                 Research
