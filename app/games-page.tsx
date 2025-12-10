@@ -349,21 +349,25 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   useEffect(() => {
     const checkAndUpdateWeek = () => {
       const actualCurrentWeek = getCurrentNFLWeek();
-      if (actualCurrentWeek !== currentWeek) {
-        console.log(`📅 NFL week mismatch: Displaying Week ${currentWeek}, but current NFL week is Week ${actualCurrentWeek}`);
-        // Only auto-update if we're viewing a past week (not if user manually selected a future week)
-        // Also check if URL has no week param (meaning we should show current week)
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlWeek = urlParams.get('week');
-        
-        if (!urlWeek && actualCurrentWeek !== currentWeek) {
-          console.log(`📅 Auto-updating to current NFL Week ${actualCurrentWeek} (no week in URL)`);
-          handleWeekChange(actualCurrentWeek);
-        } else if (urlWeek && parseInt(urlWeek) < actualCurrentWeek && currentWeek < actualCurrentWeek) {
-          console.log(`📅 Auto-updating from past Week ${currentWeek} to current Week ${actualCurrentWeek}`);
-          handleWeekChange(actualCurrentWeek);
+      // Get current week from state (using functional update to avoid stale closure)
+      setCurrentWeek(currentStateWeek => {
+        if (actualCurrentWeek !== currentStateWeek) {
+          console.log(`📅 NFL week mismatch: Displaying Week ${currentStateWeek}, but current NFL week is Week ${actualCurrentWeek}`);
+          // Only auto-update if we're viewing a past week (not if user manually selected a future week)
+          // Also check if URL has no week param (meaning we should show current week)
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlWeek = urlParams.get('week');
+          
+          if (!urlWeek && actualCurrentWeek !== currentStateWeek) {
+            console.log(`📅 Auto-updating to current NFL Week ${actualCurrentWeek} (no week in URL)`);
+            handleWeekChange(actualCurrentWeek);
+          } else if (urlWeek && parseInt(urlWeek) < actualCurrentWeek && currentStateWeek < actualCurrentWeek) {
+            console.log(`📅 Auto-updating from past Week ${currentStateWeek} to current Week ${actualCurrentWeek}`);
+            handleWeekChange(actualCurrentWeek);
+          }
         }
-      }
+        return currentStateWeek; // Return unchanged to avoid triggering re-render
+      });
     };
     
     // Check immediately on mount
@@ -373,7 +377,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     const interval = setInterval(checkAndUpdateWeek, 60 * 60 * 1000); // 1 hour
     
     return () => clearInterval(interval);
-  }, [currentWeek]); // Re-run when currentWeek changes
+  }, []); // Only run on mount, then use interval
 
   // Fetch user bets and settlement data when user changes
   useEffect(() => {
