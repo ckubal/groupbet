@@ -10,7 +10,11 @@ interface HomeProps {
 export default async function Home({ searchParams }: HomeProps) {
   // Get week from URL params or default to current NFL week
   const resolvedSearchParams = await searchParams;
-  const week = resolvedSearchParams.week ? parseInt(resolvedSearchParams.week) : getCurrentNFLWeek();
+  const currentNFLWeek = getCurrentNFLWeek();
+  const week = resolvedSearchParams.week ? parseInt(resolvedSearchParams.week) : currentNFLWeek;
+  
+  // Log week determination for debugging
+  console.log(`📅 SERVER: URL week param: ${resolvedSearchParams.week}, Calculated current NFL week: ${currentNFLWeek}, Using week: ${week}`);
   
   // Server-side data fetching to bypass hydration issues
   let games: Game[] = [];

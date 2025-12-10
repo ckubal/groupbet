@@ -274,10 +274,8 @@ async function projectTotalPoints(
   
   const adjustments: string[] = [];
   
-  // Home field advantage (+2.5 points, but only half affects total)
-  const homeFieldAdvantage = 2.5;
-  projectedTotal += (homeFieldAdvantage * 0.5);
-  adjustments.push(`Home field: +${(homeFieldAdvantage * 0.5).toFixed(1)}`);
+  // Note: Home field advantage is already reflected in the team's average points scored/allowed
+  // from their last 4 games, so no separate adjustment needed.
   
   // Bye week adjustments (based on historical data analysis)
   // One team off bye: -1.5 points (22 games analyzed, -3.28 point difference)

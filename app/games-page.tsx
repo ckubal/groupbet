@@ -345,6 +345,36 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
     }
   };
   
+  // Auto-update to current NFL week if it has changed (check on mount and periodically)
+  useEffect(() => {
+    const checkAndUpdateWeek = () => {
+      const actualCurrentWeek = getCurrentNFLWeek();
+      if (actualCurrentWeek !== currentWeek) {
+        console.log(`📅 NFL week mismatch: Displaying Week ${currentWeek}, but current NFL week is Week ${actualCurrentWeek}`);
+        // Only auto-update if we're viewing a past week (not if user manually selected a future week)
+        // Also check if URL has no week param (meaning we should show current week)
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlWeek = urlParams.get('week');
+        
+        if (!urlWeek && actualCurrentWeek !== currentWeek) {
+          console.log(`📅 Auto-updating to current NFL Week ${actualCurrentWeek} (no week in URL)`);
+          handleWeekChange(actualCurrentWeek);
+        } else if (urlWeek && parseInt(urlWeek) < actualCurrentWeek && currentWeek < actualCurrentWeek) {
+          console.log(`📅 Auto-updating from past Week ${currentWeek} to current Week ${actualCurrentWeek}`);
+          handleWeekChange(actualCurrentWeek);
+        }
+      }
+    };
+    
+    // Check immediately on mount
+    checkAndUpdateWeek();
+    
+    // Also check periodically (every hour) in case week advances while page is open
+    const interval = setInterval(checkAndUpdateWeek, 60 * 60 * 1000); // 1 hour
+    
+    return () => clearInterval(interval);
+  }, [currentWeek]); // Re-run when currentWeek changes
+
   // Fetch user bets and settlement data when user changes
   useEffect(() => {
     const fetchUserBets = async () => {
@@ -352,10 +382,10 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         setUserBets([]);
         return;
       }
-      
+
       try {
         setIsLoadingBets(true);
-        
+
         // ONLY get bets for current week being viewed - no past or future weeks
         const weekendId = `2025-week-${currentWeek}`;
         console.log(`📊 Loading bets ONLY for current Week ${currentWeek}`);
