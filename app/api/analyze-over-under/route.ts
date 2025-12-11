@@ -512,15 +512,16 @@ export async function GET(request: NextRequest) {
             venue = competition.venue;
             
             // Get weather info if available
-            if (competition.weather || competition.venue) {
+            const competitionAny = competition as any;
+            if (competitionAny.weather || competition.venue) {
               weather = {
                 isIndoor: competition.venue?.indoor || false,
                 venue: competition.venue?.fullName || 'Unknown',
-                temperature: competition.weather?.temperature,
-                condition: competition.weather?.displayValue || competition.weather?.shortDisplayValue,
-                windSpeed: competition.weather?.windSpeed,
-                windDirection: competition.weather?.windDirection,
-                humidity: competition.weather?.humidity,
+                temperature: competitionAny.weather?.temperature,
+                condition: competitionAny.weather?.displayValue || competitionAny.weather?.shortDisplayValue,
+                windSpeed: competitionAny.weather?.windSpeed,
+                windDirection: competitionAny.weather?.windDirection,
+                humidity: competitionAny.weather?.humidity,
               };
               
               // Determine precipitation

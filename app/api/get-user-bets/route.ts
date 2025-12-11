@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/firebase-admin';
+import { getAdminDb } from '@/lib/firebase-admin';
 import { Bet } from '@/types';
 import { Timestamp } from 'firebase-admin/firestore';
 
@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
     console.log(`📊 API: Fetching bets for user ${userId}${weekendId ? ` for ${weekendId}` : ''} using Admin SDK`);
     
     // Use Firebase Admin SDK to bypass security rules
+    const adminDb = await getAdminDb();
     let query = adminDb.collection('bets').where('participants', 'array-contains', userId);
     
     if (weekendId) {
