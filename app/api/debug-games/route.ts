@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     // Get all bets directly from Firebase
     const allBetsSnapshot = await getDocs(collection(db, 'bets'));
     const allFirebaseBets: any[] = [];
-    allBetsSnapshot.forEach(doc => {
+    allBetsSnapshot.forEach((doc: any) => {
       allFirebaseBets.push({ id: doc.id, ...doc.data() });
     });
     

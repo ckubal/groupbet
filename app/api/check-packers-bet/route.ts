@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const betsSnapshot = await getDocs(betsQuery);
     const packersBets: any[] = [];
     
-    betsSnapshot.forEach(doc => {
+    betsSnapshot.forEach((doc: any) => {
       const bet = doc.data();
       if (bet.selection?.toLowerCase().includes('packers') || 
           bet.selection?.toLowerCase().includes('green bay')) {

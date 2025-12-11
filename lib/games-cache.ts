@@ -190,7 +190,7 @@ export class GamesCacheService {
         const snapshot = await gamesQuery.get();
         const games: Game[] = [];
         
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc: any) => {
           const gameData = doc.data() as Game;
           // Convert Firebase Timestamps to JavaScript Dates
           const convertedGameData = {
@@ -216,7 +216,7 @@ export class GamesCacheService {
         const snapshot = await getDocs(gamesQuery);
         const games: Game[] = [];
         
-        snapshot.forEach(doc => {
+        snapshot.forEach((doc: any) => {
           const gameData = doc.data() as Game;
           // Convert Firebase Timestamps to JavaScript Dates
           const convertedGameData = {

@@ -69,7 +69,7 @@ export const betService = {
       const querySnapshot = await getDocs(q);
       const bets: Bet[] = [];
       
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((doc: any) => {
         const data = doc.data();
         bets.push({
           id: doc.id,
@@ -102,7 +102,7 @@ export const betService = {
       const querySnapshot = await getDocs(q);
       const bets: Bet[] = [];
       
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((doc: any) => {
         const data = doc.data();
         bets.push({
           id: doc.id,
@@ -151,7 +151,7 @@ export const betService = {
     
     return onSnapshot(q, (snapshot) => {
       const bets: Bet[] = [];
-      snapshot.forEach((doc) => {
+      snapshot.forEach((doc: any) => {
         const data = doc.data();
         bets.push({
           id: doc.id,
@@ -358,7 +358,7 @@ export const gameCacheService = {
       const games: Game[] = [];
       let oldestCache = new Date();
       
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((doc: any) => {
         const data = doc.data();
         const cachedAt = data.cachedAt?.toDate() || new Date();
         
@@ -567,7 +567,7 @@ export const finalGameService = {
         
         const querySnapshot = await getDocs(q);
         
-        querySnapshot.forEach((doc) => {
+        querySnapshot.forEach((doc: any) => {
           const data = doc.data();
           
           const game: Game = {
@@ -614,7 +614,7 @@ export const finalGameService = {
       const querySnapshot = await getDocs(q);
       const games: Game[] = [];
       
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((doc: any) => {
         const data = doc.data();
         
         const gameTime = data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime;
@@ -718,7 +718,7 @@ export const playerPropsService = {
       const props: PlayerProp[] = [];
       let oldestCache = new Date();
       
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach((doc: any) => {
         const data = doc.data();
         const cachedAt = data.cachedAt?.toDate() || new Date();
         
