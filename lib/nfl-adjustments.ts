@@ -167,7 +167,7 @@ export function getTeamTimezone(teamName: string): string {
 export function isDivisionalGame(team1: string, team2: string): boolean {
   const div1 = NFL_TEAM_DIVISIONS[team1];
   const div2 = NFL_TEAM_DIVISIONS[team2];
-  return div1 && div2 && div1 === div2;
+  return div1 !== undefined && div2 !== undefined && div1 === div2;
 }
 
 /**
