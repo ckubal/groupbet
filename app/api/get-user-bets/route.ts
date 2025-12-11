@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     const snapshot = await query.get();
     const bets: Bet[] = [];
     
-    snapshot.forEach((doc) => {
+    snapshot.forEach((doc: any) => {
       const data = doc.data();
       bets.push({
         id: doc.id,

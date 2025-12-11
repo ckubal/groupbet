@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 
     const snapshot = await getDocs(q);
     const bets: ResearchBet[] = [];
-    snapshot.forEach((doc) => {
+    snapshot.forEach((doc: any) => {
       bets.push(doc.data() as ResearchBet);
     });
 
