@@ -452,11 +452,15 @@ async function getWeatherInfo(competition: any, gameTime: Date): Promise<Weather
           weather.humidity = closestForecast.main.humidity;
           
           // Determine precipitation
-          const conditionLower = weather.condition.toLowerCase();
-          if (conditionLower.includes('snow')) {
-            weather.precipitation = 'Snow';
-          } else if (conditionLower.includes('rain')) {
-            weather.precipitation = 'Rain';
+          if (weather.condition) {
+            const conditionLower = weather.condition.toLowerCase();
+            if (conditionLower.includes('snow')) {
+              weather.precipitation = 'Snow';
+            } else if (conditionLower.includes('rain')) {
+              weather.precipitation = 'Rain';
+            } else {
+              weather.precipitation = 'None';
+            }
           } else {
             weather.precipitation = 'None';
           }
