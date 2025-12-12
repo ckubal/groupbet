@@ -43,6 +43,10 @@ interface GameAnalysis {
   homeTeam: string;
   gameTime: string;
   bovadaOverUnder?: number;
+  spread?: number;
+  spreadOdds?: number;
+  awayMoneyline?: number;
+  homeMoneyline?: number;
   awayTeamStats: TeamStats;
   homeTeamStats: TeamStats;
   projectedTotal: number;
@@ -605,6 +609,10 @@ export async function GET(request: NextRequest) {
         homeTeam: game.homeTeam,
         gameTime: game.gameTime.toISOString(),
         bovadaOverUnder,
+        spread: game.spread,
+        spreadOdds: game.spreadOdds,
+        awayMoneyline: game.awayMoneyline,
+        homeMoneyline: game.homeMoneyline,
         awayTeamStats: awayStats,
         homeTeamStats: homeStats,
         projectedTotal,

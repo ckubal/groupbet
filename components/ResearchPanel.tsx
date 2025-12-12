@@ -25,6 +25,10 @@ interface GameAnalysis {
   homeTeam: string;
   gameTime: string;
   bovadaOverUnder?: number;
+  spread?: number;
+  spreadOdds?: number;
+  awayMoneyline?: number;
+  homeMoneyline?: number;
   awayTeamStats: TeamStats;
   homeTeamStats: TeamStats;
   projectedTotal: number;
@@ -497,6 +501,43 @@ function GameAnalysisCard({
             </div>
           )}
         </div>
+
+        {/* Betting Lines: Spread and Moneyline */}
+        {(analysis.spread !== undefined || analysis.awayMoneyline !== undefined || analysis.homeMoneyline !== undefined) && (
+          <div className="border-t pt-3 mt-3">
+            <div className="text-xs text-gray-500 mb-2">Betting Lines</div>
+            <div className="grid grid-cols-2 gap-4">
+              {analysis.spread !== undefined && (
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Spread</div>
+                  <div className="text-sm font-medium">
+                    {analysis.spread > 0 ? `${analysis.awayTeam} +${analysis.spread}` : `${analysis.homeTeam} ${analysis.spread}`}
+                    {analysis.spreadOdds && (
+                      <span className="text-gray-500 ml-1">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
+                    )}
+                  </div>
+                </div>
+              )}
+              {(analysis.awayMoneyline !== undefined || analysis.homeMoneyline !== undefined) && (
+                <div>
+                  <div className="text-xs text-gray-600 mb-1">Moneyline</div>
+                  <div className="space-y-1">
+                    {analysis.awayMoneyline !== undefined && (
+                      <div className="text-sm font-medium">
+                        {analysis.awayTeam}: {analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}
+                      </div>
+                    )}
+                    {analysis.homeMoneyline !== undefined && (
+                      <div className="text-sm font-medium">
+                        {analysis.homeTeam}: {analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Predicted Scores */}
         {analysis.projectedAwayScore !== undefined && analysis.projectedHomeScore !== undefined && (
