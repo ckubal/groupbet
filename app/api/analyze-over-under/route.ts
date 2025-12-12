@@ -230,16 +230,22 @@ async function projectTotalPoints(
   weather?: WeatherInfo,
   venue?: any,
   useMedian: boolean = true
-): Promise<{ total: number; adjustments: string[]; gameContext: string[] }> {
+): Promise<{ total: number; awayScore: number; homeScore: number; adjustments: string[]; gameContext: string[] }> {
   const awayOffense = useMedian ? awayStats.medianPointsScored : awayStats.avgPointsScored;
   const awayDefense = useMedian ? awayStats.medianPointsAllowed : awayStats.avgPointsAllowed;
   const homeOffense = useMedian ? homeStats.medianPointsScored : homeStats.avgPointsScored;
   const homeDefense = useMedian ? homeStats.medianPointsAllowed : homeStats.avgPointsAllowed;
   
-  // Average of both teams' expected points
+  // Average of both teams' expected points (base projection)
   const awayExpectedPoints = (awayOffense + homeDefense) / 2;
   const homeExpectedPoints = (homeOffense + awayDefense) / 2;
-  let projectedTotal = awayExpectedPoints + homeExpectedPoints;
+  const baseTotal = awayExpectedPoints + homeExpectedPoints;
+  
+  // Calculate percentage each team contributes to base total
+  const awayPercentage = baseTotal > 0 ? awayExpectedPoints / baseTotal : 0.5;
+  const homePercentage = baseTotal > 0 ? homeExpectedPoints / baseTotal : 0.5;
+  
+  let projectedTotal = baseTotal;
   
   const adjustments: string[] = [];
   
