@@ -323,13 +323,19 @@ async function projectTotalPoints(
     gameContext.push('Rematch (2nd meeting)');
   }
   
-  // Check game type (Thursday/Monday night)
-  const dayOfWeek = gameTime.getDay();
-  const hour = gameTime.getHours();
+  // Check game type (Thursday/Monday night) - use Eastern timezone to match adjustment logic
+  const easternDate = new Date(gameTime.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const dayOfWeek = easternDate.getDay(); // 0=Sunday, 1=Monday, 4=Thursday
   if (dayOfWeek === 4) { // Thursday
     gameContext.push('Thursday Night Football');
   } else if (dayOfWeek === 1) { // Monday
     gameContext.push('Monday Night Football');
+  } else if (dayOfWeek === 0) { // Sunday - check if it's Sunday Night Football
+    // Sunday Night Football is typically 8:20pm ET (20:20)
+    const easternHour = easternDate.getHours();
+    if (easternHour >= 20) { // 8pm ET or later
+      gameContext.push('Sunday Night Football');
+    }
   }
   
   return {
