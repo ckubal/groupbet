@@ -402,13 +402,13 @@ export function calculateTravelAdjustment(
 
 /**
  * Calculate altitude adjustment (Denver games)
- * Note: When Denver is home, their stats already include altitude effects from ~50% of games,
- * so we reduce the adjustment to avoid double-counting.
+ * Note: When the game is at Denver (high altitude venue), Denver's stats already include 
+ * altitude effects from ~50% of their games (their home games), so we reduce the adjustment 
+ * to +0.75 to avoid double-counting.
+ * 
+ * When Denver is away, there's no altitude in the current game, so no adjustment is needed.
  */
-export function calculateAltitudeAdjustment(
-  venue?: { fullName?: string },
-  homeTeam?: string
-): { adjustment: number; reason: string } {
+export function calculateAltitudeAdjustment(venue?: { fullName?: string }): { adjustment: number; reason: string } {
   if (!venue?.fullName) {
     return { adjustment: 0, reason: 'Venue unknown' };
   }
@@ -417,20 +417,14 @@ export function calculateAltitudeAdjustment(
   const altitude = HIGH_ALTITUDE_VENUES[venueName];
 
   if (altitude && altitude >= 5000) {
-    // Check if Denver is the home team
-    const isDenverHome = homeTeam === 'Denver Broncos';
-    
-    if (isDenverHome) {
-      // Denver's stats already include altitude effects from ~50% of their games
-      // Visiting team gets altitude boost, but Denver's boost is already in their stats
-      // Reduce adjustment to +0.75 to account for this
-      return { adjustment: 0.75, reason: `High altitude venue (${altitude} ft): +0.75 (Denver home - stats already include altitude)` };
-    } else {
-      // Denver is away - full adjustment applies (neither team's stats include this game's altitude)
-      return { adjustment: 1.5, reason: `High altitude venue (${altitude} ft): +1.5` };
-    }
+    // Game is at Denver (high altitude venue) - Denver is home
+    // Denver's stats already include altitude effects from ~50% of their games (home games)
+    // Visiting team gets altitude boost, but Denver's boost is already in their stats
+    // Reduce adjustment to +0.75 to account for this
+    return { adjustment: 0.75, reason: `High altitude venue (${altitude} ft): +0.75 (Denver's stats already include altitude)` };
   }
 
+  // Not at altitude - no adjustment needed
   return { adjustment: 0, reason: 'No altitude impact' };
 }
 
