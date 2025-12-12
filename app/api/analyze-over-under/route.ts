@@ -299,7 +299,7 @@ async function projectTotalPoints(
     }
     
     // Altitude adjustment (Denver)
-    const altitudeAdj = calculateAltitudeAdjustment(venue);
+    const altitudeAdj = calculateAltitudeAdjustment(venue, homeTeam);
     if (altitudeAdj.adjustment !== 0) {
       projectedTotal += altitudeAdj.adjustment;
       adjustments.push(`Altitude (${altitudeAdj.reason}): +${altitudeAdj.adjustment.toFixed(1)}`);

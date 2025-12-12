@@ -402,8 +402,13 @@ export function calculateTravelAdjustment(
 
 /**
  * Calculate altitude adjustment (Denver games)
+ * Note: When Denver is home, their stats already include altitude effects from ~50% of games,
+ * so we reduce the adjustment to avoid double-counting.
  */
-export function calculateAltitudeAdjustment(venue?: { fullName?: string }): { adjustment: number; reason: string } {
+export function calculateAltitudeAdjustment(
+  venue?: { fullName?: string },
+  homeTeam?: string
+): { adjustment: number; reason: string } {
   if (!venue?.fullName) {
     return { adjustment: 0, reason: 'Venue unknown' };
   }
@@ -412,8 +417,18 @@ export function calculateAltitudeAdjustment(venue?: { fullName?: string }): { ad
   const altitude = HIGH_ALTITUDE_VENUES[venueName];
 
   if (altitude && altitude >= 5000) {
-    // Denver: +1 to +2 points (thinner air = longer passes, more scoring)
-    return { adjustment: 1.5, reason: `High altitude venue (${altitude} ft): +1.5` };
+    // Check if Denver is the home team
+    const isDenverHome = homeTeam === 'Denver Broncos';
+    
+    if (isDenverHome) {
+      // Denver's stats already include altitude effects from ~50% of their games
+      // Visiting team gets altitude boost, but Denver's boost is already in their stats
+      // Reduce adjustment to +0.75 to account for this
+      return { adjustment: 0.75, reason: `High altitude venue (${altitude} ft): +0.75 (Denver home - stats already include altitude)` };
+    } else {
+      // Denver is away - full adjustment applies (neither team's stats include this game's altitude)
+      return { adjustment: 1.5, reason: `High altitude venue (${altitude} ft): +1.5` };
+    }
   }
 
   return { adjustment: 0, reason: 'No altitude impact' };
