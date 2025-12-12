@@ -303,9 +303,13 @@ class OddsApiService {
       const enhancedGames = await Promise.all(espnGames.map(async (game) => {
         try {
           // Ensure betting lines are properly cached for this game
+          // This will check Firebase cache first, then decide if API call is needed based on timing
+          // - Daily refresh (24h) when >3 hours before game
+          // - Frequent refresh (30min) when <=3 hours before game
+          // - Freeze when game starts
           await bettingLinesCacheService.ensureBettingLinesForGame(game);
           
-          // Get the cached betting lines
+          // Get the cached betting lines (after ensuring they're fetched)
           const cachedLines = await bettingLinesCacheService.getCachedBettingLines(game.id);
           
           if (cachedLines) {

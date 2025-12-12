@@ -54,6 +54,24 @@ interface PlacedBet {
   placedAt: string;
 }
 
+interface PredictionRecords {
+  high: { correct: number; incorrect: number; total: number; percentage: number };
+  medium: { correct: number; incorrect: number; total: number; percentage: number };
+  low: { correct: number; incorrect: number; total: number; percentage: number };
+  overall: { correct: number; incorrect: number; total: number; percentage: number };
+  predictions: Array<{
+    gameId: string;
+    awayTeam: string;
+    homeTeam: string;
+    recommendation: string;
+    confidence: string;
+    projectedTotal: number;
+    bovadaOverUnder?: number;
+    actualTotal?: number;
+    isCorrect?: boolean;
+  }>;
+}
+
 interface ResearchPanelProps {
   week: number;
   onPlaceBet: (analysis: GameAnalysis) => void;
@@ -66,11 +84,27 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
   const [isLoading, setIsLoading] = useState(true);
   const [placedBets, setPlacedBets] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  const [predictionRecords, setPredictionRecords] = useState<PredictionRecords | null>(null);
 
   useEffect(() => {
     loadResearchData();
     loadPlacedBets();
+    loadPredictionRecords();
   }, [week, currentUser, groupSession]);
+
+  const loadPredictionRecords = async () => {
+    try {
+      const response = await fetch(`/api/prediction-records?week=${week}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.records) {
+          setPredictionRecords(data.records);
+        }
+      }
+    } catch (err) {
+      console.warn('Could not load prediction records:', err);
+    }
+  };
 
   const loadResearchData = async () => {
     setIsLoading(true);
@@ -238,6 +272,51 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
           <div className="text-2xl font-bold text-gray-900">{researchData.summary.gamesWithLines}</div>
         </div>
       </div>
+
+      {/* Prediction Records */}
+      {predictionRecords && predictionRecords.overall.total > 0 && (
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-6 rounded-lg border-2 border-purple-200">
+          <h3 className="text-xl font-bold mb-4">📊 Prediction Record - Week {week}</h3>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-lg border border-purple-200">
+              <div className="text-sm font-medium text-gray-600 mb-1">High Confidence</div>
+              <div className="text-2xl font-bold text-purple-900">
+                {predictionRecords.high.correct}-{predictionRecords.high.incorrect}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {predictionRecords.high.total} total • {predictionRecords.high.percentage}%
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-yellow-200">
+              <div className="text-sm font-medium text-gray-600 mb-1">Medium Confidence</div>
+              <div className="text-2xl font-bold text-yellow-900">
+                {predictionRecords.medium.correct}-{predictionRecords.medium.incorrect}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {predictionRecords.medium.total} total • {predictionRecords.medium.percentage}%
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border border-red-200">
+              <div className="text-sm font-medium text-gray-600 mb-1">Low Confidence</div>
+              <div className="text-2xl font-bold text-red-900">
+                {predictionRecords.low.correct}-{predictionRecords.low.incorrect}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {predictionRecords.low.total} total • {predictionRecords.low.percentage}%
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg border-2 border-blue-300">
+              <div className="text-sm font-medium text-gray-600 mb-1">Overall</div>
+              <div className="text-2xl font-bold text-blue-900">
+                {predictionRecords.overall.correct}-{predictionRecords.overall.incorrect}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {predictionRecords.overall.total} total • {predictionRecords.overall.percentage}%
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* High Confidence Bets */}
       {highConfidence.length > 0 && (

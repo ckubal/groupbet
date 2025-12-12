@@ -205,7 +205,8 @@ export class GamesCacheService {
           games.push(convertedGameData);
         });
         
-        return games;
+        // Enhance games with betting lines from cache
+        return await this.enhanceGamesWithBettingLines(games);
       } else {
         // Fallback to client SDK
         const gamesQuery = query(
@@ -230,11 +231,56 @@ export class GamesCacheService {
           games.push(convertedGameData);
         });
         
-        return games;
+        // Enhance games with betting lines from cache
+        return await this.enhanceGamesWithBettingLines(games);
       }
     } catch (error) {
       console.error('❌ Error reading games from Firebase:', error);
       return [];
+    }
+  }
+
+  /**
+   * Enhance games with betting lines from the betting lines cache
+   * Also proactively ensures betting lines are fetched if needed (respecting refresh timing)
+   */
+  private async enhanceGamesWithBettingLines(games: Game[]): Promise<Game[]> {
+    try {
+      const { bettingLinesCacheService } = await import('./betting-lines-cache');
+      
+      const enhancedGames = await Promise.all(games.map(async (game) => {
+        try {
+          // Proactively ensure betting lines are fetched/cached (respects refresh timing)
+          // This will check Firebase cache first, then decide if API call is needed based on timing
+          await bettingLinesCacheService.ensureBettingLinesForGame(game);
+          
+          // Get cached betting lines for this game (after ensuring they're fetched)
+          const cachedLines = await bettingLinesCacheService.getCachedBettingLines(game.id);
+          
+          if (cachedLines) {
+            // Apply cached betting lines to the game (only if they exist - don't overwrite with undefined)
+            return {
+              ...game,
+              spread: cachedLines.spread !== undefined ? cachedLines.spread : game.spread,
+              spreadOdds: cachedLines.spreadOdds !== undefined ? cachedLines.spreadOdds : game.spreadOdds,
+              overUnder: cachedLines.overUnder !== undefined ? cachedLines.overUnder : game.overUnder,
+              overUnderOdds: cachedLines.overUnderOdds !== undefined ? cachedLines.overUnderOdds : game.overUnderOdds,
+              homeMoneyline: cachedLines.homeMoneyline !== undefined ? cachedLines.homeMoneyline : game.homeMoneyline,
+              awayMoneyline: cachedLines.awayMoneyline !== undefined ? cachedLines.awayMoneyline : game.awayMoneyline,
+            };
+          }
+          
+          return game;
+        } catch (error) {
+          console.warn(`⚠️ Error enhancing game ${game.id} with betting lines:`, error);
+          return game;
+        }
+      }));
+      
+      return enhancedGames;
+    } catch (error) {
+      console.error('❌ Error enhancing games with betting lines:', error);
+      return games; // Return original games if enhancement fails
     }
   }
   

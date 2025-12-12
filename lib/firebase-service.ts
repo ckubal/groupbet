@@ -5,10 +5,12 @@ import {
   updateDoc, 
   deleteDoc, 
   getDocs, 
+  getDoc,
   query, 
   where, 
   orderBy,
   onSnapshot,
+  setDoc,
   Timestamp 
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -25,7 +27,8 @@ const COLLECTIONS = {
   FINAL_GAMES: 'final_games', // Store completed games permanently
   PLAYER_PROPS: 'player_props', // Cache player props separately
   GAME_ID_MAPPINGS: 'game_id_mappings', // Map between internal IDs and external API IDs
-  PRE_GAME_ODDS: 'pre_game_odds' // Freeze betting lines before games start - NEVER overwrite
+  PRE_GAME_ODDS: 'pre_game_odds', // Freeze betting lines before games start - NEVER overwrite
+  OVER_UNDER_PREDICTIONS: 'over_under_predictions' // Store over/under predictions and track accuracy
 };
 
 // Bet Management
@@ -480,6 +483,19 @@ export const finalGameService = {
           const docRef = existingResults.docs[0].ref;
           await updateDoc(docRef, updateData);
           console.log(`🔄 Updated final result for ${game.awayTeam} @ ${game.homeTeam}`);
+          
+          // Update prediction with actual result
+          try {
+            const actualTotal = (game.homeScore || 0) + (game.awayScore || 0);
+            await predictionService.updatePredictionWithResult(
+              game.id,
+              actualTotal,
+              game.awayScore || 0,
+              game.homeScore || 0
+            );
+          } catch (predError) {
+            console.warn(`⚠️ Could not update prediction for ${game.awayTeam} @ ${game.homeTeam}:`, predError);
+          }
         } else {
           // Create new final result (clean undefined values for Firebase)
           const finalGameData = {
@@ -510,6 +526,19 @@ export const finalGameService = {
           
           await addDoc(collection(db, COLLECTIONS.FINAL_GAMES), cleanedData);
           console.log(`✅ Stored final result for ${game.awayTeam} @ ${game.homeTeam} (${game.awayScore}-${game.homeScore})`);
+          
+          // Update prediction with actual result
+          try {
+            const actualTotal = (game.homeScore || 0) + (game.awayScore || 0);
+            await predictionService.updatePredictionWithResult(
+              game.id,
+              actualTotal,
+              game.awayScore || 0,
+              game.homeScore || 0
+            );
+          } catch (predError) {
+            console.warn(`⚠️ Could not update prediction for ${game.awayTeam} @ ${game.homeTeam}:`, predError);
+          }
         }
       });
       
@@ -1040,6 +1069,193 @@ export const preGameOddsService = {
   }
 };
 
+// Over/Under Prediction Service
+export const predictionService = {
+  /**
+   * Save or update an over/under prediction
+   */
+  async savePrediction(prediction: {
+    gameId: string;
+    weekendId: string;
+    week: number;
+    awayTeam: string;
+    homeTeam: string;
+    gameTime: Date;
+    projectedTotal: number;
+    bovadaOverUnder?: number;
+    recommendation: 'over' | 'under' | 'neutral';
+    confidence: 'high' | 'medium' | 'low';
+    adjustments?: string[];
+    gameContext?: string[];
+    predictedAt: Date;
+  }): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTIONS.OVER_UNDER_PREDICTIONS, prediction.gameId);
+      
+      const data = {
+        ...prediction,
+        gameTime: Timestamp.fromDate(prediction.gameTime),
+        predictedAt: Timestamp.fromDate(prediction.predictedAt),
+        // Remove undefined values
+        ...(prediction.bovadaOverUnder !== undefined && { bovadaOverUnder: prediction.bovadaOverUnder }),
+        ...(prediction.adjustments && { adjustments: prediction.adjustments }),
+        ...(prediction.gameContext && { gameContext: prediction.gameContext }),
+      };
+      
+      // Remove undefined values
+      Object.keys(data).forEach(key => {
+        if (data[key as keyof typeof data] === undefined) {
+          delete data[key as keyof typeof data];
+        }
+      });
+      
+      await setDoc(docRef, data, { merge: true });
+      console.log(`💾 Saved prediction for ${prediction.awayTeam} @ ${prediction.homeTeam}: ${prediction.recommendation} (${prediction.confidence})`);
+    } catch (error) {
+      console.error('❌ Error saving prediction:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Update prediction with actual game result
+   */
+  async updatePredictionWithResult(
+    gameId: string,
+    actualTotal: number,
+    actualAwayScore: number,
+    actualHomeScore: number
+  ): Promise<void> {
+    try {
+      const docRef = doc(db, COLLECTIONS.OVER_UNDER_PREDICTIONS, gameId);
+      const docSnap = await getDoc(docRef);
+      
+      if (!docSnap.exists()) {
+        console.warn(`⚠️ No prediction found for game ${gameId}, cannot update with result`);
+        return;
+      }
+      
+      const prediction = docSnap.data();
+      const bovadaOverUnder = prediction.bovadaOverUnder;
+      
+      if (!bovadaOverUnder || prediction.recommendation === 'neutral') {
+        console.log(`ℹ️ Prediction for ${gameId} has no line or is neutral, skipping result update`);
+        return;
+      }
+      
+      // Determine if prediction was correct
+      let isCorrect: boolean | null = null;
+      if (prediction.recommendation === 'over') {
+        isCorrect = actualTotal > bovadaOverUnder;
+      } else if (prediction.recommendation === 'under') {
+        isCorrect = actualTotal < bovadaOverUnder;
+      }
+      
+      await updateDoc(docRef, {
+        actualTotal,
+        actualAwayScore,
+        actualHomeScore,
+        isCorrect,
+        resolvedAt: Timestamp.now(),
+      });
+      
+      console.log(`✅ Updated prediction for ${gameId}: ${prediction.recommendation} ${isCorrect ? '✅ CORRECT' : '❌ WRONG'} (actual: ${actualTotal}, line: ${bovadaOverUnder})`);
+    } catch (error) {
+      console.error('❌ Error updating prediction with result:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get prediction records for a week, grouped by confidence
+   */
+  async getPredictionRecords(week: number): Promise<{
+    high: { correct: number; incorrect: number; total: number; percentage: number };
+    medium: { correct: number; incorrect: number; total: number; percentage: number };
+    low: { correct: number; incorrect: number; total: number; percentage: number };
+    overall: { correct: number; incorrect: number; total: number; percentage: number };
+    predictions: Array<{
+      gameId: string;
+      awayTeam: string;
+      homeTeam: string;
+      recommendation: string;
+      confidence: string;
+      projectedTotal: number;
+      bovadaOverUnder?: number;
+      actualTotal?: number;
+      isCorrect?: boolean;
+    }>;
+  }> {
+    try {
+      const weekendId = `2025-week-${week}`;
+      const q = query(
+        collection(db, COLLECTIONS.OVER_UNDER_PREDICTIONS),
+        where('weekendId', '==', weekendId)
+      );
+      
+      const querySnapshot = await getDocs(q);
+      const predictions: any[] = [];
+      
+      querySnapshot.forEach((doc: any) => {
+        const data = doc.data();
+        predictions.push({
+          gameId: doc.id,
+          ...data,
+          gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime,
+          predictedAt: data.predictedAt?.toDate ? data.predictedAt.toDate() : data.predictedAt,
+          resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : data.resolvedAt,
+        });
+      });
+      
+      // Filter to only resolved predictions (have isCorrect value)
+      const resolved = predictions.filter(p => p.isCorrect !== null && p.isCorrect !== undefined);
+      
+      // Group by confidence
+      const high = resolved.filter(p => p.confidence === 'high');
+      const medium = resolved.filter(p => p.confidence === 'medium');
+      const low = resolved.filter(p => p.confidence === 'low');
+      
+      const calculateStats = (group: any[]) => {
+        const correct = group.filter(p => p.isCorrect === true).length;
+        const incorrect = group.filter(p => p.isCorrect === false).length;
+        const total = group.length;
+        return {
+          correct,
+          incorrect,
+          total,
+          percentage: total > 0 ? Math.round((correct / total) * 100) : 0,
+        };
+      };
+      
+      const highStats = calculateStats(high);
+      const mediumStats = calculateStats(medium);
+      const lowStats = calculateStats(low);
+      const overallStats = calculateStats(resolved);
+      
+      return {
+        high: highStats,
+        medium: mediumStats,
+        low: lowStats,
+        overall: overallStats,
+        predictions: resolved.map(p => ({
+          gameId: p.gameId,
+          awayTeam: p.awayTeam,
+          homeTeam: p.homeTeam,
+          recommendation: p.recommendation,
+          confidence: p.confidence,
+          projectedTotal: p.projectedTotal,
+          bovadaOverUnder: p.bovadaOverUnder,
+          actualTotal: p.actualTotal,
+          isCorrect: p.isCorrect,
+        })),
+      };
+    } catch (error) {
+      console.error('❌ Error getting prediction records:', error);
+      throw error;
+    }
+  },
+};
+
 export default {
   bet: betService,
   weekend: weekendService,
@@ -1048,5 +1264,6 @@ export default {
   finalGame: finalGameService,
   playerProps: playerPropsService,
   gameIdMapping: gameIdMappingService,
-  preGameOdds: preGameOddsService
+  preGameOdds: preGameOddsService,
+  prediction: predictionService
 };

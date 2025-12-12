@@ -8,6 +8,7 @@ import {
   calculateTravelAdjustment,
   calculateAltitudeAdjustment,
   isDivisionalGame,
+  getGameTypeAdjustment,
 } from '@/lib/nfl-adjustments';
 
 interface TeamStats {
@@ -258,6 +259,13 @@ async function projectTotalPoints(
     adjustments.push(`${byeTeam} off bye: -1.5`);
   }
   // Note: Both teams off bye shows +6 points in data, but only 3 games (too small sample)
+  
+  // Game type adjustment (Thursday/Monday night)
+  const gameType = getGameTypeAdjustment(gameTime);
+  if (gameType.adjustment !== 0) {
+    projectedTotal += gameType.adjustment;
+    adjustments.push(`${gameType.reason}: ${gameType.adjustment > 0 ? '+' : ''}${gameType.adjustment.toFixed(1)}`);
+  }
   
   // Weather adjustments
   if (weather) {
@@ -586,6 +594,30 @@ export async function GET(request: NextRequest) {
         gameContext: projection.gameContext,
         weather,
       });
+
+      // Save prediction to Firebase for tracking accuracy
+      if (recommendation !== 'neutral' && bovadaOverUnder) {
+        try {
+          const { predictionService } = await import('@/lib/firebase-service');
+          await predictionService.savePrediction({
+            gameId: game.id,
+            weekendId: game.weekendId,
+            week: currentWeek,
+            awayTeam: game.awayTeam,
+            homeTeam: game.homeTeam,
+            gameTime: game.gameTime,
+            projectedTotal,
+            bovadaOverUnder,
+            recommendation,
+            confidence,
+            adjustments: projection.adjustments,
+            gameContext: projection.gameContext,
+            predictedAt: new Date(),
+          });
+        } catch (error) {
+          console.warn(`⚠️ Could not save prediction for ${game.awayTeam} @ ${game.homeTeam}:`, error);
+        }
+      }
 
       console.log(`   📊 Projected Total: ${projectedTotal}`);
       if (projection.adjustments.length > 0) {

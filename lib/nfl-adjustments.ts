@@ -22,6 +22,11 @@ export interface TravelAdjustment {
   reason: string;
 }
 
+export interface GameTypeAdjustment {
+  adjustment: number;
+  reason: string;
+}
+
 /**
  * NFL Team Divisions
  * Maps team names to their division
@@ -412,6 +417,26 @@ export function calculateAltitudeAdjustment(venue?: { fullName?: string }): { ad
   }
 
   return { adjustment: 0, reason: 'No altitude impact' };
+}
+
+/**
+ * Get game type adjustment based on day/time
+ * Based on historical NFL data:
+ * - Thursday Night: -2.5 points (short rest, lower scoring)
+ * - Monday Night: -1.0 points (slightly lower scoring)
+ * - Sunday games: no adjustment
+ */
+export function getGameTypeAdjustment(gameTime: Date): GameTypeAdjustment {
+  const easternDate = new Date(gameTime.toLocaleString('en-US', { timeZone: 'America/New_York' }));
+  const dayOfWeek = easternDate.getDay(); // 0=Sunday, 1=Monday, 4=Thursday
+  
+  if (dayOfWeek === 4) { // Thursday
+    return { adjustment: -2.5, reason: 'Thursday Night (short rest, historically lower scoring)' };
+  } else if (dayOfWeek === 1) { // Monday
+    return { adjustment: -1.0, reason: 'Monday Night (slightly lower scoring)' };
+  }
+  
+  return { adjustment: 0, reason: 'Sunday game (no adjustment)' };
 }
 
 /**
