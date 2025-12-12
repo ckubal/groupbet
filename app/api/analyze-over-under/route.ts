@@ -46,6 +46,8 @@ interface GameAnalysis {
   awayTeamStats: TeamStats;
   homeTeamStats: TeamStats;
   projectedTotal: number;
+  projectedAwayScore?: number;
+  projectedHomeScore?: number;
   difference: number; // projectedTotal - bovadaOverUnder
   recommendation: 'over' | 'under' | 'neutral';
   confidence: 'high' | 'medium' | 'low';
@@ -338,8 +340,15 @@ async function projectTotalPoints(
     }
   }
   
+  // Apply adjustments proportionally to each team based on their percentage of base total
+  // This ensures the predicted scores add up to the adjusted total
+  const adjustedAwayScore = awayPercentage * projectedTotal;
+  const adjustedHomeScore = homePercentage * projectedTotal;
+  
   return {
     total: Math.round(projectedTotal * 10) / 10,
+    awayScore: Math.round(adjustedAwayScore * 10) / 10,
+    homeScore: Math.round(adjustedHomeScore * 10) / 10,
     adjustments,
     gameContext
   };
@@ -593,6 +602,8 @@ export async function GET(request: NextRequest) {
         awayTeamStats: awayStats,
         homeTeamStats: homeStats,
         projectedTotal,
+        projectedAwayScore: projection.awayScore,
+        projectedHomeScore: projection.homeScore,
         difference,
         recommendation,
         confidence,

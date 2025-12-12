@@ -58,6 +58,8 @@ interface GameAnalysis {
   awayTeamStats: TeamStats;
   homeTeamStats: TeamStats;
   projectedTotal: number;
+  projectedAwayScore?: number;
+  projectedHomeScore?: number;
   difference: number;
   recommendation: 'over' | 'under' | 'neutral';
   confidence: 'high' | 'medium' | 'low';
@@ -356,8 +358,15 @@ async function projectTotalPoints(
     gameContext.push('Rematch (2nd meeting)');
   }
   
+  // Apply adjustments proportionally to each team based on their percentage of base total
+  // This ensures the predicted scores add up to the adjusted total
+  const adjustedAwayScore = awayPercentage * projectedTotal;
+  const adjustedHomeScore = homePercentage * projectedTotal;
+  
   return {
     total: Math.round(projectedTotal * 10) / 10,
+    awayScore: Math.round(adjustedAwayScore * 10) / 10,
+    homeScore: Math.round(adjustedHomeScore * 10) / 10,
     adjustments,
     gameContext
   };
@@ -674,6 +683,8 @@ async function main() {
       awayTeamStats: awayStats,
       homeTeamStats: homeStats,
       projectedTotal: projectedTotalMedian,
+      projectedAwayScore: projectionMedian.awayScore,
+      projectedHomeScore: projectionMedian.homeScore,
       difference: differenceMedian,
       recommendation,
       confidence,
@@ -685,6 +696,9 @@ async function main() {
 
     console.log(`\n   💡 PROJECTION:`);
     console.log(`      Mean Projection: ${projectedTotalMean.toFixed(1)} | Median Projection: ${projectedTotalMedian.toFixed(1)}`);
+    if (projectionMedian.awayScore !== undefined && projectionMedian.homeScore !== undefined) {
+      console.log(`      Predicted Score: ${game.awayTeam} ${projectionMedian.awayScore.toFixed(1)} @ ${game.homeTeam} ${projectionMedian.homeScore.toFixed(1)}`);
+    }
     
     // Show game context (divisional, rematch, etc.)
     if (gameContext.length > 0) {
@@ -767,22 +781,26 @@ async function main() {
 
   // Full table with adjustments
   console.log('\n\n📊 FULL WEEK 15 OVER/UNDER TABLE\n');
-  console.log('='.repeat(140));
+  console.log('='.repeat(160));
   console.log(
     'Game'.padEnd(45) + '|' +
     'Bovada'.padEnd(8) + '|' +
     'Projected'.padEnd(10) + '|' +
+    'Score'.padEnd(18) + '|' +
     'Diff'.padEnd(7) + '|' +
     'Bet'.padEnd(8) + '|' +
     'Adjustments & Context'
   );
-  console.log('='.repeat(140));
+  console.log('='.repeat(160));
   
   analyses.forEach(analysis => {
     const gameName = `${analysis.awayTeam} @ ${analysis.homeTeam}`;
     const bovada = analysis.bovadaOverUnder ? analysis.bovadaOverUnder.toString() : 'N/A';
     const projected = analysis.projectedTotal.toFixed(1);
-    const diff = analysis.difference > 0 ? `+${analysis.difference.toFixed(1)}` : analysis.difference.toFixed(1);
+    const score = (analysis.projectedAwayScore !== undefined && analysis.projectedHomeScore !== undefined)
+      ? `${analysis.projectedAwayScore.toFixed(1)}-${analysis.projectedHomeScore.toFixed(1)}`
+      : 'N/A';
+    const diff = analysis.bovadaOverUnder ? (analysis.difference > 0 ? '+' : '') + analysis.difference.toFixed(1) : 'N/A';
     const emoji = analysis.recommendation === 'over' ? '⬆️' : analysis.recommendation === 'under' ? '⬇️' : '➡️';
     const confEmoji = analysis.confidence === 'high' ? '🟢' : analysis.confidence === 'medium' ? '🟡' : '🔴';
     const bet = `${emoji} ${confEmoji} ${analysis.recommendation.toUpperCase()}`;
@@ -806,12 +824,13 @@ async function main() {
       gameName.padEnd(45) + '|' +
       bovada.padEnd(8) + '|' +
       projected.padEnd(10) + '|' +
+      score.padEnd(18) + '|' +
       diff.padEnd(7) + '|' +
       bet.padEnd(8) + '|' +
       adjustmentsStr
     );
   });
-  console.log('='.repeat(140));
+  console.log('='.repeat(160));
 
   // Summary
   console.log('\n\n📊 SUMMARY\n');
@@ -833,7 +852,10 @@ async function main() {
       const emoji = bet.recommendation === 'over' ? '⬆️' : '⬇️';
       const confEmoji = bet.confidence === 'high' ? '🟢' : '🟡';
       console.log(`${i + 1}. ${emoji} ${confEmoji} ${bet.awayTeam} @ ${bet.homeTeam}`);
-      console.log(`   ${bet.recommendation.toUpperCase()} ${bet.bovadaOverUnder} (Projected: ${bet.projectedTotal.toFixed(1)}, Diff: ${bet.difference > 0 ? '+' : ''}${bet.difference.toFixed(1)})`);
+      const scoreStr = (bet.projectedAwayScore !== undefined && bet.projectedHomeScore !== undefined)
+        ? ` (Predicted: ${bet.awayTeam} ${bet.projectedAwayScore.toFixed(1)} @ ${bet.homeTeam} ${bet.projectedHomeScore.toFixed(1)})`
+        : '';
+      console.log(`   ${bet.recommendation.toUpperCase()} ${bet.bovadaOverUnder} (Projected Total: ${bet.projectedTotal.toFixed(1)}, Diff: ${bet.difference > 0 ? '+' : ''}${bet.difference.toFixed(1)})${scoreStr}`);
       
       // Show weather impact if significant
       if (bet.weather && !bet.weather.isIndoor) {

@@ -28,6 +28,8 @@ interface GameAnalysis {
   awayTeamStats: TeamStats;
   homeTeamStats: TeamStats;
   projectedTotal: number;
+  projectedAwayScore?: number;
+  projectedHomeScore?: number;
   difference: number;
   recommendation: 'over' | 'under' | 'neutral';
   confidence: 'high' | 'medium' | 'low';
@@ -480,7 +482,7 @@ function GameAnalysisCard({
 
       {/* Projection */}
       <div className="bg-white rounded p-3 mb-4">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-3">
           <div>
             <div className="text-sm text-gray-600">Projected Total</div>
             <div className="text-2xl font-bold">{analysis.projectedTotal.toFixed(1)}</div>
@@ -495,6 +497,27 @@ function GameAnalysisCard({
             </div>
           )}
         </div>
+        
+        {/* Predicted Scores */}
+        {analysis.projectedAwayScore !== undefined && analysis.projectedHomeScore !== undefined && (
+          <div className="border-t pt-3 mt-3">
+            <div className="text-xs text-gray-500 mb-2">Predicted Score</div>
+            <div className="flex justify-between items-center">
+              <div className="text-center flex-1">
+                <div className="text-sm font-medium text-gray-700">{analysis.awayTeam}</div>
+                <div className="text-xl font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
+              </div>
+              <div className="text-gray-400 mx-4">@</div>
+              <div className="text-center flex-1">
+                <div className="text-sm font-medium text-gray-700">{analysis.homeTeam}</div>
+                <div className="text-xl font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mt-2 text-center">
+              Total: {(analysis.projectedAwayScore + analysis.projectedHomeScore).toFixed(1)}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Game Context & Adjustments */}
