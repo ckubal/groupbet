@@ -32,13 +32,16 @@ export class GamesCacheService {
         if (apiGames.length > 0) {
           console.log(`✅ Got ${apiGames.length} games from Odds API`);
           
+          // Enhance games with betting lines (even if they come from API)
+          const enhancedApiGames = await this.enhanceGamesWithBettingLines(apiGames);
+          
           // Cache the games for future use (unless force refresh)
           if (!forceRefresh) {
             // Simple cache without merge logic
-            await this.simpleCacheGames(apiGames);
+            await this.simpleCacheGames(enhancedApiGames);
           }
           
-          return apiGames;
+          return enhancedApiGames;
         } else {
           console.warn(`⚠️ Odds API returned 0 games for Week ${week}`);
           // Try to return cached games as fallback even if they're stale
@@ -46,6 +49,7 @@ export class GamesCacheService {
             const staleCachedGames = await this.getGamesFromFirebase(week);
             if (staleCachedGames.length > 0) {
               console.log(`📦 Returning ${staleCachedGames.length} stale cached games as fallback`);
+              // getGamesFromFirebase already enhances with betting lines, so we can return directly
               return staleCachedGames;
             }
           }
@@ -57,6 +61,7 @@ export class GamesCacheService {
           const fallbackGames = await this.getGamesFromFirebase(week);
           if (fallbackGames.length > 0) {
             console.log(`📦 Returning ${fallbackGames.length} cached games as fallback after API error`);
+            // getGamesFromFirebase already enhances with betting lines, so we can return directly
             return fallbackGames;
           }
         }
