@@ -154,6 +154,8 @@ class KalshiApiService {
 
       const data = await response.json();
       console.log(`✅ Fetched sports filters:`, Object.keys(data.filters_by_sports || {}));
+      console.log(`📊 Sport ordering:`, data.sport_ordering || []);
+      console.log(`📊 Filters by sports structure:`, JSON.stringify(data.filters_by_sports || {}, null, 2).substring(0, 2000));
       
       return data;
     } catch (error) {
@@ -172,13 +174,34 @@ class KalshiApiService {
         return null;
       }
 
-      // Look for "Pro Football" specifically (from Kalshi website screenshot)
-      const sports = Object.keys(filters.filters_by_sports);
+      // The Kalshi website shows "Pro Football" as a subcategory under "Football"
+      // The filters_by_sports might have nested structure or tags
+      const sports = Object.keys(filters.filters_by_sports || {});
       
-      // First, look for exact "Pro Football" match
+      console.log(`🔍 All available sports in filters:`, sports);
+      
+      // Check if filters_by_sports has nested structure with tags/categories
+      const footballFilter = filters.filters_by_sports['Football'];
+      if (footballFilter) {
+        console.log(`📊 Football filter structure:`, JSON.stringify(footballFilter, null, 2).substring(0, 1000));
+        
+        // Check if there are tags or subcategories
+        if (footballFilter.tags) {
+          const proFootballTag = footballFilter.tags.find((tag: string) => 
+            tag.toLowerCase().includes('pro') && tag.toLowerCase().includes('football')
+          );
+          if (proFootballTag) {
+            console.log(`✅ Found Pro Football tag: ${proFootballTag}`);
+            return proFootballTag;
+          }
+        }
+      }
+      
+      // First, look for exact "Pro Football" match in sports list
       const proFootballExact = sports.find(sport => 
         sport.toLowerCase() === 'pro football' || 
-        sport.toLowerCase() === 'profootball'
+        sport.toLowerCase() === 'profootball' ||
+        sport.toLowerCase() === 'pro-football'
       );
       
       if (proFootballExact) {
@@ -219,6 +242,10 @@ class KalshiApiService {
           return footballOrdered;
         }
       }
+      
+      // If we still haven't found it, try common variations
+      console.log(`⚠️ Pro Football not found in filters, trying common variations...`);
+      return 'Pro Football'; // Try this directly
 
       return null;
     } catch (error) {
