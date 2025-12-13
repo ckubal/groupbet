@@ -11,6 +11,7 @@ import ParlayBuilder from '@/components/ParlayBuilder';
 import ParlayPanel, { ParlaySelection } from '@/components/ParlayPanel';
 import UserSelector from '@/components/UserSelector';
 import ResearchPanel from '@/components/ResearchPanel';
+import ExperimentalPanel from '@/components/ExperimentalPanel';
 import ImageBetUpload from '@/components/ImageBetUpload';
 import { format } from 'date-fns';
 import { getCurrentNFLWeek } from '@/lib/utils';
@@ -745,7 +746,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [betToEdit, setBetToEdit] = useState<Bet | null>(null);
   
   // Tab state for Bets vs Research
-  const [activeTab, setActiveTab] = useState<'bets' | 'research'>('research');
+  const [activeTab, setActiveTab] = useState<'bets' | 'research' | 'experimental'>('research');
   
   // Update collapsed sections when games change (e.g., week navigation)
   useEffect(() => {
@@ -858,7 +859,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               </div>
             </div>
             
-            {/* Tabs - Research vs Bets */}
+            {/* Tabs - Research vs Bets vs Experimental */}
             <div className="flex gap-2 mb-6 border-b-2 border-gray-700">
               <button
                 onClick={() => setActiveTab('research')}
@@ -886,6 +887,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 }`}
               >
                 Bets
+              </button>
+              <button
+                onClick={() => setActiveTab('experimental')}
+                className={`px-6 py-3 font-semibold text-base transition-all duration-200 relative ${
+                  activeTab === 'experimental'
+                    ? 'text-white bg-gray-800 border-b-2 border-blue-500 -mb-0.5'
+                    : 'text-gray-500 hover:text-white hover:bg-gray-800/30'
+                }`}
+              >
+                Experimental
               </button>
             </div>
             
@@ -937,6 +948,8 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
 
         {activeTab === 'research' ? (
           <ResearchPanel week={currentWeek} onPlaceBet={handleResearchBetPlacement} />
+        ) : activeTab === 'experimental' ? (
+          <ExperimentalPanel week={currentWeek} />
         ) : !groupSession ? (
           <div className="text-center py-24 animate-fade-in">
             <p className="text-foreground-muted text-xl font-medium mb-4">Please join or start a group to view bets</p>
