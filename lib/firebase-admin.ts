@@ -21,7 +21,7 @@ async function getAdmin() {
         if (privateKey && process.env.FIREBASE_CLIENT_EMAIL) {
           // Use service account credentials
           // Use FIREBASE_PROJECT_ID if set, otherwise fall back to NEXT_PUBLIC_FIREBASE_PROJECT_ID
-          const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+          const projectId = (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)?.trim();
           
           if (!projectId) {
             throw new Error('FIREBASE_PROJECT_ID or NEXT_PUBLIC_FIREBASE_PROJECT_ID must be set');
@@ -30,7 +30,7 @@ async function getAdmin() {
           adminModule.initializeApp({
             credential: adminModule.credential.cert({
               projectId,
-              clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+              clientEmail: process.env.FIREBASE_CLIENT_EMAIL.trim(),
               privateKey,
             }),
           });
@@ -38,7 +38,7 @@ async function getAdmin() {
         } else {
           // Fallback: Use application default credentials (for local development or if service account not configured)
           // This will work if FIREBASE_PROJECT_ID is set and we're using default credentials
-          const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+          const projectId = (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)?.trim();
           
           if (!projectId) {
             console.warn('⚠️ No Firebase project ID found - Admin SDK may not work');
