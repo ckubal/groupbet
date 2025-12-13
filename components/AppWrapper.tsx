@@ -16,13 +16,7 @@ export default function AppWrapper({ initialGames, initialWeek }: AppWrapperProp
 
   console.log('🔐 AppWrapper - Group Session:', groupSession);
 
-  // If no group session exists, show landing page
-  if (!groupSession) {
-    console.log('🚫 No group session found, showing landing page');
-    return <LandingPage />;
-  }
-
-  console.log('✅ Group session found, showing main app');
-  // If group session exists, show the main app
+  // Always show the main app - research can be viewed without a group
+  // Group is only required for placing bets or viewing bets tab
   return <GamesPage initialGames={initialGames} initialWeek={initialWeek} />;
 }
