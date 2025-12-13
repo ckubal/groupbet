@@ -117,6 +117,84 @@ class KalshiApiService {
   }
 
   /**
+   * Get available sports filters to discover correct sport identifiers
+   */
+  async getSportsFilters(): Promise<any> {
+    try {
+      const url = `${this.baseUrl}/search/filters_by_sport`;
+      
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+      };
+
+      const authHeaders = this.getAuthHeaders('GET', '/search/filters_by_sport');
+      if (authHeaders) {
+        Object.assign(headers, authHeaders);
+      }
+
+      console.log(`🔍 Fetching Kalshi sports filters...`);
+      const response = await fetch(url, { headers });
+
+      if (!response.ok) {
+        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Fetched sports filters:`, Object.keys(data.filters_by_sports || {}));
+      
+      return data;
+    } catch (error) {
+      console.error('❌ Failed to fetch sports filters:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Discover the correct series ticker for NFL/pro football
+   */
+  async discoverNFLSeriesTicker(): Promise<string | null> {
+    try {
+      const filters = await this.getSportsFilters();
+      if (!filters || !filters.filters_by_sports) {
+        return null;
+      }
+
+      // Look for pro football in the sports list
+      const sports = Object.keys(filters.filters_by_sports);
+      const proFootballKeys = sports.filter(sport => 
+        sport.toLowerCase().includes('football') || 
+        sport.toLowerCase().includes('nfl') ||
+        sport.toLowerCase().includes('pro')
+      );
+
+      console.log(`🔍 Found potential pro football sports:`, proFootballKeys);
+      
+      if (proFootballKeys.length > 0) {
+        // Return the first match (most likely "PROFOOTBALL" or similar)
+        return proFootballKeys[0];
+      }
+
+      // Also check sport_ordering
+      if (filters.sport_ordering) {
+        const orderedMatch = filters.sport_ordering.find((sport: string) =>
+          sport.toLowerCase().includes('football') ||
+          sport.toLowerCase().includes('nfl') ||
+          sport.toLowerCase().includes('pro')
+        );
+        if (orderedMatch) {
+          console.log(`✅ Found pro football in sport_ordering: ${orderedMatch}`);
+          return orderedMatch;
+        }
+      }
+
+      return null;
+    } catch (error) {
+      console.error('❌ Failed to discover NFL series ticker:', error);
+      return null;
+    }
+  }
+
+  /**
    * Convert Kalshi price (cents, 0-100) to American odds
    * @param price - Price in cents (0-100) representing probability
    * @returns American odds (e.g., +233, -110)
@@ -266,17 +344,13 @@ class KalshiApiService {
       // Try multiple approaches to find NFL markets
       const allMarkets: KalshiMarket[] = [];
       
-      // Approach 1: Filter by series_ticker = 'NFL'
-      const url1 = new URL(`${this.baseUrl}/markets`);
-      url1.searchParams.set('series_ticker', 'NFL');
-      url1.searchParams.set('status', 'open');
-      url1.searchParams.set('limit', '1000');
+      // First, discover the correct series ticker for pro football
+      const nflSeriesTicker = await this.discoverNFLSeriesTicker();
+      const seriesTickersToTry = nflSeriesTicker 
+        ? [nflSeriesTicker, 'NFL', 'PROFOOTBALL', 'PRO-FOOTBALL']
+        : ['PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'FOOTBALL'];
       
-      if (week) {
-        const { start, end } = getNFLWeekBoundaries(week, 2025);
-        url1.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
-        url1.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
-      }
+      console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
 
       const headers: HeadersInit = {
         'Accept': 'application/json',
@@ -288,29 +362,47 @@ class KalshiApiService {
         Object.assign(headers, authHeaders);
       }
 
-      console.log(`📡 Fetching Kalshi NFL markets${week ? ` for Week ${week}` : ''}...`);
-      console.log(`🔗 URL: ${url1.toString()}`);
-      
-      const response1 = await fetch(url1.toString(), { headers });
-      
-      if (response1.ok) {
-        const data1: KalshiMarketsResponse = await response1.json();
-        console.log(`✅ Approach 1 (series_ticker=NFL): Fetched ${data1.markets.length} markets`);
-        allMarkets.push(...data1.markets);
+      // Approach 1: Try each discovered series ticker
+      for (const seriesTicker of seriesTickersToTry) {
+        const url1 = new URL(`${this.baseUrl}/markets`);
+        url1.searchParams.set('series_ticker', seriesTicker);
+        url1.searchParams.set('status', 'open');
+        url1.searchParams.set('limit', '1000');
         
-        // Log sample markets for debugging
-        if (data1.markets.length > 0) {
-          console.log(`📊 Sample markets:`, data1.markets.slice(0, 3).map(m => ({
-            ticker: m.ticker,
-            title: m.title,
-            series_ticker: m.series_ticker,
-            event_ticker: m.event_ticker,
-            close_time: m.close_time,
-          })));
+        if (week) {
+          const { start, end } = getNFLWeekBoundaries(week, 2025);
+          url1.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
+          url1.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
         }
-      } else {
-        const errorText = await response1.text();
-        console.warn(`⚠️ Approach 1 failed: ${response1.status} ${response1.statusText}`, errorText);
+
+        console.log(`📡 Trying series_ticker=${seriesTicker}${week ? ` for Week ${week}` : ''}...`);
+        console.log(`🔗 URL: ${url1.toString()}`);
+        
+        const response1 = await fetch(url1.toString(), { headers });
+        
+        if (response1.ok) {
+          const data1: KalshiMarketsResponse = await response1.json();
+          console.log(`✅ series_ticker=${seriesTicker}: Fetched ${data1.markets.length} markets`);
+          
+          if (data1.markets.length > 0) {
+            allMarkets.push(...data1.markets);
+            
+            // Log sample markets for debugging
+            console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 3).map(m => ({
+              ticker: m.ticker,
+              title: m.title,
+              series_ticker: m.series_ticker,
+              event_ticker: m.event_ticker,
+              close_time: m.close_time,
+            })));
+            
+            // If we found markets, we can stop trying other tickers
+            break;
+          }
+        } else {
+          const errorText = await response1.text();
+          console.warn(`⚠️ series_ticker=${seriesTicker} failed: ${response1.status} ${response1.statusText}`);
+        }
       }
 
       // Approach 2: Try without series filter, then filter by title keywords
@@ -332,7 +424,11 @@ class KalshiApiService {
           const data2: KalshiMarketsResponse = await response2.json();
           console.log(`✅ Approach 2: Fetched ${data2.markets.length} total markets`);
           
-          // Filter for NFL-related markets by checking titles
+          // Log all unique series_tickers found for debugging
+          const uniqueSeries = [...new Set(data2.markets.map(m => m.series_ticker).filter(Boolean))];
+          console.log(`📊 Found series_tickers in results:`, uniqueSeries);
+          
+          // Filter for NFL-related markets by checking titles and series_tickers
           const nflKeywords = ['nfl', 'football', 'ravens', 'bills', 'chiefs', 'packers', 'cowboys', 
             'patriots', 'jets', 'giants', 'eagles', 'steelers', 'browns', 'bengals', 'dolphins',
             'jaguars', 'titans', 'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams',
@@ -340,6 +436,15 @@ class KalshiApiService {
             'lions', 'vikings', 'bears', 'commanders'];
           
           const nflMarkets = data2.markets.filter(m => {
+            // Check series_ticker first
+            if (m.series_ticker) {
+              const seriesLower = m.series_ticker.toLowerCase();
+              if (seriesLower.includes('football') || seriesLower.includes('nfl') || seriesLower.includes('pro')) {
+                return true;
+              }
+            }
+            
+            // Then check titles
             const titleLower = (m.title || '').toLowerCase();
             const subtitleLower = (m.subtitle || '').toLowerCase();
             return nflKeywords.some(keyword => 
