@@ -649,31 +649,93 @@ function GameAnalysisCard({
         </div>
       </div>
 
-      {/* Game Context & Adjustments - Collapsible/Subtle */}
+      {/* Game Context & Adjustments - Show context with point effects */}
       {(analysis.gameContext && analysis.gameContext.length > 0) || (analysis.adjustments && analysis.adjustments.length > 0) ? (
         <div className="bg-white/50 rounded-lg p-3 mb-2 border border-gray-200">
-          {analysis.gameContext && analysis.gameContext.length > 0 && (
-            <div className="mb-2">
-              <div className="text-xs font-medium text-gray-600 mb-1">Context</div>
-              <div className="flex flex-wrap gap-1.5">
-                {analysis.gameContext.map((context, idx) => (
-                  <span key={idx} className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
-                    {context}
-                  </span>
-                ))}
+          <div className="text-xs font-medium text-gray-600 mb-2">Game Context & Effects</div>
+          
+          {/* Match game context with adjustments */}
+          {analysis.gameContext && analysis.gameContext.map((context, idx) => {
+            // Find matching adjustment for this context
+            let matchingAdjustment: string | null = null;
+            let pointEffect: string | null = null;
+            
+            if (analysis.adjustments) {
+              // Match context to adjustments
+              if (context.includes('Thursday Night')) {
+                const adj = analysis.adjustments.find(a => a.includes('Thursday Night'));
+                if (adj) {
+                  matchingAdjustment = adj;
+                  const match = adj.match(/([+-]?\d+\.?\d*)/);
+                  if (match) pointEffect = match[1];
+                }
+              } else if (context.includes('Monday Night')) {
+                const adj = analysis.adjustments.find(a => a.includes('Monday Night'));
+                if (adj) {
+                  matchingAdjustment = adj;
+                  const match = adj.match(/([+-]?\d+\.?\d*)/);
+                  if (match) pointEffect = match[1];
+                }
+              } else if (context.includes('Sunday Night')) {
+                // Sunday Night Football typically has no adjustment, but check anyway
+                const adj = analysis.adjustments.find(a => a.includes('Sunday Night'));
+                if (adj) {
+                  matchingAdjustment = adj;
+                  const match = adj.match(/([+-]?\d+\.?\d*)/);
+                  if (match) pointEffect = match[1];
+                }
+              }
+            }
+            
+            return (
+              <div key={idx} className="mb-2 last:mb-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-700">{context}</span>
+                  {pointEffect && (
+                    <span className={`text-xs font-bold ${
+                      parseFloat(pointEffect) < 0 ? 'text-red-600' : 'text-green-600'
+                    }`}>
+                      {parseFloat(pointEffect) > 0 ? '+' : ''}{pointEffect} pts
+                    </span>
+                  )}
+                  {!pointEffect && (
+                    <span className="text-xs text-gray-400">No adjustment</span>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })}
+          
+          {/* Show other adjustments that don't match context */}
           {analysis.adjustments && analysis.adjustments.length > 0 && (
-            <div>
-              <div className="text-xs font-medium text-gray-600 mb-1">Adjustments</div>
-              <div className="space-y-1">
-                {analysis.adjustments.map((adj, idx) => (
-                  <div key={idx} className="text-xs text-gray-600">
-                    • {adj}
-                  </div>
-                ))}
-              </div>
+            <div className="mt-2 pt-2 border-t border-gray-200">
+              {analysis.adjustments
+                .filter(adj => {
+                  // Filter out adjustments already shown in context
+                  return !adj.includes('Thursday Night') && 
+                         !adj.includes('Monday Night') && 
+                         !adj.includes('Sunday Night');
+                })
+                .map((adj, idx) => {
+                  const match = adj.match(/([+-]?\d+\.?\d*)/);
+                  const pointEffect = match ? match[1] : null;
+                  const reason = adj.split(':')[0] || adj;
+                  
+                  return (
+                    <div key={idx} className="mb-1 last:mb-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-600">{reason}</span>
+                        {pointEffect && (
+                          <span className={`text-xs font-bold ${
+                            parseFloat(pointEffect) < 0 ? 'text-red-600' : 'text-green-600'
+                          }`}>
+                            {parseFloat(pointEffect) > 0 ? '+' : ''}{pointEffect} pts
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
           )}
         </div>
