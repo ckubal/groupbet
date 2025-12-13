@@ -15,15 +15,28 @@ export interface KalshiMarket {
   ticker: string;
   title: string;
   subtitle?: string;
-  yes_price: number; // Price in cents (0-100)
-  no_price: number; // Price in cents (0-100)
-  status: 'unopened' | 'open' | 'closed' | 'settled';
+  yes_sub_title?: string;
+  no_sub_title?: string;
+  yes_price?: number; // Price in cents (0-100) - may not be present
+  no_price?: number; // Price in cents (0-100) - may not be present
+  yes_bid?: number; // Bid price in cents
+  yes_ask?: number; // Ask price in cents
+  no_bid?: number; // Bid price in cents
+  no_ask?: number; // Ask price in cents
+  last_price?: number; // Last traded price in cents
+  last_price_dollars?: string; // Last traded price in dollars
+  yes_bid_dollars?: string; // Bid price in dollars
+  yes_ask_dollars?: string; // Ask price in dollars
+  no_bid_dollars?: string; // Bid price in dollars
+  no_ask_dollars?: string; // Ask price in dollars
+  status: 'initialized' | 'active' | 'closed' | 'settled' | 'determined';
   close_time: string; // ISO timestamp
   open_time?: string;
   event_ticker?: string;
   series_ticker?: string;
   volume?: number;
   liquidity?: number;
+  market_type?: 'binary' | 'scalar';
 }
 
 export interface KalshiMarketsResponse {
@@ -198,11 +211,59 @@ class KalshiApiService {
   }
 
   /**
+   * Get the best available price from a Kalshi market
+   * Uses last_price if available, otherwise uses mid-point of bid/ask
+   */
+  private getMarketPrice(market: KalshiMarket, side: 'yes' | 'no'): number | null {
+    // Try last_price first (most accurate)
+    if (market.last_price !== undefined && market.last_price !== null) {
+      if (side === 'yes') {
+        return market.last_price;
+      } else {
+        // For "no" side, price is 100 - yes_price
+        return 100 - market.last_price;
+      }
+    }
+    
+    // Try yes_price/no_price fields
+    if (side === 'yes' && market.yes_price !== undefined && market.yes_price !== null) {
+      return market.yes_price;
+    }
+    if (side === 'no' && market.no_price !== undefined && market.no_price !== null) {
+      return market.no_price;
+    }
+    
+    // Try bid/ask midpoint
+    if (side === 'yes' && market.yes_bid !== undefined && market.yes_ask !== undefined) {
+      return (market.yes_bid + market.yes_ask) / 2;
+    }
+    if (side === 'no' && market.no_bid !== undefined && market.no_ask !== undefined) {
+      return (market.no_bid + market.no_ask) / 2;
+    }
+    
+    // Try dollar prices
+    if (side === 'yes' && market.yes_bid_dollars) {
+      const price = parseFloat(market.yes_bid_dollars) * 100;
+      if (!isNaN(price)) return price;
+    }
+    if (side === 'no' && market.no_bid_dollars) {
+      const price = parseFloat(market.no_bid_dollars) * 100;
+      if (!isNaN(price)) return price;
+    }
+    
+    return null;
+  }
+
+  /**
    * Convert Kalshi price (cents, 0-100) to American odds
    * @param price - Price in cents (0-100) representing probability
    * @returns American odds (e.g., +233, -110)
    */
-  convertKalshiPriceToAmericanOdds(price: number): number {
+  convertKalshiPriceToAmericanOdds(price: number | null): number {
+    if (price === null || price === undefined) {
+      return 0;
+    }
+    
     // Price is in cents, convert to decimal (0.0-1.0)
     const decimalPrice = price / 100;
     
@@ -366,10 +427,11 @@ class KalshiApiService {
       }
 
       // Approach 1: Try each discovered series ticker
+      // Use 'active' status instead of 'open' - Kalshi uses 'active' for open markets
       for (const seriesTicker of seriesTickersToTry) {
         const url1 = new URL(`${this.baseUrl}/markets`);
         url1.searchParams.set('series_ticker', seriesTicker);
-        url1.searchParams.set('status', 'open');
+        url1.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
         url1.searchParams.set('limit', '1000');
         
         if (week) {
@@ -410,9 +472,9 @@ class KalshiApiService {
 
       // Approach 2: Try without series filter, then filter by title keywords
       if (allMarkets.length === 0) {
-        console.log(`🔄 Trying Approach 2: Fetch all open markets and filter by NFL keywords...`);
+        console.log(`🔄 Trying Approach 2: Fetch all active markets and filter by NFL keywords...`);
         const url2 = new URL(`${this.baseUrl}/markets`);
-        url2.searchParams.set('status', 'open');
+        url2.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
         url2.searchParams.set('limit', '1000');
         
         if (week) {
@@ -539,13 +601,41 @@ class KalshiApiService {
   }
 
   /**
+   * Filter out non-game markets (mention markets, etc.)
+   */
+  private isGameMarket(market: KalshiMarket): boolean {
+    const title = (market.title || '').toLowerCase();
+    const subtitle = (market.subtitle || '').toLowerCase();
+    
+    // Exclude mention markets
+    if (title.includes('what will') && title.includes('say')) {
+      return false;
+    }
+    
+    // Exclude markets that don't look like game outcomes
+    const gameKeywords = ['win', 'beat', 'points', 'total', 'score', 'spread'];
+    const hasGameKeyword = gameKeywords.some(keyword => title.includes(keyword));
+    
+    return hasGameKeyword;
+  }
+
+  /**
    * Process and enrich markets with parsed data and converted odds
    */
   processMarkets(markets: KalshiMarket[]): ParsedKalshiMarket[] {
-    return markets.map(market => {
+    // Filter to only game-related markets
+    const gameMarkets = markets.filter(m => this.isGameMarket(m));
+    console.log(`🎯 Filtered ${markets.length} markets → ${gameMarkets.length} game markets`);
+    
+    return gameMarkets.map(market => {
       const parsed = this.parseMarketTitle(market);
-      const yesOdds = this.convertKalshiPriceToAmericanOdds(market.yes_price);
-      const noOdds = this.convertKalshiPriceToAmericanOdds(market.no_price);
+      
+      // Get prices using the best available method
+      const yesPrice = this.getMarketPrice(market, 'yes');
+      const noPrice = this.getMarketPrice(market, 'no');
+      
+      const yesOdds = this.convertKalshiPriceToAmericanOdds(yesPrice);
+      const noOdds = this.convertKalshiPriceToAmericanOdds(noPrice);
 
       return {
         ...market,
