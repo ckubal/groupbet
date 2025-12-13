@@ -556,12 +556,9 @@ class KalshiApiService {
       // Try multiple approaches to find NFL markets
       const allMarkets: KalshiMarket[] = [];
       
-      // First, discover the correct series ticker for pro football
-      const nflSeriesTicker = await this.discoverNFLSeriesTicker();
-      // Based on Kalshi website, try "Pro Football" variations first
-      const seriesTickersToTry = nflSeriesTicker 
-        ? [nflSeriesTicker, 'Pro Football', 'PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'Football']
-        : ['Pro Football', 'PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'Football'];
+      // "Football" is the parent category that includes both "Pro Football" and "College Football"
+      // We'll fetch all Football markets and filter client-side for NFL/Pro Football
+      const seriesTickersToTry = ['Football']; // Start with parent category
       
       console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
 
@@ -633,24 +630,73 @@ class KalshiApiService {
             }
           
             if (data1.markets.length > 0) {
-              // Log date range of available markets for debugging
-              const marketsWithDates = data1.markets.filter(m => m.close_time);
+              // Filter for NFL/Pro Football markets (exclude College Football)
+              // NFL teams to identify Pro Football markets
+              const nflTeams = [
+                'ravens', 'bills', 'chiefs', 'packers', 'cowboys', 'patriots', 'jets', 'giants',
+                'eagles', 'steelers', 'browns', 'bengals', 'dolphins', 'jaguars', 'titans',
+                'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams', '49ers', 'seahawks',
+                'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers', 'lions', 'vikings',
+                'bears', 'commanders', 'baltimore', 'buffalo', 'kansas city', 'green bay',
+                'dallas', 'new england', 'new york jets', 'new york giants', 'philadelphia',
+                'pittsburgh', 'cleveland', 'cincinnati', 'miami', 'jacksonville', 'tennessee',
+                'indianapolis', 'houston', 'denver', 'las vegas', 'oakland', 'los angeles chargers',
+                'san diego', 'los angeles rams', 'san francisco', 'seattle', 'arizona', 'atlanta',
+                'carolina', 'new orleans', 'tampa bay', 'detroit', 'minnesota', 'chicago', 'washington'
+              ];
+              
+              // Filter for NFL markets by checking titles and event_tickers
+              const nflMarkets = data1.markets.filter(m => {
+                const titleLower = (m.title || '').toLowerCase();
+                const subtitleLower = (m.subtitle || '').toLowerCase();
+                const eventTickerLower = (m.event_ticker || '').toLowerCase();
+                const yesSubTitleLower = (m.yes_sub_title || '').toLowerCase();
+                const noSubTitleLower = (m.no_sub_title || '').toLowerCase();
+                
+                const fullText = `${titleLower} ${subtitleLower} ${eventTickerLower} ${yesSubTitleLower} ${noSubTitleLower}`;
+                
+                // Check if it contains NFL team names
+                const hasNflTeam = nflTeams.some(team => fullText.includes(team));
+                
+                // Exclude college football indicators
+                const isCollege = fullText.includes('college') || 
+                                 fullText.includes('ncaa') || 
+                                 fullText.includes('cfp') ||
+                                 eventTickerLower.includes('college') ||
+                                 eventTickerLower.includes('ncaa');
+                
+                return hasNflTeam && !isCollege;
+              });
+              
+              console.log(`🏈 Filtered ${data1.markets.length} Football markets to ${nflMarkets.length} NFL/Pro Football markets`);
+              
+              if (nflMarkets.length === 0 && data1.markets.length > 0) {
+                console.log(`⚠️ No NFL markets found. Sample Football markets:`, data1.markets.slice(0, 5).map(m => ({
+                  title: m.title,
+                  event_ticker: m.event_ticker,
+                })));
+              }
+              
+              // Log date range of available NFL markets for debugging
+              const marketsWithDates = nflMarkets.filter(m => m.close_time);
               if (marketsWithDates.length > 0) {
                 const dates = marketsWithDates.map(m => new Date(m.close_time!));
                 const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
                 const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-                console.log(`📅 Available market dates: ${minDate.toISOString()} to ${maxDate.toISOString()}`);
+                console.log(`📅 Available NFL market dates: ${minDate.toISOString()} to ${maxDate.toISOString()}`);
                 console.log(`📅 Sample close times:`, dates.slice(0, 5).map(d => d.toISOString()));
               }
               
-              // Log sample markets for debugging
-              console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 5).map(m => ({
-                ticker: m.ticker,
-                title: m.title,
-                close_time: m.close_time,
-                status: m.status,
-                event_ticker: m.event_ticker,
-              })));
+              // Log sample NFL markets for debugging
+              if (nflMarkets.length > 0) {
+                console.log(`📊 Sample NFL markets:`, nflMarkets.slice(0, 5).map(m => ({
+                  ticker: m.ticker,
+                  title: m.title,
+                  close_time: m.close_time,
+                  status: m.status,
+                  event_ticker: m.event_ticker,
+                })));
+              }
               
               // If week specified, filter client-side
               if (week !== undefined) {
