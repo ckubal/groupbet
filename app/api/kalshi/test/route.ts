@@ -51,7 +51,27 @@ export async function GET(request: NextRequest) {
       };
     }
     
-    // Test 3: Try fetching ALL markets (no week filter) to see if any exist
+    // Test 3: Try fetching Events first (games)
+    let allEvents: any[] = [];
+    try {
+      console.log(`🧪 TEST: Fetching ALL events (no week filter)...`);
+      allEvents = await kalshiApi.fetchNFLEvents(undefined); // No week filter
+      diagnostics.allEvents = {
+        count: allEvents.length,
+        sample: allEvents.slice(0, 3).map(e => ({
+          ticker: e.ticker,
+          title: e.title,
+          subtitle: e.subtitle,
+          expected_expiration_time: e.expected_expiration_time,
+        })),
+      };
+    } catch (err) {
+      diagnostics.allEvents = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
+
+    // Test 4: Try fetching ALL markets (no week filter) to see if any exist
     let allMarkets: any[] = [];
     try {
       console.log(`🧪 TEST: Fetching ALL markets (no week filter)...`);
@@ -83,7 +103,47 @@ export async function GET(request: NextRequest) {
       };
     }
     
-    // Test 4: Fetch markets for specific week
+    // Test 5: Try fetching markets for specific events if events exist
+    if (allEvents.length > 0) {
+      try {
+        console.log(`🧪 TEST: Trying to fetch markets for specific events...`);
+        // Try fetching markets for the first event
+        const firstEvent = allEvents[0];
+        const testUrl = `https://api.elections.kalshi.com/trade-api/v2/markets?event_ticker=${firstEvent.ticker}&limit=100`;
+        const testResponse = await fetch(testUrl, {
+          headers: {
+            'Accept': 'application/json',
+            ...(process.env.KALSHI_API_KEY_ID ? {
+              'KALSHI-ACCESS-KEY': process.env.KALSHI_API_KEY_ID,
+            } : {}),
+          },
+        });
+        
+        if (testResponse.ok) {
+          const testData = await testResponse.json();
+          diagnostics.eventMarkets = {
+            eventTicker: firstEvent.ticker,
+            eventTitle: firstEvent.title,
+            marketsCount: testData.markets?.length || 0,
+            sample: testData.markets?.slice(0, 2).map((m: any) => ({
+              ticker: m.ticker,
+              title: m.title,
+              status: m.status,
+            })) || [],
+          };
+        } else {
+          diagnostics.eventMarkets = {
+            error: `Status ${testResponse.status}: ${testResponse.statusText}`,
+          };
+        }
+      } catch (err) {
+        diagnostics.eventMarkets = {
+          error: err instanceof Error ? err.message : 'Failed',
+        };
+      }
+    }
+    
+    // Test 6: Fetch markets for specific week
     let weekMarkets: any[] = [];
     try {
       console.log(`🧪 TEST: Fetching markets for Week ${weekNumber}...`);
@@ -103,7 +163,7 @@ export async function GET(request: NextRequest) {
       };
     }
     
-    // Test 5: Process markets
+    // Test 7: Process markets
     let processedMarkets: any[] = [];
     try {
       processedMarkets = kalshiApi.processMarkets(weekMarkets);
