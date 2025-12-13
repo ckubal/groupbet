@@ -480,81 +480,95 @@ class KalshiApiService {
       // Strategy: Always fetch ALL active markets first (no date filter), then filter client-side
       // This helps us see what markets actually exist and what dates they have
       for (const seriesTicker of seriesTickersToTry) {
-        const url1 = new URL(`${this.baseUrl}/markets`);
-        url1.searchParams.set('series_ticker', seriesTicker);
-        url1.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
-        url1.searchParams.set('limit', '1000');
-        // NO DATE FILTERING - fetch all active markets
+        // Try multiple status values - Kalshi might use different statuses
+        const statusesToTry = ['active', 'open', undefined]; // Try with and without status filter
         
-        console.log(`📡 Fetching ALL active markets for series_ticker=${seriesTicker}...`);
-        console.log(`🔗 URL: ${url1.toString()}`);
-        
-        const response1 = await fetch(url1.toString(), { headers });
-        
-        if (response1.ok) {
-          const data1: KalshiMarketsResponse = await response1.json();
-          console.log(`✅ series_ticker=${seriesTicker}: Fetched ${data1.markets.length} total active markets`);
-          
-          if (data1.markets.length > 0) {
-            // Log date range of available markets for debugging
-            const marketsWithDates = data1.markets.filter(m => m.close_time);
-            if (marketsWithDates.length > 0) {
-              const dates = marketsWithDates.map(m => new Date(m.close_time!));
-              const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
-              const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
-              console.log(`📅 Available market dates: ${minDate.toISOString()} to ${maxDate.toISOString()}`);
-              console.log(`📅 Sample close times:`, dates.slice(0, 5).map(d => d.toISOString()));
-            }
-            
-            // Log sample markets for debugging
-            console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 5).map(m => ({
-              ticker: m.ticker,
-              title: m.title,
-              close_time: m.close_time,
-              event_ticker: m.event_ticker,
-            })));
-            
-            // If week specified, filter client-side
-            if (week !== undefined) {
-              const { start, end } = getNFLWeekBoundaries(week, 2025);
-              const extendedEnd = new Date(end);
-              extendedEnd.setDate(extendedEnd.getDate() + 2); // Include 2 days after week ends
-              
-              console.log(`📅 Filtering for Week ${week}: ${start.toISOString()} to ${extendedEnd.toISOString()}`);
-              
-              const weekMarkets = data1.markets.filter(m => {
-                if (!m.close_time) return false;
-                const closeTime = new Date(m.close_time).getTime();
-                const inRange = closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
-                if (inRange) {
-                  console.log(`✅ Market matches week: ${m.title} (closes ${m.close_time})`);
-                }
-                return inRange;
-              });
-              
-              console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
-              
-              if (weekMarkets.length > 0) {
-                allMarkets.push(...weekMarkets);
-                break; // Found markets, stop trying other tickers
-              } else {
-                console.warn(`⚠️ No markets found for Week ${week} in ${seriesTicker}. Available dates shown above.`);
-                // Still add all markets to see what's available (for debugging)
-                allMarkets.push(...data1.markets);
-                break;
-              }
-            } else {
-              // No week filter - return all markets
-              console.log(`📊 No week filter - returning all ${data1.markets.length} markets`);
-              allMarkets.push(...data1.markets);
-              break; // Found markets, stop trying other tickers
-            }
+        for (const status of statusesToTry) {
+          const url1 = new URL(`${this.baseUrl}/markets`);
+          url1.searchParams.set('series_ticker', seriesTicker);
+          if (status) {
+            url1.searchParams.set('status', status);
           }
-        } else {
-          const errorText = await response1.text();
-          console.warn(`⚠️ series_ticker=${seriesTicker} failed: ${response1.status} ${response1.statusText}`);
-          if (errorText) {
-            console.warn(`⚠️ Error response:`, errorText.substring(0, 500));
+          url1.searchParams.set('limit', '1000');
+          // NO DATE FILTERING - fetch all markets
+          
+          console.log(`📡 Fetching markets for series_ticker=${seriesTicker}, status=${status || 'none'}...`);
+          console.log(`🔗 URL: ${url1.toString()}`);
+          
+          const response1 = await fetch(url1.toString(), { headers });
+          
+          if (response1.ok) {
+            const data1: KalshiMarketsResponse = await response1.json();
+            console.log(`✅ series_ticker=${seriesTicker}, status=${status || 'none'}: Fetched ${data1.markets.length} markets`);
+            
+            // Log response status codes and any error messages
+            if (data1.markets.length === 0) {
+              const responseText = await response1.text();
+              console.warn(`⚠️ No markets returned. Response status: ${response1.status}, Response preview: ${responseText.substring(0, 500)}`);
+            }
+          
+            if (data1.markets.length > 0) {
+              // Log date range of available markets for debugging
+              const marketsWithDates = data1.markets.filter(m => m.close_time);
+              if (marketsWithDates.length > 0) {
+                const dates = marketsWithDates.map(m => new Date(m.close_time!));
+                const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+                const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+                console.log(`📅 Available market dates: ${minDate.toISOString()} to ${maxDate.toISOString()}`);
+                console.log(`📅 Sample close times:`, dates.slice(0, 5).map(d => d.toISOString()));
+              }
+              
+              // Log sample markets for debugging
+              console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 5).map(m => ({
+                ticker: m.ticker,
+                title: m.title,
+                close_time: m.close_time,
+                status: m.status,
+                event_ticker: m.event_ticker,
+              })));
+              
+              // If week specified, filter client-side
+              if (week !== undefined) {
+                const { start, end } = getNFLWeekBoundaries(week, 2025);
+                const extendedEnd = new Date(end);
+                extendedEnd.setDate(extendedEnd.getDate() + 2); // Include 2 days after week ends
+                
+                console.log(`📅 Filtering for Week ${week}: ${start.toISOString()} to ${extendedEnd.toISOString()}`);
+                
+                const weekMarkets = data1.markets.filter(m => {
+                  if (!m.close_time) return false;
+                  const closeTime = new Date(m.close_time).getTime();
+                  const inRange = closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
+                  if (inRange) {
+                    console.log(`✅ Market matches week: ${m.title} (closes ${m.close_time})`);
+                  }
+                  return inRange;
+                });
+                
+                console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
+                
+                if (weekMarkets.length > 0) {
+                  allMarkets.push(...weekMarkets);
+                  return allMarkets; // Found markets, return immediately
+                } else {
+                  console.warn(`⚠️ No markets found for Week ${week} in ${seriesTicker}. Available dates shown above.`);
+                  // Still add all markets to see what's available (for debugging)
+                  allMarkets.push(...data1.markets);
+                  return allMarkets;
+                }
+              } else {
+                // No week filter - return all markets
+                console.log(`📊 No week filter - returning all ${data1.markets.length} markets`);
+                allMarkets.push(...data1.markets);
+                return allMarkets; // Found markets, return immediately
+              }
+            }
+          } else {
+            const errorText = await response1.text();
+            console.warn(`⚠️ series_ticker=${seriesTicker}, status=${status || 'none'} failed: ${response1.status} ${response1.statusText}`);
+            if (errorText) {
+              console.warn(`⚠️ Error response:`, errorText.substring(0, 500));
+            }
           }
         }
       }
