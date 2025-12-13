@@ -183,14 +183,6 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
     }
   };
 
-  const getConfidenceTextColor = (confidence: string) => {
-    switch (confidence) {
-      case 'high': return 'text-green-800';
-      case 'medium': return 'text-yellow-800';
-      case 'low': return 'text-gray-800';
-      default: return 'text-gray-800';
-    }
-  };
 
   const getConfidenceEmoji = (confidence: string) => {
     switch (confidence) {
