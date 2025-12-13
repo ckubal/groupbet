@@ -78,10 +78,11 @@ class KalshiApiService {
       });
 
       // Sign using RSA-PSS with SHA-256
-      const signature = crypto.sign('RSA-SHA256', Buffer.from(message), {
+      // Note: Node.js uses RSA_PKCS1_PSS_PADDING for PSS padding
+      const signature = crypto.sign(null, Buffer.from(message), {
         key,
-        padding: crypto.constants.RSA_PSS_PADDING,
-        saltLength: crypto.constants.RSA_PSS_SALT_LEN_MAX,
+        padding: crypto.constants.RSA_PKCS1_PSS_PADDING,
+        saltLength: crypto.constants.RSA_PSS_SALTLEN_MAX_SIGN,
       });
 
       // Return base64-encoded signature
