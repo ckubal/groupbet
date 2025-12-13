@@ -83,12 +83,42 @@ export async function GET(request: NextRequest) {
     console.log(`🔄 Comparing Kalshi vs Bovada for Week ${weekNumber}...`);
 
     // Fetch games and Kalshi markets
-    const [games, kalshiMarkets] = await Promise.all([
-      oddsApi.getNFLGames(weekNumber),
-      kalshiApi.fetchNFLMarkets(weekNumber),
-    ]);
+    let games: any[] = [];
+    let kalshiMarkets: any[] = [];
+    
+    try {
+      [games, kalshiMarkets] = await Promise.all([
+        oddsApi.getNFLGames(weekNumber),
+        kalshiApi.fetchNFLMarkets(weekNumber),
+      ]);
+    } catch (error) {
+      console.error('❌ Error fetching games or markets:', error);
+      return NextResponse.json({
+        error: error instanceof Error ? error.message : 'Failed to fetch data',
+        success: false,
+        debug: {
+          gamesError: error instanceof Error ? error.message : String(error),
+        }
+      }, { status: 500 });
+    }
 
     console.log(`📊 Loaded ${games.length} games and ${kalshiMarkets.length} Kalshi markets`);
+
+    if (kalshiMarkets.length === 0) {
+      console.warn(`⚠️ No Kalshi markets found for Week ${weekNumber}`);
+      return NextResponse.json({
+        success: true,
+        week: weekNumber,
+        comparisons: [],
+        totalGames: games.length,
+        matchedGames: 0,
+        debug: {
+          kalshiMarketsCount: 0,
+          gamesCount: games.length,
+          message: 'No Kalshi markets returned from API',
+        }
+      });
+    }
 
     // Process and match markets
     const processedMarkets = kalshiApi.processMarkets(kalshiMarkets);
@@ -106,10 +136,21 @@ export async function GET(request: NextRequest) {
         total: m.total,
         gameDate: m.gameDate,
       })));
+    } else {
+      console.warn(`⚠️ No markets were successfully processed. Raw markets:`, kalshiMarkets.slice(0, 3));
     }
     
     const matchedGroups = matchKalshiMarketsToGames(processedMarkets, games);
     console.log(`✅ Matched ${matchedGroups.length} game groups with Kalshi markets`);
+    
+    if (matchedGroups.length === 0) {
+      console.warn(`⚠️ No games matched with Kalshi markets. Sample games:`, games.slice(0, 3).map(g => ({
+        id: g.id,
+        awayTeam: g.awayTeam,
+        homeTeam: g.homeTeam,
+        gameTime: typeof g.gameTime === 'string' ? g.gameTime : g.gameTime.toISOString(),
+      })));
+    }
 
     // Build comparison results
     const comparisons: ComparisonResult[] = [];
@@ -247,6 +288,24 @@ export async function GET(request: NextRequest) {
       comparisons,
       totalGames: games.length,
       matchedGames: matchedGroups.length,
+      debug: {
+        rawMarketsCount: kalshiMarkets.length,
+        processedMarketsCount: processedMarkets.length,
+        matchedGroupsCount: matchedGroups.length,
+        comparisonsCount: comparisons.length,
+        sampleRawMarket: kalshiMarkets.length > 0 ? {
+          ticker: kalshiMarkets[0].ticker,
+          title: kalshiMarkets[0].title,
+          series_ticker: kalshiMarkets[0].series_ticker,
+          event_ticker: kalshiMarkets[0].event_ticker,
+        } : null,
+        sampleProcessedMarket: processedMarkets.length > 0 ? {
+          ticker: processedMarkets[0].ticker,
+          title: processedMarkets[0].title,
+          marketType: processedMarkets[0].marketType,
+          teamName: processedMarkets[0].teamName,
+        } : null,
+      }
     });
   } catch (error) {
     console.error('❌ Error comparing Kalshi vs Bovada:', error);

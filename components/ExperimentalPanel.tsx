@@ -55,11 +55,26 @@ export default function ExperimentalPanel({ week }: ExperimentalPanelProps) {
 
       if (compareData.success) {
         setComparisons(compareData.comparisons || []);
+        
+        // Log debug information
+        if (compareData.debug) {
+          console.log(`🔍 Debug info:`, compareData.debug);
+        }
+        
         if (compareData.comparisons?.length === 0) {
-          console.warn(`⚠️ No comparisons found. This could mean:
-            - No Kalshi markets matched with games
-            - Kalshi API returned no markets
-            - Matching logic needs improvement`);
+          const debugMsg = compareData.debug 
+            ? `Debug: ${compareData.debug.rawMarketsCount} raw markets, ${compareData.debug.processedMarketsCount} processed, ${compareData.debug.matchedGroupsCount} matched`
+            : 'No debug info available';
+          console.warn(`⚠️ No comparisons found. ${debugMsg}`);
+          
+          // Show more helpful error message
+          if (compareData.debug?.rawMarketsCount === 0) {
+            setError('No Kalshi markets found. This could mean markets are not yet available for this week, or the series ticker needs to be discovered.');
+          } else if (compareData.debug?.processedMarketsCount === 0) {
+            setError('Kalshi markets found but could not be processed. Market titles may use different formats.');
+          } else if (compareData.debug?.matchedGroupsCount === 0) {
+            setError('Kalshi markets found but could not be matched to games. Matching logic may need improvement.');
+          }
         }
       } else {
         throw new Error(compareData.error || 'Failed to load comparisons');
