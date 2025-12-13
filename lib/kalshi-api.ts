@@ -190,6 +190,9 @@ class KalshiApiService {
       return null;
     } catch (error) {
       console.error('❌ Failed to discover NFL series ticker:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error details:', error.message, error.stack);
+      }
       return null;
     }
   }
@@ -470,9 +473,27 @@ class KalshiApiService {
       if (uniqueMarkets.length === 0) {
         console.warn(`⚠️ No NFL markets found. This could mean:
           - No markets are currently open for this week
-          - The series_ticker 'NFL' is incorrect
+          - The series_ticker is incorrect (tried: ${seriesTickersToTry.join(', ')})
           - Markets use a different naming convention
-          - Authentication is required for this data`);
+          - Authentication is required for this data
+          - Markets are closed or not yet available`);
+        
+        // Try one more thing: fetch without any filters to see what's available
+        console.log(`🔄 Attempting to fetch ANY open markets to see what's available...`);
+        const urlAny = new URL(`${this.baseUrl}/markets`);
+        urlAny.searchParams.set('status', 'open');
+        urlAny.searchParams.set('limit', '100');
+        
+        try {
+          const responseAny = await fetch(urlAny.toString(), { headers });
+          if (responseAny.ok) {
+            const dataAny: KalshiMarketsResponse = await responseAny.json();
+            const uniqueSeries = [...new Set(dataAny.markets.map(m => m.series_ticker).filter(Boolean))];
+            console.log(`📊 Found ${dataAny.markets.length} total open markets with series_tickers:`, uniqueSeries);
+          }
+        } catch (e) {
+          console.warn('⚠️ Could not fetch sample markets:', e);
+        }
       }
 
       return uniqueMarkets;
