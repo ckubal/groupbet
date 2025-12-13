@@ -556,9 +556,9 @@ class KalshiApiService {
       // Try multiple approaches to find NFL markets
       const allMarkets: KalshiMarket[] = [];
       
-      // "Football" is the parent category that includes both "Pro Football" and "College Football"
-      // We'll fetch all Football markets and filter client-side for NFL/Pro Football
-      const seriesTickersToTry = ['Football']; // Start with parent category
+      // Based on Kalshi API docs, Pro Football series_ticker is "KXPROFOOTBALL"
+      // Also try "Football" (parent category) and filter client-side
+      const seriesTickersToTry = ['KXPROFOOTBALL', 'Football'];
       
       console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
 
@@ -581,12 +581,8 @@ class KalshiApiService {
         for (const status of statusesToTry) {
           const url1 = new URL(`${this.baseUrl}/markets`);
           
-          // "Football" is the series_ticker (parent category)
-          url1.searchParams.set('series_ticker', 'Football');
-          
-          // Try "Pro Football" as competition parameter (from filters structure)
-          // The API might support competition parameter for subcategories
-          url1.searchParams.set('competition', 'Pro Football');
+          // Use the series_ticker directly
+          url1.searchParams.set('series_ticker', seriesTicker);
           
           if (status) {
             url1.searchParams.set('status', status);
