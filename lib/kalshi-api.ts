@@ -172,31 +172,51 @@ class KalshiApiService {
         return null;
       }
 
-      // Look for pro football in the sports list
+      // Look for "Pro Football" specifically (from Kalshi website screenshot)
       const sports = Object.keys(filters.filters_by_sports);
+      
+      // First, look for exact "Pro Football" match
+      const proFootballExact = sports.find(sport => 
+        sport.toLowerCase() === 'pro football' || 
+        sport.toLowerCase() === 'profootball'
+      );
+      
+      if (proFootballExact) {
+        console.log(`✅ Found exact Pro Football match: ${proFootballExact}`);
+        return proFootballExact;
+      }
+      
+      // Then look for any pro football variation
       const proFootballKeys = sports.filter(sport => 
-        sport.toLowerCase().includes('football') || 
-        sport.toLowerCase().includes('nfl') ||
-        sport.toLowerCase().includes('pro')
+        (sport.toLowerCase().includes('pro') && sport.toLowerCase().includes('football')) ||
+        sport.toLowerCase().includes('nfl')
       );
 
       console.log(`🔍 Found potential pro football sports:`, proFootballKeys);
       
       if (proFootballKeys.length > 0) {
-        // Return the first match (most likely "PROFOOTBALL" or similar)
+        // Return the first match
         return proFootballKeys[0];
       }
 
-      // Also check sport_ordering
+      // Also check sport_ordering - prioritize "Pro Football"
       if (filters.sport_ordering) {
-        const orderedMatch = filters.sport_ordering.find((sport: string) =>
-          sport.toLowerCase().includes('football') ||
-          sport.toLowerCase().includes('nfl') ||
-          sport.toLowerCase().includes('pro')
+        const proFootballOrdered = filters.sport_ordering.find((sport: string) =>
+          (sport.toLowerCase().includes('pro') && sport.toLowerCase().includes('football')) ||
+          sport.toLowerCase() === 'pro football'
         );
-        if (orderedMatch) {
-          console.log(`✅ Found pro football in sport_ordering: ${orderedMatch}`);
-          return orderedMatch;
+        if (proFootballOrdered) {
+          console.log(`✅ Found Pro Football in sport_ordering: ${proFootballOrdered}`);
+          return proFootballOrdered;
+        }
+        
+        // Fallback to any football
+        const footballOrdered = filters.sport_ordering.find((sport: string) =>
+          sport.toLowerCase().includes('football')
+        );
+        if (footballOrdered) {
+          console.log(`✅ Found Football in sport_ordering: ${footballOrdered}`);
+          return footballOrdered;
         }
       }
 
