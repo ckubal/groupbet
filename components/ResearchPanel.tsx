@@ -347,7 +347,6 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
-                getConfidenceTextColor={getConfidenceTextColor}
               />
             ))}
           </div>
@@ -371,7 +370,6 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
-                getConfidenceTextColor={getConfidenceTextColor}
               />
             ))}
           </div>
@@ -395,7 +393,6 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
-                getConfidenceTextColor={getConfidenceTextColor}
               />
             ))}
           </div>
@@ -422,7 +419,6 @@ export default function ResearchPanel({ week, onPlaceBet }: ResearchPanelProps) 
                 onPlaceBet={onPlaceBet}
                 getConfidenceColor={getConfidenceColor}
                 getConfidenceEmoji={getConfidenceEmoji}
-                getConfidenceTextColor={getConfidenceTextColor}
               />
             ))}
           </div>
@@ -439,7 +435,6 @@ function GameAnalysisCard({
   onPlaceBet,
   getConfidenceColor,
   getConfidenceEmoji,
-  getConfidenceTextColor,
 }: {
   analysis: GameAnalysis;
   placedBets: Set<string>;
@@ -447,7 +442,6 @@ function GameAnalysisCard({
   onPlaceBet: (analysis: GameAnalysis) => void;
   getConfidenceColor: (conf: string) => string;
   getConfidenceEmoji: (conf: string) => string;
-  getConfidenceTextColor: (conf: string) => string;
 }) {
   const gameKey = `${analysis.awayTeam}-${analysis.homeTeam}`;
   const overKey = `${gameKey}-over`;
