@@ -722,15 +722,15 @@ class KalshiApiService {
                   allMarkets.push(...weekMarkets);
                   return allMarkets; // Found markets, return immediately
                 } else {
-                  console.warn(`⚠️ No markets found for Week ${week} in ${seriesTicker}. Available dates shown above.`);
-                  // Still add all markets to see what's available (for debugging)
-                  allMarkets.push(...data1.markets);
+                  console.warn(`⚠️ No NFL markets found for Week ${week}. Available dates shown above.`);
+                  // Still add all NFL markets to see what's available (for debugging)
+                  allMarkets.push(...nflMarkets);
                   return allMarkets;
                 }
               } else {
-                // No week filter - return all markets
-                console.log(`📊 No week filter - returning all ${data1.markets.length} markets`);
-                allMarkets.push(...data1.markets);
+                // No week filter - return all NFL markets
+                console.log(`📊 No week filter - returning all ${nflMarkets.length} NFL markets`);
+                allMarkets.push(...nflMarkets);
                 return allMarkets; // Found markets, return immediately
               }
             }
