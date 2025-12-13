@@ -414,8 +414,8 @@ class KalshiApiService {
       // Try without date filters first - Events API might not support those parameters
       const url = new URL(`${this.baseUrl}/events`);
       
-      // Filter by series ticker
-      url.searchParams.set('series_ticker', 'Football');
+      // Filter by series ticker - try "Pro Football" first (from Kalshi website)
+      url.searchParams.set('series_ticker', 'Pro Football');
       url.searchParams.set('limit', '1000');
       
       // Don't add date filters initially - Events API might use different parameter names
@@ -510,9 +510,10 @@ class KalshiApiService {
       
       // First, discover the correct series ticker for pro football
       const nflSeriesTicker = await this.discoverNFLSeriesTicker();
+      // Based on Kalshi website, try "Pro Football" variations first
       const seriesTickersToTry = nflSeriesTicker 
-        ? [nflSeriesTicker, 'NFL', 'PROFOOTBALL', 'PRO-FOOTBALL']
-        : ['PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'FOOTBALL'];
+        ? [nflSeriesTicker, 'Pro Football', 'PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'Football']
+        : ['Pro Football', 'PROFOOTBALL', 'PRO-FOOTBALL', 'NFL', 'Football'];
       
       console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
 
