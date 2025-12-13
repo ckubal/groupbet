@@ -477,99 +477,80 @@ class KalshiApiService {
         Object.assign(headers, authHeaders);
       }
 
-      // Approach 1: Try each discovered series ticker
-      // Use 'active' status instead of 'open' - Kalshi uses 'active' for open markets
+      // Strategy: Always fetch ALL active markets first (no date filter), then filter client-side
+      // This helps us see what markets actually exist and what dates they have
       for (const seriesTicker of seriesTickersToTry) {
         const url1 = new URL(`${this.baseUrl}/markets`);
         url1.searchParams.set('series_ticker', seriesTicker);
         url1.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
         url1.searchParams.set('limit', '1000');
+        // NO DATE FILTERING - fetch all active markets
         
-        // Try without date filtering first to see what's available
-        // Then filter by date if week is specified
-        if (week) {
-          const { start, end } = getNFLWeekBoundaries(week, 2025);
-          const minCloseTs = Math.floor(start.getTime() / 1000);
-          const maxCloseTs = Math.floor(end.getTime() / 1000);
-          
-          console.log(`📅 Week ${week} date range: ${start.toISOString()} to ${end.toISOString()}`);
-          console.log(`📅 Unix timestamps: ${minCloseTs} to ${maxCloseTs}`);
-          
-          // Use min_close_ts only (markets that close after week starts)
-          // Don't use max_close_ts initially - it might be too restrictive
-          url1.searchParams.set('min_close_ts', minCloseTs.toString());
-          // Try with a wider range - include markets closing up to 2 days after week ends
-          const extendedEnd = new Date(end);
-          extendedEnd.setDate(extendedEnd.getDate() + 2);
-          url1.searchParams.set('max_close_ts', Math.floor(extendedEnd.getTime() / 1000).toString());
-        }
-
-        console.log(`📡 Trying series_ticker=${seriesTicker}${week ? ` for Week ${week}` : ''}...`);
+        console.log(`📡 Fetching ALL active markets for series_ticker=${seriesTicker}...`);
         console.log(`🔗 URL: ${url1.toString()}`);
         
         const response1 = await fetch(url1.toString(), { headers });
         
         if (response1.ok) {
           const data1: KalshiMarketsResponse = await response1.json();
-          console.log(`✅ series_ticker=${seriesTicker}: Fetched ${data1.markets.length} markets`);
+          console.log(`✅ series_ticker=${seriesTicker}: Fetched ${data1.markets.length} total active markets`);
           
           if (data1.markets.length > 0) {
-            allMarkets.push(...data1.markets);
+            // Log date range of available markets for debugging
+            const marketsWithDates = data1.markets.filter(m => m.close_time);
+            if (marketsWithDates.length > 0) {
+              const dates = marketsWithDates.map(m => new Date(m.close_time!));
+              const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+              const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+              console.log(`📅 Available market dates: ${minDate.toISOString()} to ${maxDate.toISOString()}`);
+              console.log(`📅 Sample close times:`, dates.slice(0, 5).map(d => d.toISOString()));
+            }
             
             // Log sample markets for debugging
             console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 5).map(m => ({
               ticker: m.ticker,
               title: m.title,
-              yes_sub_title: m.yes_sub_title,
-              no_sub_title: m.no_sub_title,
-              series_ticker: m.series_ticker,
-              event_ticker: m.event_ticker,
-              status: m.status,
-              last_price: m.last_price,
-              yes_bid: m.yes_bid,
-              yes_ask: m.yes_ask,
               close_time: m.close_time,
+              event_ticker: m.event_ticker,
             })));
             
-            // If we found markets, we can stop trying other tickers
-            break;
+            // If week specified, filter client-side
+            if (week) {
+              const { start, end } = getNFLWeekBoundaries(week, 2025);
+              const extendedEnd = new Date(end);
+              extendedEnd.setDate(extendedEnd.getDate() + 2); // Include 2 days after week ends
+              
+              console.log(`📅 Filtering for Week ${week}: ${start.toISOString()} to ${extendedEnd.toISOString()}`);
+              
+              const weekMarkets = data1.markets.filter(m => {
+                if (!m.close_time) return false;
+                const closeTime = new Date(m.close_time).getTime();
+                const inRange = closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
+                if (inRange) {
+                  console.log(`✅ Market matches week: ${m.title} (closes ${m.close_time})`);
+                }
+                return inRange;
+              });
+              
+              console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
+              
+              if (weekMarkets.length > 0) {
+                allMarkets.push(...weekMarkets);
+                break; // Found markets, stop trying other tickers
+              } else {
+                console.warn(`⚠️ No markets found for Week ${week} in ${seriesTicker}. Available dates shown above.`);
+              }
+            } else {
+              // No week filter - return all markets
+              allMarkets.push(...data1.markets);
+              break; // Found markets, stop trying other tickers
+            }
           }
         } else {
           const errorText = await response1.text();
           console.warn(`⚠️ series_ticker=${seriesTicker} failed: ${response1.status} ${response1.statusText}`);
           if (errorText) {
             console.warn(`⚠️ Error response:`, errorText.substring(0, 500));
-          }
-        }
-      }
-
-      // Approach 2: Try without date filtering to see all available markets
-      if (allMarkets.length === 0 && week) {
-        console.log(`🔄 Trying Approach 2: Fetch all active Football markets without date filter...`);
-        const url2 = new URL(`${this.baseUrl}/markets`);
-        url2.searchParams.set('series_ticker', 'Football');
-        url2.searchParams.set('status', 'active');
-        url2.searchParams.set('limit', '1000');
-        // Don't filter by date - get all active markets and filter client-side
-        
-        const response2 = await fetch(url2.toString(), { headers });
-        
-        if (response2.ok) {
-          const data2: KalshiMarketsResponse = await response2.json();
-          console.log(`✅ Approach 2: Fetched ${data2.markets.length} total Football markets (no date filter)`);
-          
-          // Filter by date client-side
-          const { start, end } = getNFLWeekBoundaries(week, 2025);
-          const weekMarkets = data2.markets.filter(m => {
-            if (!m.close_time) return false;
-            const closeTime = new Date(m.close_time).getTime();
-            return closeTime >= start.getTime() && closeTime <= end.getTime();
-          });
-          
-          console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
-          
-          if (weekMarkets.length > 0) {
-            allMarkets.push(...weekMarkets);
           }
         }
       }
