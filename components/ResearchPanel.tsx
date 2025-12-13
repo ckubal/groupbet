@@ -495,7 +495,7 @@ function GameAnalysisCard({
             
             {/* Away Team */}
             {analysis.projectedAwayScore !== undefined && (
-              <div className="mb-3 pb-3 border-b border-gray-100 last:border-0">
+              <div className="mb-3 pb-3 border-b border-gray-100">
                 <div className="flex items-center justify-between mb-2">
                   <div className="font-semibold text-sm text-gray-800">{analysis.awayTeam}</div>
                   <div className="text-right">
@@ -506,10 +506,30 @@ function GameAnalysisCard({
                 
                 {/* Bovada Comparison */}
                 {analysis.spread !== undefined && analysis.spread > 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">Spread: <span className="font-medium">+{analysis.spread}</span></span>
-                    {analysis.spreadOdds && (
-                      <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-600">Bovada Spread: <span className="font-medium">+{analysis.spread}</span></span>
+                      {analysis.spreadOdds && (
+                        <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                      )}
+                    </div>
+                    {analysis.projectedHomeScore !== undefined && (
+                      <div className="text-xs">
+                        <span className="text-gray-600">Predicted Margin: </span>
+                        <span className={`font-medium ${
+                          (analysis.projectedAwayScore - analysis.projectedHomeScore) > analysis.spread 
+                            ? 'text-green-600' 
+                            : (analysis.projectedAwayScore - analysis.projectedHomeScore) < analysis.spread
+                            ? 'text-red-600'
+                            : 'text-gray-600'
+                        }`}>
+                          {(analysis.projectedAwayScore - analysis.projectedHomeScore) > 0 ? '+' : ''}
+                          {(analysis.projectedAwayScore - analysis.projectedHomeScore).toFixed(1)}
+                        </span>
+                        <span className="text-gray-500 ml-1">
+                          (vs Bovada +{analysis.spread})
+                        </span>
+                      </div>
                     )}
                   </div>
                 )}
@@ -536,10 +556,30 @@ function GameAnalysisCard({
                 
                 {/* Bovada Comparison */}
                 {analysis.spread !== undefined && analysis.spread < 0 && (
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-gray-600">Spread: <span className="font-medium">{analysis.spread}</span></span>
-                    {analysis.spreadOdds && (
-                      <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-gray-600">Bovada Spread: <span className="font-medium">{analysis.spread}</span></span>
+                      {analysis.spreadOdds && (
+                        <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                      )}
+                    </div>
+                    {analysis.projectedAwayScore !== undefined && (
+                      <div className="text-xs">
+                        <span className="text-gray-600">Predicted Margin: </span>
+                        <span className={`font-medium ${
+                          (analysis.projectedHomeScore - analysis.projectedAwayScore) > Math.abs(analysis.spread)
+                            ? 'text-green-600' 
+                            : (analysis.projectedHomeScore - analysis.projectedAwayScore) < Math.abs(analysis.spread)
+                            ? 'text-red-600'
+                            : 'text-gray-600'
+                        }`}>
+                          {(analysis.projectedHomeScore - analysis.projectedAwayScore) > 0 ? '+' : ''}
+                          {(analysis.projectedHomeScore - analysis.projectedAwayScore).toFixed(1)}
+                        </span>
+                        <span className="text-gray-500 ml-1">
+                          (vs Bovada {analysis.spread})
+                        </span>
+                      </div>
                     )}
                   </div>
                 )}
