@@ -332,12 +332,19 @@ class KalshiApiService {
       'commanders': ['washington', 'commanders', 'redskins'],
     };
 
+    // Also check yes_sub_title and no_sub_title for better parsing
+    const yesSubTitle = market.yes_sub_title?.toLowerCase() || '';
+    const noSubTitle = market.no_sub_title?.toLowerCase() || '';
+    const fullText = `${title} ${subtitle} ${yesSubTitle} ${noSubTitle}`.toLowerCase();
+    
     // Check for moneyline pattern: "Will [Team] win?" or "Will [Team] beat [Opponent]?"
+    // Also check yes_sub_title which might be cleaner (e.g., "Ravens win" or "Bills win")
     const moneylinePattern = /will\s+([^?]+?)\s+(?:win|beat)/i;
-    const moneylineMatch = title.match(moneylinePattern);
-    if (moneylineMatch) {
+    const moneylineMatch = title.match(moneylinePattern) || yesSubTitle.match(/(\w+)\s+win/i);
+    
+    if (moneylineMatch || yesSubTitle.includes('win') || noSubTitle.includes('win')) {
       result.marketType = 'moneyline';
-      const teamText = moneylineMatch[1].trim();
+      const teamText = moneylineMatch ? moneylineMatch[1].trim() : (yesSubTitle || noSubTitle).split(' ')[0];
       
       // Try to identify team name
       for (const [team, patterns] of Object.entries(teamPatterns)) {
@@ -606,17 +613,54 @@ class KalshiApiService {
   private isGameMarket(market: KalshiMarket): boolean {
     const title = (market.title || '').toLowerCase();
     const subtitle = (market.subtitle || '').toLowerCase();
+    const yesSubTitle = (market.yes_sub_title || '').toLowerCase();
+    const noSubTitle = (market.no_sub_title || '').toLowerCase();
     
     // Exclude mention markets
-    if (title.includes('what will') && title.includes('say')) {
+    if (title.includes('what will') && (title.includes('say') || title.includes('mention'))) {
       return false;
     }
     
-    // Exclude markets that don't look like game outcomes
-    const gameKeywords = ['win', 'beat', 'points', 'total', 'score', 'spread'];
-    const hasGameKeyword = gameKeywords.some(keyword => title.includes(keyword));
+    // Exclude markets with "MENTION" in ticker
+    if (market.ticker.includes('MENTION')) {
+      return false;
+    }
     
-    return hasGameKeyword;
+    // Look for actual game outcome markets
+    // These typically have patterns like:
+    // - "Will [Team] win?"
+    // - "Will [Team] beat [Opponent]?"
+    // - "Will [Team] win by X+ points?"
+    // - "Will total points exceed X?"
+    
+    const gameOutcomePatterns = [
+      /will\s+.*\s+win/i,
+      /will\s+.*\s+beat/i,
+      /will\s+.*\s+points/i,
+      /total\s+points/i,
+      /over\s+\d+/i,
+      /under\s+\d+/i,
+    ];
+    
+    const hasGamePattern = gameOutcomePatterns.some(pattern => 
+      pattern.test(title) || pattern.test(subtitle) || 
+      pattern.test(yesSubTitle) || pattern.test(noSubTitle)
+    );
+    
+    // Also check for team names in title (strong indicator of game market)
+    const teamKeywords = ['ravens', 'bills', 'chiefs', 'packers', 'cowboys', 'patriots', 
+      'jets', 'giants', 'eagles', 'steelers', 'browns', 'bengals', 'dolphins',
+      'jaguars', 'titans', 'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams',
+      '49ers', 'seahawks', 'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers',
+      'lions', 'vikings', 'bears', 'commanders', 'minnesota', 'dallas', 'buffalo',
+      'kansas city', 'green bay', 'new england', 'new york', 'philadelphia', 'pittsburgh'];
+    
+    const hasTeamName = teamKeywords.some(team => 
+      title.includes(team) || subtitle.includes(team) ||
+      yesSubTitle.includes(team) || noSubTitle.includes(team)
+    );
+    
+    return hasGamePattern || hasTeamName;
   }
 
   /**
