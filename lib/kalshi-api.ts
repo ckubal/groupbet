@@ -498,13 +498,24 @@ class KalshiApiService {
           const response1 = await fetch(url1.toString(), { headers });
           
           if (response1.ok) {
-            const data1: KalshiMarketsResponse = await response1.json();
-            console.log(`✅ series_ticker=${seriesTicker}, status=${status || 'none'}: Fetched ${data1.markets.length} markets`);
+            const responseText = await response1.text();
+            console.log(`📥 Raw response (first 500 chars): ${responseText.substring(0, 500)}`);
             
-            // Log response status codes and any error messages
-            if (data1.markets.length === 0) {
-              const responseText = await response1.text();
-              console.warn(`⚠️ No markets returned. Response status: ${response1.status}, Response preview: ${responseText.substring(0, 500)}`);
+            let data1: KalshiMarketsResponse;
+            try {
+              data1 = JSON.parse(responseText);
+            } catch (parseError) {
+              console.error(`❌ Failed to parse JSON response:`, parseError);
+              console.error(`❌ Response text:`, responseText);
+              continue; // Try next status
+            }
+            
+            console.log(`✅ series_ticker=${seriesTicker}, status=${status || 'none'}: Fetched ${data1.markets?.length || 0} markets`);
+            
+            // Log response structure if no markets
+            if (!data1.markets || data1.markets.length === 0) {
+              console.warn(`⚠️ No markets returned. Response structure:`, Object.keys(data1));
+              console.warn(`⚠️ Full response:`, JSON.stringify(data1).substring(0, 1000));
             }
           
             if (data1.markets.length > 0) {
