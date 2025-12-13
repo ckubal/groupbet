@@ -66,6 +66,24 @@ export function matchKalshiMarketsToGames(
   console.log(`🎯 Matched ${matched.length} Kalshi markets to ${gameGroups.size} games`);
   if (unmatched.length > 0) {
     console.log(`⚠️ ${unmatched.length} markets could not be matched`);
+    // Log sample unmatched markets for debugging
+    console.log(`📋 Sample unmatched markets:`, unmatched.slice(0, 3).map(m => ({
+      ticker: m.ticker,
+      title: m.title,
+      marketType: m.marketType,
+      teamName: m.teamName,
+      gameDate: m.gameDate,
+    })));
+  }
+  
+  // Log sample matched games for debugging
+  if (gameGroups.size > 0) {
+    console.log(`📋 Sample matched games:`, Array.from(gameGroups.values()).slice(0, 3).map(g => ({
+      game: `${g.game.awayTeam} @ ${g.game.homeTeam}`,
+      gameTime: typeof g.game.gameTime === 'string' ? g.game.gameTime : g.game.gameTime.toISOString(),
+      marketsCount: g.markets.length,
+      marketTypes: g.markets.map(m => m.marketType),
+    })));
   }
 
   return Array.from(gameGroups.values());
@@ -154,10 +172,31 @@ function calculateMatchConfidence(
       const gameAwayLower = game.awayTeam.toLowerCase();
       const marketTeamLower = market.teamName.toLowerCase();
       
-      if (gameHomeLower.includes(marketTeamLower) || gameAwayLower.includes(marketTeamLower) ||
-          marketTeamLower.includes(gameHomeLower.split(' ').pop() || '') ||
-          marketTeamLower.includes(gameAwayLower.split(' ').pop() || '')) {
+      // Check if any part of the team name matches
+      const gameHomeWords = gameHomeLower.split(/\s+/);
+      const gameAwayWords = gameAwayLower.split(/\s+/);
+      const marketTeamWords = marketTeamLower.split(/\s+/);
+      
+      // Check for word overlap
+      const homeMatch = gameHomeWords.some(word => 
+        word.length > 3 && marketTeamWords.some(mw => mw.includes(word) || word.includes(mw))
+      );
+      const awayMatch = gameAwayWords.some(word => 
+        word.length > 3 && marketTeamWords.some(mw => mw.includes(word) || word.includes(mw))
+      );
+      
+      if (homeMatch || awayMatch) {
         confidence += 20;
+      }
+      
+      // Also check if market title contains team names
+      if (market.title) {
+        const titleLower = market.title.toLowerCase();
+        if (titleLower.includes(gameHomeLower) || titleLower.includes(gameAwayLower) ||
+            gameHomeWords.some(w => w.length > 3 && titleLower.includes(w)) ||
+            gameAwayWords.some(w => w.length > 3 && titleLower.includes(w))) {
+          confidence += 15;
+        }
       }
     }
   } else if (market.marketType === 'spread' && market.teamName) {

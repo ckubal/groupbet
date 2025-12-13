@@ -88,9 +88,28 @@ export async function GET(request: NextRequest) {
       kalshiApi.fetchNFLMarkets(weekNumber),
     ]);
 
+    console.log(`📊 Loaded ${games.length} games and ${kalshiMarkets.length} Kalshi markets`);
+
     // Process and match markets
     const processedMarkets = kalshiApi.processMarkets(kalshiMarkets);
+    console.log(`🔍 Processed ${processedMarkets.length} markets, attempting to match with ${games.length} games...`);
+    
+    // Log sample processed markets for debugging
+    if (processedMarkets.length > 0) {
+      console.log(`📋 Sample processed markets:`, processedMarkets.slice(0, 3).map(m => ({
+        ticker: m.ticker,
+        title: m.title,
+        marketType: m.marketType,
+        teamName: m.teamName,
+        opponentName: m.opponentName,
+        spread: m.spread,
+        total: m.total,
+        gameDate: m.gameDate,
+      })));
+    }
+    
     const matchedGroups = matchKalshiMarketsToGames(processedMarkets, games);
+    console.log(`✅ Matched ${matchedGroups.length} game groups with Kalshi markets`);
 
     // Build comparison results
     const comparisons: ComparisonResult[] = [];

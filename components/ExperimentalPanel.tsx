@@ -35,15 +35,32 @@ export default function ExperimentalPanel({ week }: ExperimentalPanelProps) {
     setError(null);
 
     try {
+      console.log(`🔍 Loading Kalshi comparisons for Week ${week}...`);
+      
       // Fetch comparison data
       const compareResponse = await fetch(`/api/kalshi/compare?week=${week}`);
       if (!compareResponse.ok) {
-        throw new Error('Failed to fetch comparisons');
+        const errorText = await compareResponse.text();
+        console.error(`❌ Compare API error: ${compareResponse.status}`, errorText);
+        throw new Error(`Failed to fetch comparisons: ${compareResponse.status} ${compareResponse.statusText}`);
       }
       const compareData = await compareResponse.json();
 
+      console.log(`📊 Compare API response:`, {
+        success: compareData.success,
+        comparisonsCount: compareData.comparisons?.length || 0,
+        totalGames: compareData.totalGames,
+        matchedGames: compareData.matchedGames,
+      });
+
       if (compareData.success) {
         setComparisons(compareData.comparisons || []);
+        if (compareData.comparisons?.length === 0) {
+          console.warn(`⚠️ No comparisons found. This could mean:
+            - No Kalshi markets matched with games
+            - Kalshi API returned no markets
+            - Matching logic needs improvement`);
+        }
       } else {
         throw new Error(compareData.error || 'Failed to load comparisons');
       }

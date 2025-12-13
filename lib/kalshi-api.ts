@@ -263,19 +263,19 @@ class KalshiApiService {
    */
   async fetchNFLMarkets(week?: number): Promise<KalshiMarket[]> {
     try {
-      const url = new URL(`${this.baseUrl}/markets`);
+      // Try multiple approaches to find NFL markets
+      const allMarkets: KalshiMarket[] = [];
       
-      // Filter by NFL series
-      url.searchParams.set('series_ticker', 'NFL');
-      url.searchParams.set('status', 'open'); // Only get open markets
-      url.searchParams.set('limit', '1000'); // Max limit
-
-      // If week is specified, filter by date range
+      // Approach 1: Filter by series_ticker = 'NFL'
+      const url1 = new URL(`${this.baseUrl}/markets`);
+      url1.searchParams.set('series_ticker', 'NFL');
+      url1.searchParams.set('status', 'open');
+      url1.searchParams.set('limit', '1000');
+      
       if (week) {
         const { start, end } = getNFLWeekBoundaries(week, 2025);
-        // Kalshi uses Unix timestamps
-        url.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
-        url.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
+        url1.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
+        url1.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
       }
 
       const headers: HeadersInit = {
@@ -283,25 +283,99 @@ class KalshiApiService {
       };
 
       // SECURITY: Add authentication headers if credentials are available
-      // Private key is used for signing, never sent directly
       const authHeaders = this.getAuthHeaders('GET', '/markets');
       if (authHeaders) {
         Object.assign(headers, authHeaders);
       }
 
       console.log(`📡 Fetching Kalshi NFL markets${week ? ` for Week ${week}` : ''}...`);
-      const response = await fetch(url.toString(), { headers });
-
-      if (!response.ok) {
-        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+      console.log(`🔗 URL: ${url1.toString()}`);
+      
+      const response1 = await fetch(url1.toString(), { headers });
+      
+      if (response1.ok) {
+        const data1: KalshiMarketsResponse = await response1.json();
+        console.log(`✅ Approach 1 (series_ticker=NFL): Fetched ${data1.markets.length} markets`);
+        allMarkets.push(...data1.markets);
+        
+        // Log sample markets for debugging
+        if (data1.markets.length > 0) {
+          console.log(`📊 Sample markets:`, data1.markets.slice(0, 3).map(m => ({
+            ticker: m.ticker,
+            title: m.title,
+            series_ticker: m.series_ticker,
+            event_ticker: m.event_ticker,
+            close_time: m.close_time,
+          })));
+        }
+      } else {
+        const errorText = await response1.text();
+        console.warn(`⚠️ Approach 1 failed: ${response1.status} ${response1.statusText}`, errorText);
       }
 
-      const data: KalshiMarketsResponse = await response.json();
-      console.log(`✅ Fetched ${data.markets.length} Kalshi markets`);
+      // Approach 2: Try without series filter, then filter by title keywords
+      if (allMarkets.length === 0) {
+        console.log(`🔄 Trying Approach 2: Fetch all open markets and filter by NFL keywords...`);
+        const url2 = new URL(`${this.baseUrl}/markets`);
+        url2.searchParams.set('status', 'open');
+        url2.searchParams.set('limit', '1000');
+        
+        if (week) {
+          const { start, end } = getNFLWeekBoundaries(week, 2025);
+          url2.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
+          url2.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
+        }
 
-      return data.markets;
+        const response2 = await fetch(url2.toString(), { headers });
+        
+        if (response2.ok) {
+          const data2: KalshiMarketsResponse = await response2.json();
+          console.log(`✅ Approach 2: Fetched ${data2.markets.length} total markets`);
+          
+          // Filter for NFL-related markets by checking titles
+          const nflKeywords = ['nfl', 'football', 'ravens', 'bills', 'chiefs', 'packers', 'cowboys', 
+            'patriots', 'jets', 'giants', 'eagles', 'steelers', 'browns', 'bengals', 'dolphins',
+            'jaguars', 'titans', 'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams',
+            '49ers', 'seahawks', 'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers',
+            'lions', 'vikings', 'bears', 'commanders'];
+          
+          const nflMarkets = data2.markets.filter(m => {
+            const titleLower = (m.title || '').toLowerCase();
+            const subtitleLower = (m.subtitle || '').toLowerCase();
+            return nflKeywords.some(keyword => 
+              titleLower.includes(keyword) || subtitleLower.includes(keyword)
+            );
+          });
+          
+          console.log(`✅ Filtered to ${nflMarkets.length} NFL-related markets`);
+          allMarkets.push(...nflMarkets);
+        } else {
+          const errorText = await response2.text();
+          console.warn(`⚠️ Approach 2 failed: ${response2.status} ${response2.statusText}`, errorText);
+        }
+      }
+
+      // Remove duplicates by ticker
+      const uniqueMarkets = Array.from(
+        new Map(allMarkets.map(m => [m.ticker, m])).values()
+      );
+
+      console.log(`✅ Total unique Kalshi NFL markets: ${uniqueMarkets.length}`);
+      
+      if (uniqueMarkets.length === 0) {
+        console.warn(`⚠️ No NFL markets found. This could mean:
+          - No markets are currently open for this week
+          - The series_ticker 'NFL' is incorrect
+          - Markets use a different naming convention
+          - Authentication is required for this data`);
+      }
+
+      return uniqueMarkets;
     } catch (error) {
       console.error('❌ Failed to fetch Kalshi markets:', error);
+      if (error instanceof Error) {
+        console.error('❌ Error details:', error.message, error.stack);
+      }
       // Return empty array on error (graceful degradation)
       return [];
     }
