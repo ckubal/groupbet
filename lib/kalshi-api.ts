@@ -485,10 +485,23 @@ class KalshiApiService {
         url1.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
         url1.searchParams.set('limit', '1000');
         
+        // Try without date filtering first to see what's available
+        // Then filter by date if week is specified
         if (week) {
           const { start, end } = getNFLWeekBoundaries(week, 2025);
-          url1.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
-          url1.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
+          const minCloseTs = Math.floor(start.getTime() / 1000);
+          const maxCloseTs = Math.floor(end.getTime() / 1000);
+          
+          console.log(`📅 Week ${week} date range: ${start.toISOString()} to ${end.toISOString()}`);
+          console.log(`📅 Unix timestamps: ${minCloseTs} to ${maxCloseTs}`);
+          
+          // Use min_close_ts only (markets that close after week starts)
+          // Don't use max_close_ts initially - it might be too restrictive
+          url1.searchParams.set('min_close_ts', minCloseTs.toString());
+          // Try with a wider range - include markets closing up to 2 days after week ends
+          const extendedEnd = new Date(end);
+          extendedEnd.setDate(extendedEnd.getDate() + 2);
+          url1.searchParams.set('max_close_ts', Math.floor(extendedEnd.getTime() / 1000).toString());
         }
 
         console.log(`📡 Trying series_ticker=${seriesTicker}${week ? ` for Week ${week}` : ''}...`);
@@ -530,27 +543,54 @@ class KalshiApiService {
         }
       }
 
-      // Approach 2: Try without series filter, then filter by title keywords
-      if (allMarkets.length === 0) {
-        console.log(`🔄 Trying Approach 2: Fetch all active markets and filter by NFL keywords...`);
+      // Approach 2: Try without date filtering to see all available markets
+      if (allMarkets.length === 0 && week) {
+        console.log(`🔄 Trying Approach 2: Fetch all active Football markets without date filter...`);
         const url2 = new URL(`${this.baseUrl}/markets`);
-        url2.searchParams.set('status', 'active'); // Kalshi uses 'active' not 'open'
+        url2.searchParams.set('series_ticker', 'Football');
+        url2.searchParams.set('status', 'active');
         url2.searchParams.set('limit', '1000');
+        // Don't filter by date - get all active markets and filter client-side
         
-        if (week) {
-          const { start, end } = getNFLWeekBoundaries(week, 2025);
-          url2.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
-          url2.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
-        }
-
         const response2 = await fetch(url2.toString(), { headers });
         
         if (response2.ok) {
           const data2: KalshiMarketsResponse = await response2.json();
-          console.log(`✅ Approach 2: Fetched ${data2.markets.length} total markets`);
+          console.log(`✅ Approach 2: Fetched ${data2.markets.length} total Football markets (no date filter)`);
+          
+          // Filter by date client-side
+          const { start, end } = getNFLWeekBoundaries(week, 2025);
+          const weekMarkets = data2.markets.filter(m => {
+            if (!m.close_time) return false;
+            const closeTime = new Date(m.close_time).getTime();
+            return closeTime >= start.getTime() && closeTime <= end.getTime();
+          });
+          
+          console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
+          
+          if (weekMarkets.length > 0) {
+            allMarkets.push(...weekMarkets);
+          }
+        }
+      }
+      
+      // Approach 3: Try without series filter, then filter by title keywords
+      if (allMarkets.length === 0) {
+        console.log(`🔄 Trying Approach 3: Fetch all active markets and filter by NFL keywords...`);
+        const url3 = new URL(`${this.baseUrl}/markets`);
+        url3.searchParams.set('status', 'active');
+        url3.searchParams.set('limit', '1000');
+        
+        // Don't filter by date - get all and filter client-side
+
+        const response3 = await fetch(url3.toString(), { headers });
+        
+        if (response3.ok) {
+          const data3: KalshiMarketsResponse = await response3.json();
+          console.log(`✅ Approach 3: Fetched ${data3.markets.length} total markets`);
           
           // Log all unique series_tickers found for debugging
-          const uniqueSeries = [...new Set(data2.markets.map(m => m.series_ticker).filter(Boolean))];
+          const uniqueSeries = [...new Set(data3.markets.map(m => m.series_ticker).filter(Boolean))];
           console.log(`📊 Found series_tickers in results:`, uniqueSeries);
           
           // Filter for NFL-related markets by checking titles and series_tickers
@@ -560,7 +600,7 @@ class KalshiApiService {
             '49ers', 'seahawks', 'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers',
             'lions', 'vikings', 'bears', 'commanders'];
           
-          const nflMarkets = data2.markets.filter(m => {
+          let nflMarkets = data3.markets.filter(m => {
             // Check series_ticker first
             if (m.series_ticker) {
               const seriesLower = m.series_ticker.toLowerCase();
@@ -577,11 +617,26 @@ class KalshiApiService {
             );
           });
           
+          // If week specified, also filter by date
+          if (week) {
+            const { start, end } = getNFLWeekBoundaries(week, 2025);
+            const extendedEnd = new Date(end);
+            extendedEnd.setDate(extendedEnd.getDate() + 2);
+            
+            nflMarkets = nflMarkets.filter(m => {
+              if (!m.close_time) return false;
+              const closeTime = new Date(m.close_time).getTime();
+              return closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
+            });
+            
+            console.log(`📅 Filtered to ${nflMarkets.length} NFL markets within Week ${week} date range`);
+          }
+          
           console.log(`✅ Filtered to ${nflMarkets.length} NFL-related markets`);
           allMarkets.push(...nflMarkets);
         } else {
-          const errorText = await response2.text();
-          console.warn(`⚠️ Approach 2 failed: ${response2.status} ${response2.statusText}`, errorText);
+          const errorText = await response3.text();
+          console.warn(`⚠️ Approach 3 failed: ${response3.status} ${response3.statusText}`, errorText);
         }
       }
 
