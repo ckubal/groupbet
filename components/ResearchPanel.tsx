@@ -488,6 +488,73 @@ function GameAnalysisCard({
           </div>
         )}
 
+        {/* Team Predictions with Bovada Comparison */}
+        {(analysis.projectedAwayScore !== undefined || analysis.projectedHomeScore !== undefined) && (
+          <div className="border-t border-gray-200 pt-4 mb-4">
+            <div className="text-xs text-gray-500 mb-3 font-medium">Team Predictions</div>
+            
+            {/* Away Team */}
+            {analysis.projectedAwayScore !== undefined && (
+              <div className="mb-3 pb-3 border-b border-gray-100 last:border-0">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-semibold text-sm text-gray-800">{analysis.awayTeam}</div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
+                    <div className="text-xs text-gray-500">Predicted</div>
+                  </div>
+                </div>
+                
+                {/* Bovada Comparison */}
+                {analysis.spread !== undefined && analysis.spread > 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">Spread: <span className="font-medium">+{analysis.spread}</span></span>
+                    {analysis.spreadOdds && (
+                      <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                    )}
+                  </div>
+                )}
+                
+                {analysis.awayMoneyline !== undefined && (
+                  <div className="flex items-center justify-between text-xs mt-1">
+                    <span className="text-gray-600">Moneyline</span>
+                    <span className="font-medium text-gray-800">{analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Home Team */}
+            {analysis.projectedHomeScore !== undefined && (
+              <div className="mb-3 pb-3 border-b border-gray-100 last:border-0">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-semibold text-sm text-gray-800">{analysis.homeTeam}</div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
+                    <div className="text-xs text-gray-500">Predicted</div>
+                  </div>
+                </div>
+                
+                {/* Bovada Comparison */}
+                {analysis.spread !== undefined && analysis.spread < 0 && (
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">Spread: <span className="font-medium">{analysis.spread}</span></span>
+                    {analysis.spreadOdds && (
+                      <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
+                    )}
+                  </div>
+                )}
+                
+                {analysis.homeMoneyline !== undefined && (
+                  <div className="flex items-center justify-between text-xs mt-1">
+                    <span className="text-gray-600">Moneyline</span>
+                    <span className="font-medium text-gray-800">{analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Recommendation - Single Clear Display */}
         {hasLine && analysis.recommendation !== 'neutral' && (
           <div className="border-t border-gray-200 pt-4">
