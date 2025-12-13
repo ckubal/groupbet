@@ -745,7 +745,7 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
   const [betToEdit, setBetToEdit] = useState<Bet | null>(null);
   
   // Tab state for Bets vs Research
-  const [activeTab, setActiveTab] = useState<'bets' | 'research'>('bets');
+  const [activeTab, setActiveTab] = useState<'bets' | 'research'>('research');
   
   // Update collapsed sections when games change (e.g., week navigation)
   useEffect(() => {
@@ -851,13 +851,13 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             </div>
             
             {/* Tabs - Bets vs Research */}
-            <div className="flex gap-2 mb-6 border-b-2 border-surface-border">
+            <div className="flex gap-2 mb-6 border-b-2 border-gray-700">
               <button
                 onClick={() => setActiveTab('bets')}
                 className={`px-6 py-3 font-semibold text-base transition-all duration-200 relative ${
                   activeTab === 'bets'
-                    ? 'text-foreground bg-primary/10 border-b-2 border-primary -mb-0.5'
-                    : 'text-gray-400 hover:text-foreground hover:bg-surface-hover/50'
+                    ? 'text-white bg-gray-800 border-b-2 border-blue-500 -mb-0.5'
+                    : 'text-gray-500 hover:text-white hover:bg-gray-800/30'
                 }`}
               >
                 Bets
@@ -866,50 +866,50 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
                 onClick={() => setActiveTab('research')}
                 className={`px-6 py-3 font-semibold text-base transition-all duration-200 relative ${
                   activeTab === 'research'
-                    ? 'text-foreground bg-primary/10 border-b-2 border-primary -mb-0.5'
-                    : 'text-gray-400 hover:text-foreground hover:bg-surface-hover/50'
+                    ? 'text-white bg-gray-800 border-b-2 border-blue-500 -mb-0.5'
+                    : 'text-gray-500 hover:text-white hover:bg-gray-800/30'
                 }`}
               >
                 Research
               </button>
             </div>
             
-            {/* Week Navigation - Modern */}
-            {activeTab === 'bets' && (
-            <div className="flex items-center gap-4">
+            {/* Week Navigation - Streamlined */}
+            <div className="flex items-center gap-2 mt-4">
               <button
                 onClick={() => handleWeekChange(Math.max(1, currentWeek - 1))}
                 disabled={currentWeek <= 1}
-                className={`btn-secondary px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
                   currentWeek <= 1 
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:bg-surface-hover'
+                    ? 'opacity-20 cursor-not-allowed text-gray-500 bg-gray-900 border border-gray-800' 
+                    : 'text-white bg-gray-800 border border-gray-600 hover:bg-gray-700 hover:border-gray-500'
                 }`}
+                aria-label="Previous week"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
               
-              <div className="bg-info text-white px-4 py-2 rounded-sm font-bold text-lg min-w-[3rem] text-center">
+              <div className="bg-blue-600 text-white px-5 py-2 rounded-md font-bold text-lg min-w-[3.5rem] text-center shadow-md">
                 {currentWeek}
               </div>
               
               <button
                 onClick={() => handleWeekChange(Math.min(18, currentWeek + 1))}
                 disabled={currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1}
-                className={`btn-secondary px-4 py-2 text-sm font-medium transition-all duration-200 ${
+                className={`px-3 py-2 text-sm font-medium transition-all duration-200 rounded-md ${
                   currentWeek >= 18 || currentWeek >= getCurrentNFLWeek() + 1
-                    ? 'opacity-50 cursor-not-allowed' 
-                    : 'hover:bg-surface-hover'
+                    ? 'opacity-20 cursor-not-allowed text-gray-500 bg-gray-900 border border-gray-800' 
+                    : 'text-white bg-gray-800 border border-gray-600 hover:bg-gray-700 hover:border-gray-500'
                 }`}
+                aria-label="Next week"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
               </button>
             </div>
-            )}
           </div>
           
           {/* User Selection - Compact */}
@@ -925,36 +925,50 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
             {/* Image Upload Button */}
             <div className="flex justify-center mb-6">
               <ImageBetUpload
-                onBetExtracted={(betData) => {
-                  betService.createBet({
-                    ...betData,
-                    bettingMode: 'group',
-                  }).then(() => {
+                onBetExtracted={async (betData) => {
+                  try {
+                    await betService.createBet({
+                      ...betData,
+                      bettingMode: 'group',
+                    });
+                    
                     // Refresh bets (same logic as BetPopup)
                     if (currentUser) {
                       const weekendId = `2025-week-${currentWeek}`;
-                      const allUpdatedBets: Bet[] = [];
                       
-                      Promise.all([
-                        fetchUserBetsViaAPI(currentUser.id, weekendId),
-                        fetchUserBetsViaAPI(currentUser.id, `2025-week-2`)
-                      ]).then(([currentWeekBets, week2Bets]) => {
-                        allUpdatedBets.push(...currentWeekBets, ...week2Bets);
-                        
-                        const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
-                          if (!acc.find(bet => bet.id === current.id)) {
-                            acc.push(current);
-                          }
-                          return acc;
-                        }, []);
-                        
-                        setUserBets(uniqueUpdatedBets);
-                        setLastUpdated(Date.now());
-                      });
+                      // Refresh user bets for current week
+                      const freshUserBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
+                      setUserBets(freshUserBets);
+                      
+                      // Refresh all week bets from all users for settlement calculations
+                      const allUserIds = ['will', 'd/o', 'rosen', 'charlie', 'pat'];
+                      const allBets: Bet[] = [];
+                      
+                      for (const userId of allUserIds) {
+                        try {
+                          const userWeekBets = await fetchUserBetsViaAPI(userId, weekendId);
+                          allBets.push(...userWeekBets);
+                        } catch (error) {
+                          console.log(`No bets found for user ${userId} in Week ${currentWeek}`);
+                        }
+                      }
+                      
+                      // Deduplicate bets
+                      const uniqueBets = allBets.reduce((acc: Bet[], current: Bet) => {
+                        if (!acc.find(bet => bet.id === current.id)) {
+                          acc.push(current);
+                        }
+                        return acc;
+                      }, []);
+                      
+                      setAllWeekBets(uniqueBets);
+                      setLastUpdated(Date.now());
+                      
+                      console.log(`✅ Refreshed bets from image: ${freshUserBets.length} user bets, ${uniqueBets.length} total week bets`);
                     }
-                  }).catch((error) => {
+                  } catch (error) {
                     console.error('Failed to create bet from image:', error);
-                  });
+                  }
                 }}
                 currentUser={currentUser.id}
                 defaultParticipants={allUsers.slice(0, 4).map(u => u.id)}
@@ -1574,35 +1588,50 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
           setIsBetPopupOpen(false);
           console.log('✅ Closed bet popup');
         }}
-        onPlaceBet={(betData) => {
-          betService.createBet(betData).then(() => {
+        onPlaceBet={async (betData) => {
+          try {
+            await betService.createBet(betData);
             setIsBetPopupOpen(false);
-            // Refresh user bets when a new bet is placed (with deduplication)
+            
+            // Refresh user bets and all week bets when a new bet is placed
             if (currentUser) {
               const weekendId = `2025-week-${currentWeek}`;
-              const allUpdatedBets: Bet[] = [];
               
-              // Fetch bets from multiple weeks and deduplicate
-              Promise.all([
-                betService.getBetsForUser(currentUser.id, weekendId),
-                betService.getBetsForUser(currentUser.id, `2025-week-2`) // Always check week 2
-              ]).then(([currentWeekBets, week2Bets]) => {
-                allUpdatedBets.push(...currentWeekBets, ...week2Bets);
-                
-                // Deduplicate bets
-                const uniqueUpdatedBets = allUpdatedBets.reduce((acc: Bet[], current: Bet) => {
-                  if (!acc.find(bet => bet.id === current.id)) {
-                    acc.push(current);
-                  }
-                  return acc;
-                }, []);
-                
-                setUserBets(uniqueUpdatedBets);
-              });
+              // Refresh user bets for current week
+              const freshUserBets = await fetchUserBetsViaAPI(currentUser.id, weekendId);
+              setUserBets(freshUserBets);
+              
+              // Refresh all week bets from all users for settlement calculations
+              const allUserIds = ['will', 'd/o', 'rosen', 'charlie', 'pat'];
+              const allBets: Bet[] = [];
+              
+              for (const userId of allUserIds) {
+                try {
+                  const userWeekBets = await fetchUserBetsViaAPI(userId, weekendId);
+                  allBets.push(...userWeekBets);
+                } catch (error) {
+                  console.log(`No bets found for user ${userId} in Week ${currentWeek}`);
+                }
+              }
+              
+              // Deduplicate bets
+              const uniqueBets = allBets.reduce((acc: Bet[], current: Bet) => {
+                if (!acc.find(bet => bet.id === current.id)) {
+                  acc.push(current);
+                }
+                return acc;
+              }, []);
+              
+              setAllWeekBets(uniqueBets);
+              
+              // Force re-render by updating timestamp
+              setLastUpdated(Date.now());
+              
+              console.log(`✅ Refreshed bets: ${freshUserBets.length} user bets, ${uniqueBets.length} total week bets`);
             }
-          }).catch(error => {
+          } catch (error) {
             console.error('❌ Failed to place bet:', error);
-          });
+          }
         }}
       />
       
