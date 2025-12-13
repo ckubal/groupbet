@@ -581,13 +581,13 @@ class KalshiApiService {
         for (const status of statusesToTry) {
           const url1 = new URL(`${this.baseUrl}/markets`);
           
-          // Try URL-encoding the series_ticker if it contains spaces
-          // Kalshi website shows "Pro Football" which might need encoding
-          const encodedTicker = seriesTicker.includes(' ') 
-            ? encodeURIComponent(seriesTicker) 
-            : seriesTicker;
+          // "Football" is the series_ticker (parent category)
+          url1.searchParams.set('series_ticker', 'Football');
           
-          url1.searchParams.set('series_ticker', encodedTicker);
+          // Try "Pro Football" as competition parameter (from filters structure)
+          // The API might support competition parameter for subcategories
+          url1.searchParams.set('competition', 'Pro Football');
+          
           if (status) {
             url1.searchParams.set('status', status);
           }
