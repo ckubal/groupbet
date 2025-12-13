@@ -104,8 +104,9 @@ export async function GET(request: NextRequest) {
     }
     
     // Test 5: Try fetching markets WITHOUT any filters to see if any markets exist at all
+    // NOTE: This may hit rate limits - that's OK, we're just testing
     try {
-      console.log(`🧪 TEST: Trying to fetch markets with NO filters...`);
+      console.log(`🧪 TEST: Trying to fetch markets with NO filters (may hit rate limit)...`);
       const testUrl = `https://api.elections.kalshi.com/trade-api/v2/markets?limit=10`;
       const testResponse = await fetch(testUrl, {
         headers: {
@@ -113,7 +114,12 @@ export async function GET(request: NextRequest) {
         },
       });
       
-      if (testResponse.ok) {
+      if (testResponse.status === 429) {
+        diagnostics.unfilteredMarkets = {
+          rateLimited: true,
+          message: 'Rate limited (429) - this is expected during testing. Wait a few minutes and try again.',
+        };
+      } else if (testResponse.ok) {
         const responseText = await testResponse.text();
         console.log(`📥 Raw markets API response (no filters, first 1000 chars): ${responseText.substring(0, 1000)}`);
         

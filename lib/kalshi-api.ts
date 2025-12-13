@@ -436,6 +436,13 @@ class KalshiApiService {
       console.log(`🔗 Events URL: ${url.toString()}`);
       const response = await fetch(url.toString(), { headers });
 
+      // Handle rate limiting
+      if (response.status === 429) {
+        const retryAfter = response.headers.get('Retry-After');
+        console.warn(`⚠️ Events API rate limited (429). Retry after: ${retryAfter || 'unknown'} seconds`);
+        return []; // Return empty array instead of throwing
+      }
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ Events API error: ${response.status} ${response.statusText}`);
@@ -520,6 +527,15 @@ class KalshiApiService {
           console.log(`🔗 URL: ${url1.toString()}`);
           
           const response1 = await fetch(url1.toString(), { headers });
+          
+          // Handle rate limiting
+          if (response1.status === 429) {
+            const retryAfter = response1.headers.get('Retry-After');
+            console.warn(`⚠️ Rate limited (429). Retry after: ${retryAfter || 'unknown'} seconds`);
+            console.warn(`⚠️ URL that hit rate limit: ${url1.toString()}`);
+            // Don't throw - just log and continue to next status/ticker
+            continue;
+          }
           
           if (response1.ok) {
             const responseText = await response1.text();
