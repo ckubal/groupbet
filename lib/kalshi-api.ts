@@ -433,14 +433,38 @@ class KalshiApiService {
       }
 
       console.log(`📡 Fetching Kalshi NFL events${week ? ` for Week ${week}` : ''}...`);
+      console.log(`🔗 Events URL: ${url.toString()}`);
       const response = await fetch(url.toString(), { headers });
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Events API error: ${response.status} ${response.statusText}`);
+        console.error(`❌ Error response: ${errorText.substring(0, 500)}`);
         throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
       }
 
-      const data = await response.json();
+      const responseText = await response.text();
+      console.log(`📥 Events API raw response (first 1000 chars): ${responseText.substring(0, 1000)}`);
+      
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ Failed to parse Events API JSON:`, parseError);
+        console.error(`❌ Full response: ${responseText}`);
+        return [];
+      }
+      
+      console.log(`✅ Events API response structure:`, Object.keys(data));
       console.log(`✅ Fetched ${data.events?.length || 0} NFL events`);
+      
+      if (data.events && data.events.length > 0) {
+        console.log(`📊 Sample events:`, data.events.slice(0, 3).map((e: any) => ({
+          ticker: e.ticker,
+          title: e.title,
+          expected_expiration_time: e.expected_expiration_time,
+        })));
+      }
       
       return data.events || [];
     } catch (error) {

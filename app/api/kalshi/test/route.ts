@@ -103,7 +103,57 @@ export async function GET(request: NextRequest) {
       };
     }
     
-    // Test 5: Try fetching markets for specific events if events exist
+    // Test 5: Try fetching markets WITHOUT any filters to see if any markets exist at all
+    try {
+      console.log(`🧪 TEST: Trying to fetch markets with NO filters...`);
+      const testUrl = `https://api.elections.kalshi.com/trade-api/v2/markets?limit=10`;
+      const testResponse = await fetch(testUrl, {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      
+      if (testResponse.ok) {
+        const responseText = await testResponse.text();
+        console.log(`📥 Raw markets API response (no filters, first 1000 chars): ${responseText.substring(0, 1000)}`);
+        
+        let testData: any;
+        try {
+          testData = JSON.parse(responseText);
+        } catch (parseError) {
+          diagnostics.unfilteredMarkets = {
+            error: 'Failed to parse JSON',
+            rawResponse: responseText.substring(0, 500),
+          };
+        }
+        
+        if (testData) {
+          diagnostics.unfilteredMarkets = {
+            marketsCount: testData.markets?.length || 0,
+            responseKeys: Object.keys(testData),
+            sample: testData.markets?.slice(0, 3).map((m: any) => ({
+              ticker: m.ticker,
+              title: m.title,
+              series_ticker: m.series_ticker,
+              event_ticker: m.event_ticker,
+              status: m.status,
+            })) || [],
+          };
+        }
+      } else {
+        const errorText = await testResponse.text();
+        diagnostics.unfilteredMarkets = {
+          error: `Status ${testResponse.status}: ${testResponse.statusText}`,
+          errorResponse: errorText.substring(0, 500),
+        };
+      }
+    } catch (err) {
+      diagnostics.unfilteredMarkets = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
+
+    // Test 6: Try fetching markets for specific events if events exist
     if (allEvents.length > 0) {
       try {
         console.log(`🧪 TEST: Trying to fetch markets for specific events...`);
@@ -113,9 +163,6 @@ export async function GET(request: NextRequest) {
         const testResponse = await fetch(testUrl, {
           headers: {
             'Accept': 'application/json',
-            ...(process.env.KALSHI_API_KEY_ID ? {
-              'KALSHI-ACCESS-KEY': process.env.KALSHI_API_KEY_ID,
-            } : {}),
           },
         });
         
