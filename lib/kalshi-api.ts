@@ -462,7 +462,8 @@ class KalshiApiService {
       const url = new URL(`${this.baseUrl}/events`);
       
       // Filter by series ticker - try "Pro Football" first (from Kalshi website)
-      url.searchParams.set('series_ticker', 'Pro Football');
+      // URL-encode it since it contains a space
+      url.searchParams.set('series_ticker', encodeURIComponent('Pro Football'));
       url.searchParams.set('limit', '1000');
       
       // Don't add date filters initially - Events API might use different parameter names
@@ -582,7 +583,14 @@ class KalshiApiService {
         
         for (const status of statusesToTry) {
           const url1 = new URL(`${this.baseUrl}/markets`);
-          url1.searchParams.set('series_ticker', seriesTicker);
+          
+          // Try URL-encoding the series_ticker if it contains spaces
+          // Kalshi website shows "Pro Football" which might need encoding
+          const encodedTicker = seriesTicker.includes(' ') 
+            ? encodeURIComponent(seriesTicker) 
+            : seriesTicker;
+          
+          url1.searchParams.set('series_ticker', encodedTicker);
           if (status) {
             url1.searchParams.set('status', status);
           }

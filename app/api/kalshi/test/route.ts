@@ -31,6 +31,8 @@ export async function GET(request: NextRequest) {
         available: !!sportsFilters,
         sports: sportsFilters ? Object.keys(sportsFilters.filters_by_sports || {}) : [],
         sportOrdering: sportsFilters?.sport_ordering || [],
+        // Include full Football filter structure if available
+        footballFilter: sportsFilters?.filters_by_sports?.['Football'] || null,
       };
     } catch (err) {
       diagnostics.sportsFilters = {
