@@ -411,17 +411,15 @@ class KalshiApiService {
    */
   async fetchNFLEvents(week?: number): Promise<any[]> {
     try {
+      // Try without date filters first - Events API might not support those parameters
       const url = new URL(`${this.baseUrl}/events`);
       
       // Filter by series ticker
       url.searchParams.set('series_ticker', 'Football');
       url.searchParams.set('limit', '1000');
       
-      if (week) {
-        const { start, end } = getNFLWeekBoundaries(week, 2025);
-        url.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
-        url.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
-      }
+      // Don't add date filters initially - Events API might use different parameter names
+      // or might not support date filtering at all
 
       const headers: HeadersInit = {
         'Accept': 'application/json',
@@ -446,8 +444,28 @@ class KalshiApiService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ Events API error: ${response.status} ${response.statusText}`);
-        console.error(`❌ Error response: ${errorText.substring(0, 500)}`);
-        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+        console.error(`❌ Error response: ${errorText}`);
+        console.error(`❌ Request URL: ${url.toString()}`);
+        console.error(`❌ Request headers:`, Object.keys(headers));
+        
+        // Try without series_ticker to see if that's the issue
+        if (response.status === 400) {
+          console.log(`🔄 Trying Events API without series_ticker filter...`);
+          const url2 = new URL(`${this.baseUrl}/events`);
+          url2.searchParams.set('limit', '10'); // Small limit for testing
+          const response2 = await fetch(url2.toString(), { headers });
+          if (response2.ok) {
+            const data2 = await response2.json();
+            console.log(`✅ Events API works without series_ticker. Found ${data2.events?.length || 0} events`);
+            return data2.events || [];
+          } else {
+            const errorText2 = await response2.text();
+            console.error(`❌ Events API still fails without series_ticker: ${response2.status} - ${errorText2}`);
+          }
+        }
+        
+        // Don't throw - return empty array so we can continue testing
+        return [];
       }
 
       const responseText = await response.text();
