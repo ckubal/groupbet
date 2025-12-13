@@ -15,58 +15,120 @@ export async function GET(request: NextRequest) {
     
     console.log(`🧪 TEST: Diagnosing Kalshi API for Week ${weekNumber}...`);
 
+    const diagnostics: any = {
+      authentication: {
+        hasCredentials: !!(process.env.KALSHI_API_KEY_ID && process.env.KALSHI_PRIVATE_KEY),
+        apiKeyIdPresent: !!process.env.KALSHI_API_KEY_ID,
+        privateKeyPresent: !!process.env.KALSHI_PRIVATE_KEY,
+      },
+    };
+
     // Test 1: Get sports filters
-    const sportsFilters = await kalshiApi.getSportsFilters();
+    let sportsFilters;
+    try {
+      sportsFilters = await kalshiApi.getSportsFilters();
+      diagnostics.sportsFilters = {
+        available: !!sportsFilters,
+        sports: sportsFilters ? Object.keys(sportsFilters.filters_by_sports || {}) : [],
+        sportOrdering: sportsFilters?.sport_ordering || [],
+      };
+    } catch (err) {
+      diagnostics.sportsFilters = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
     
     // Test 2: Discover NFL series ticker
-    const nflSeriesTicker = await kalshiApi.discoverNFLSeriesTicker();
+    let nflSeriesTicker;
+    try {
+      nflSeriesTicker = await kalshiApi.discoverNFLSeriesTicker();
+      diagnostics.nflSeriesTicker = {
+        discovered: nflSeriesTicker,
+      };
+    } catch (err) {
+      diagnostics.nflSeriesTicker = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
     
-    // Test 3: Fetch markets
-    const markets = await kalshiApi.fetchNFLMarkets(weekNumber);
+    // Test 3: Try fetching ALL markets (no week filter) to see if any exist
+    let allMarkets: any[] = [];
+    try {
+      console.log(`🧪 TEST: Fetching ALL markets (no week filter)...`);
+      allMarkets = await kalshiApi.fetchNFLMarkets(undefined); // No week filter
+      diagnostics.allMarkets = {
+        count: allMarkets.length,
+        sample: allMarkets.slice(0, 3).map(m => ({
+          ticker: m.ticker,
+          title: m.title,
+          close_time: m.close_time,
+          status: m.status,
+        })),
+        dateRange: allMarkets.length > 0 ? {
+          earliest: allMarkets.reduce((earliest, m) => {
+            if (!m.close_time) return earliest;
+            const date = new Date(m.close_time);
+            return !earliest || date < earliest ? date : earliest;
+          }, null as Date | null)?.toISOString(),
+          latest: allMarkets.reduce((latest, m) => {
+            if (!m.close_time) return latest;
+            const date = new Date(m.close_time);
+            return !latest || date > latest ? date : latest;
+          }, null as Date | null)?.toISOString(),
+        } : null,
+      };
+    } catch (err) {
+      diagnostics.allMarkets = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
     
-    // Test 4: Process markets
-    const processedMarkets = kalshiApi.processMarkets(markets);
+    // Test 4: Fetch markets for specific week
+    let weekMarkets: any[] = [];
+    try {
+      console.log(`🧪 TEST: Fetching markets for Week ${weekNumber}...`);
+      weekMarkets = await kalshiApi.fetchNFLMarkets(weekNumber);
+      diagnostics.weekMarkets = {
+        count: weekMarkets.length,
+        sample: weekMarkets.slice(0, 3).map(m => ({
+          ticker: m.ticker,
+          title: m.title,
+          close_time: m.close_time,
+          status: m.status,
+        })),
+      };
+    } catch (err) {
+      diagnostics.weekMarkets = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
+    
+    // Test 5: Process markets
+    let processedMarkets: any[] = [];
+    try {
+      processedMarkets = kalshiApi.processMarkets(weekMarkets);
+      diagnostics.processedMarkets = {
+        count: processedMarkets.length,
+        sample: processedMarkets.slice(0, 2).map(m => ({
+          ticker: m.ticker,
+          title: m.title,
+          marketType: m.marketType,
+          teamName: m.teamName,
+          gameDate: m.gameDate,
+          yesAmericanOdds: m.yesAmericanOdds,
+          noAmericanOdds: m.noAmericanOdds,
+        })),
+      };
+    } catch (err) {
+      diagnostics.processedMarkets = {
+        error: err instanceof Error ? err.message : 'Failed',
+      };
+    }
     
     return NextResponse.json({
       success: true,
       week: weekNumber,
-      tests: {
-        sportsFilters: {
-          available: !!sportsFilters,
-          sports: sportsFilters ? Object.keys(sportsFilters.filters_by_sports || {}) : [],
-          sportOrdering: sportsFilters?.sport_ordering || [],
-        },
-        nflSeriesTicker: {
-          discovered: nflSeriesTicker,
-        },
-        markets: {
-          rawCount: markets.length,
-          processedCount: processedMarkets.length,
-          sampleRaw: markets.slice(0, 2).map(m => ({
-            ticker: m.ticker,
-            title: m.title,
-            subtitle: m.subtitle,
-            series_ticker: m.series_ticker,
-            event_ticker: m.event_ticker,
-            status: m.status,
-            close_time: m.close_time,
-            yes_price: m.yes_price,
-            no_price: m.no_price,
-          })),
-          sampleProcessed: processedMarkets.slice(0, 2).map(m => ({
-            ticker: m.ticker,
-            title: m.title,
-            marketType: m.marketType,
-            teamName: m.teamName,
-            opponentName: m.opponentName,
-            spread: m.spread,
-            total: m.total,
-            gameDate: m.gameDate,
-            yesAmericanOdds: m.yesAmericanOdds,
-            noAmericanOdds: m.noAmericanOdds,
-          })),
-        },
-      },
+      tests: diagnostics,
     });
   } catch (error) {
     console.error('❌ TEST: Error:', error);

@@ -515,7 +515,7 @@ class KalshiApiService {
             })));
             
             // If week specified, filter client-side
-            if (week) {
+            if (week !== undefined) {
               const { start, end } = getNFLWeekBoundaries(week, 2025);
               const extendedEnd = new Date(end);
               extendedEnd.setDate(extendedEnd.getDate() + 2); // Include 2 days after week ends
@@ -539,9 +539,13 @@ class KalshiApiService {
                 break; // Found markets, stop trying other tickers
               } else {
                 console.warn(`⚠️ No markets found for Week ${week} in ${seriesTicker}. Available dates shown above.`);
+                // Still add all markets to see what's available (for debugging)
+                allMarkets.push(...data1.markets);
+                break;
               }
             } else {
               // No week filter - return all markets
+              console.log(`📊 No week filter - returning all ${data1.markets.length} markets`);
               allMarkets.push(...data1.markets);
               break; // Found markets, stop trying other tickers
             }
