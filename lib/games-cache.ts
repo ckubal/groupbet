@@ -253,6 +253,8 @@ export class GamesCacheService {
     try {
       const { bettingLinesCacheService } = await import('./betting-lines-cache');
       
+      console.log(`🔧 Enhancing ${games.length} games with betting lines...`);
+      
       const enhancedGames = await Promise.all(games.map(async (game) => {
         try {
           // Proactively ensure betting lines are fetched/cached (respects refresh timing)
@@ -263,25 +265,31 @@ export class GamesCacheService {
           const cachedLines = await bettingLinesCacheService.getCachedBettingLines(game.id);
           
           if (cachedLines) {
-            // Apply cached betting lines to the game (only if they exist - don't overwrite with undefined)
-            return {
+            // Always apply cached betting lines if they exist (even if undefined, to clear defaults)
+            const enhanced = {
               ...game,
-              spread: cachedLines.spread !== undefined ? cachedLines.spread : game.spread,
-              spreadOdds: cachedLines.spreadOdds !== undefined ? cachedLines.spreadOdds : game.spreadOdds,
-              overUnder: cachedLines.overUnder !== undefined ? cachedLines.overUnder : game.overUnder,
-              overUnderOdds: cachedLines.overUnderOdds !== undefined ? cachedLines.overUnderOdds : game.overUnderOdds,
-              homeMoneyline: cachedLines.homeMoneyline !== undefined ? cachedLines.homeMoneyline : game.homeMoneyline,
-              awayMoneyline: cachedLines.awayMoneyline !== undefined ? cachedLines.awayMoneyline : game.awayMoneyline,
+              spread: cachedLines.spread,
+              spreadOdds: cachedLines.spreadOdds,
+              overUnder: cachedLines.overUnder,
+              overUnderOdds: cachedLines.overUnderOdds,
+              homeMoneyline: cachedLines.homeMoneyline,
+              awayMoneyline: cachedLines.awayMoneyline,
             };
+            
+            console.log(`✅ Enhanced ${game.awayTeam} @ ${game.homeTeam}: spread=${enhanced.spread}, o/u=${enhanced.overUnder}, ml=${enhanced.homeMoneyline}/${enhanced.awayMoneyline}`);
+            return enhanced;
+          } else {
+            console.warn(`⚠️ No cached betting lines found for ${game.awayTeam} @ ${game.homeTeam} (gameId: ${game.id})`);
           }
           
           return game;
         } catch (error) {
-          console.warn(`⚠️ Error enhancing game ${game.id} with betting lines:`, error);
+          console.error(`❌ Error enhancing game ${game.id} (${game.awayTeam} @ ${game.homeTeam}) with betting lines:`, error);
           return game;
         }
       }));
       
+      console.log(`✅ Enhanced ${enhancedGames.length} games with betting lines`);
       return enhancedGames;
     } catch (error) {
       console.error('❌ Error enhancing games with betting lines:', error);
