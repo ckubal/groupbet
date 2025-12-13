@@ -406,6 +406,50 @@ class KalshiApiService {
   }
 
   /**
+   * Fetch NFL events (games) from Kalshi API
+   * Events represent actual games, then we can get markets for those events
+   */
+  async fetchNFLEvents(week?: number): Promise<any[]> {
+    try {
+      const url = new URL(`${this.baseUrl}/events`);
+      
+      // Filter by series ticker
+      url.searchParams.set('series_ticker', 'Football');
+      url.searchParams.set('limit', '1000');
+      
+      if (week) {
+        const { start, end } = getNFLWeekBoundaries(week, 2025);
+        url.searchParams.set('min_close_ts', Math.floor(start.getTime() / 1000).toString());
+        url.searchParams.set('max_close_ts', Math.floor(end.getTime() / 1000).toString());
+      }
+
+      const headers: HeadersInit = {
+        'Accept': 'application/json',
+      };
+
+      const authHeaders = this.getAuthHeaders('GET', '/events');
+      if (authHeaders) {
+        Object.assign(headers, authHeaders);
+      }
+
+      console.log(`📡 Fetching Kalshi NFL events${week ? ` for Week ${week}` : ''}...`);
+      const response = await fetch(url.toString(), { headers });
+
+      if (!response.ok) {
+        throw new Error(`Kalshi API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log(`✅ Fetched ${data.events?.length || 0} NFL events`);
+      
+      return data.events || [];
+    } catch (error) {
+      console.error('❌ Failed to fetch Kalshi events:', error);
+      return [];
+    }
+  }
+
+  /**
    * Fetch NFL markets from Kalshi API
    * @param week - Optional NFL week number (1-18)
    * @returns Array of Kalshi markets
@@ -460,11 +504,17 @@ class KalshiApiService {
             allMarkets.push(...data1.markets);
             
             // Log sample markets for debugging
-            console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 3).map(m => ({
+            console.log(`📊 Sample markets from ${seriesTicker}:`, data1.markets.slice(0, 5).map(m => ({
               ticker: m.ticker,
               title: m.title,
+              yes_sub_title: m.yes_sub_title,
+              no_sub_title: m.no_sub_title,
               series_ticker: m.series_ticker,
               event_ticker: m.event_ticker,
+              status: m.status,
+              last_price: m.last_price,
+              yes_bid: m.yes_bid,
+              yes_ask: m.yes_ask,
               close_time: m.close_time,
             })));
             
@@ -474,6 +524,9 @@ class KalshiApiService {
         } else {
           const errorText = await response1.text();
           console.warn(`⚠️ series_ticker=${seriesTicker} failed: ${response1.status} ${response1.statusText}`);
+          if (errorText) {
+            console.warn(`⚠️ Error response:`, errorText.substring(0, 500));
+          }
         }
       }
 
