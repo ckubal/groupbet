@@ -454,28 +454,29 @@ function GameAnalysisCard({
         </p>
       </div>
 
-      {/* Primary: O/U Calculation, Difference, Recommendation */}
-      <div className="bg-white rounded-lg p-5 mb-4 border border-gray-200">
-        {/* Core Calculation - Single Clear Display */}
-        <div className="flex items-baseline justify-between mb-4">
-          <div>
-            <div className="text-xs text-gray-500 mb-1">Projected Total</div>
-            <div className="text-3xl font-bold text-gray-900">{analysis.projectedTotal.toFixed(1)}</div>
-          </div>
-          {hasLine && (
-            <div className="text-right">
-              <div className="text-xs text-gray-500 mb-1">Bovada Line</div>
-              <div className="text-2xl font-semibold text-gray-700">{analysis.bovadaOverUnder}</div>
+      {/* Over/Under Total - Paired Together */}
+      {hasLine && (
+        <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-5 mb-4 border-2 border-gray-300">
+          <div className="text-center mb-4">
+            <div className="text-sm font-bold text-gray-700 mb-3">Over/Under Total</div>
+            
+            {/* Projected vs Bovada - Side by Side */}
+            <div className="flex items-center justify-center gap-8 mb-4">
+              <div className="text-center">
+                <div className="text-xs text-gray-600 mb-1">Group Bet Projected</div>
+                <div className="text-3xl font-bold text-blue-600">{analysis.projectedTotal.toFixed(1)}</div>
+              </div>
+              <div className="text-gray-400 text-2xl">vs</div>
+              <div className="text-center">
+                <div className="text-xs text-gray-600 mb-1">Bovada Line</div>
+                <div className="text-3xl font-bold text-gray-700">{analysis.bovadaOverUnder}</div>
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Difference - Single Clear Display */}
-        {hasLine && (
-          <div className="border-t border-gray-200 pt-4 mb-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Difference</span>
-              <span className={`text-xl font-bold ${
+            
+            {/* Difference - Boldly Displayed */}
+            <div className="bg-white rounded-lg p-4 border-2 border-gray-300">
+              <div className="text-xs text-gray-600 mb-2">Difference</div>
+              <div className={`text-4xl font-bold ${
                 Math.abs(analysis.difference) >= 3 
                   ? 'text-green-600' 
                   : Math.abs(analysis.difference) >= 2 
@@ -483,10 +484,9 @@ function GameAnalysisCard({
                   : 'text-gray-600'
               }`}>
                 {analysis.difference > 0 ? '+' : ''}{analysis.difference.toFixed(1)} points
-              </span>
+              </div>
             </div>
           </div>
-        )}
 
         {/* Team Matchup with Bovada Lines */}
         {analysis.spread !== undefined && (
