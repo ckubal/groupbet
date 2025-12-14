@@ -625,11 +625,11 @@ class KalshiApiService {
               continue; // Try next status
             }
             
-            console.log(`✅ series_ticker=${seriesTicker}, status=${status || 'none'}: Fetched ${data1.markets?.length || 0} markets`);
+            console.log(`✅ series_ticker=${seriesTicker}, status=active: Fetched ${data1.markets?.length || 0} markets`);
             
             // Log response structure if no markets
             if (!data1.markets || data1.markets.length === 0) {
-              console.warn(`⚠️ No markets returned for series_ticker=${seriesTicker}, status=${status || 'none'}`);
+              console.warn(`⚠️ No markets returned for series_ticker=${seriesTicker}, status=active`);
               console.warn(`⚠️ Response structure:`, Object.keys(data1));
               console.warn(`⚠️ Full response (first 2000 chars):`, JSON.stringify(data1).substring(0, 2000));
               
@@ -645,6 +645,14 @@ class KalshiApiService {
               // Log sample market series_tickers to see what we're actually getting
               const sampleSeriesTickers = [...new Set(data1.markets.slice(0, 10).map((m: any) => m.series_ticker).filter(Boolean))];
               console.log(`📊 Sample series_tickers in markets:`, sampleSeriesTickers);
+              
+              // Log sample market dates for debugging
+              const sampleDates = data1.markets.slice(0, 5).map((m: any) => ({
+                title: m.title?.substring(0, 50),
+                close_time: m.close_time,
+                open_time: m.open_time
+              }));
+              console.log(`📅 Sample market dates:`, sampleDates);
             }
           
             if (data1.markets.length > 0) {
@@ -719,23 +727,53 @@ class KalshiApiService {
               // If week specified, filter client-side
               if (week !== undefined) {
                 const { start, end } = getNFLWeekBoundaries(week, 2025);
+                // Extend range: start 1 day before week starts, end 3 days after week ends
+                // Markets might close before games or after games complete
+                const extendedStart = new Date(start);
+                extendedStart.setDate(extendedStart.getDate() - 1);
                 const extendedEnd = new Date(end);
-                extendedEnd.setDate(extendedEnd.getDate() + 2); // Include 2 days after week ends
+                extendedEnd.setDate(extendedEnd.getDate() + 3);
                 
-                console.log(`📅 Filtering for Week ${week}: ${start.toISOString()} to ${extendedEnd.toISOString()}`);
+                console.log(`📅 Filtering for Week ${week}: ${extendedStart.toISOString()} to ${extendedEnd.toISOString()}`);
+                console.log(`📅 Week ${week} games should be: ${start.toISOString()} to ${end.toISOString()}`);
                 
                 // Filter NFL markets by week date range
+                // Check both close_time and open_time to catch markets that span the week
                 const weekMarkets = nflMarkets.filter(m => {
-                  if (!m.close_time) return false;
-                  const closeTime = new Date(m.close_time).getTime();
-                  const inRange = closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
+                  if (!m.close_time && !m.open_time) {
+                    console.log(`⚠️ Market has no dates: ${m.title}`);
+                    return false;
+                  }
+                  
+                  // Use close_time as primary, but also check if open_time is in range
+                  const closeTime = m.close_time ? new Date(m.close_time).getTime() : null;
+                  const openTime = m.open_time ? new Date(m.open_time).getTime() : null;
+                  
+                  // Market is in range if:
+                  // 1. close_time is within extended range, OR
+                  // 2. open_time is within extended range, OR
+                  // 3. Market spans the week (open before, close after)
+                  let inRange = false;
+                  if (closeTime) {
+                    inRange = closeTime >= extendedStart.getTime() && closeTime <= extendedEnd.getTime();
+                  }
+                  if (!inRange && openTime) {
+                    inRange = openTime >= extendedStart.getTime() && openTime <= extendedEnd.getTime();
+                  }
+                  if (!inRange && openTime && closeTime) {
+                    // Market spans the week
+                    inRange = openTime <= extendedStart.getTime() && closeTime >= extendedEnd.getTime();
+                  }
+                  
                   if (inRange) {
-                    console.log(`✅ Market matches week: ${m.title} (closes ${m.close_time})`);
+                    console.log(`✅ Market matches week: ${m.title?.substring(0, 60)} (open: ${m.open_time || 'N/A'}, close: ${m.close_time || 'N/A'})`);
+                  } else {
+                    console.log(`❌ Market excluded: ${m.title?.substring(0, 60)} (open: ${m.open_time || 'N/A'}, close: ${m.close_time || 'N/A'})`);
                   }
                   return inRange;
                 });
                 
-                console.log(`📅 Filtered to ${weekMarkets.length} markets within Week ${week} date range`);
+                console.log(`📅 Filtered ${nflMarkets.length} NFL markets to ${weekMarkets.length} markets within Week ${week} date range`);
                 
                 if (weekMarkets.length > 0) {
                   allMarkets.push(...weekMarkets);
@@ -747,6 +785,11 @@ class KalshiApiService {
                   return uniqueMarkets;
                 } else {
                   console.warn(`⚠️ No NFL markets found for Week ${week} with series_ticker=${seriesTicker}`);
+                  console.warn(`⚠️ Available NFL market dates:`, nflMarkets.slice(0, 5).map(m => ({
+                    title: m.title?.substring(0, 50),
+                    close_time: m.close_time,
+                    open_time: m.open_time
+                  })));
                   // Continue to next series ticker
                 }
               } else {
