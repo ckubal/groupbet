@@ -671,27 +671,49 @@ class KalshiApiService {
                 'carolina', 'new orleans', 'tampa bay', 'detroit', 'minnesota', 'chicago', 'washington'
               ];
               
-              // Filter for NFL markets by checking titles and event_tickers
+              // Filter for NFL markets by checking titles, tickers, and event_tickers
               const nflMarkets = data1.markets.filter(m => {
                 const titleLower = (m.title || '').toLowerCase();
                 const subtitleLower = (m.subtitle || '').toLowerCase();
+                const tickerLower = (m.ticker || '').toLowerCase();
                 const eventTickerLower = (m.event_ticker || '').toLowerCase();
                 const yesSubTitleLower = (m.yes_sub_title || '').toLowerCase();
                 const noSubTitleLower = (m.no_sub_title || '').toLowerCase();
                 
-                const fullText = `${titleLower} ${subtitleLower} ${eventTickerLower} ${yesSubTitleLower} ${noSubTitleLower}`;
+                const fullText = `${titleLower} ${subtitleLower} ${tickerLower} ${eventTickerLower} ${yesSubTitleLower} ${noSubTitleLower}`;
+                
+                // Check if ticker or event_ticker contains "nfl" - strong indicator
+                const hasNflInTicker = tickerLower.includes('nfl') || eventTickerLower.includes('nfl');
                 
                 // Check if it contains NFL team names
                 const hasNflTeam = nflTeams.some(team => fullText.includes(team));
+                
+                // Check for well-known NFL players (common names that are clearly NFL)
+                const nflPlayerIndicators = [
+                  'patrick mahomes', 'josh allen', 'lamar jackson', 'joe burrow', 'justin herbert',
+                  'travis kelce', 'tyreek hill', 'cooper kupp', 'austin ekeler', 'derrick henry',
+                  'aaron rodgers', 'tom brady', 'russell wilson', 'dak prescott', 'jalen hurts',
+                  'c.j. stroud', 'bryce young', 'anthony richardson', 'caleb williams', 'drake maye'
+                ];
+                const hasNflPlayer = nflPlayerIndicators.some(player => fullText.includes(player));
                 
                 // Exclude college football indicators
                 const isCollege = fullText.includes('college') || 
                                  fullText.includes('ncaa') || 
                                  fullText.includes('cfp') ||
                                  eventTickerLower.includes('college') ||
-                                 eventTickerLower.includes('ncaa');
+                                 eventTickerLower.includes('ncaa') ||
+                                 tickerLower.includes('college');
                 
-                return hasNflTeam && !isCollege;
+                // Market is NFL if: (has NFL in ticker OR has NFL team OR has NFL player) AND not college
+                const isNflMarket = (hasNflInTicker || hasNflTeam || hasNflPlayer) && !isCollege;
+                
+                if (!isNflMarket && !isCollege) {
+                  // Log why market was excluded for debugging
+                  console.log(`⚠️ Market excluded (not NFL): ${m.ticker} - ${m.title?.substring(0, 60)}`);
+                }
+                
+                return isNflMarket;
               });
               
               console.log(`🏈 Filtered ${data1.markets.length} Football markets to ${nflMarkets.length} NFL/Pro Football markets`);
