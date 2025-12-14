@@ -631,12 +631,13 @@ class KalshiApiService {
               console.warn(`⚠️ Response structure:`, Object.keys(data1));
               console.warn(`⚠️ Full response (first 2000 chars):`, JSON.stringify(data1).substring(0, 2000));
               
-              // Check if there's an error message in the response
-              if (data1.error) {
-                console.error(`❌ API Error:`, data1.error);
+              // Check if there's an error message in the response (using type assertion for flexibility)
+              const responseData = data1 as any;
+              if (responseData.error) {
+                console.error(`❌ API Error:`, responseData.error);
               }
-              if (data1.message) {
-                console.warn(`⚠️ API Message:`, data1.message);
+              if (responseData.message) {
+                console.warn(`⚠️ API Message:`, responseData.message);
               }
             } else {
               // Log sample market series_tickers to see what we're actually getting
