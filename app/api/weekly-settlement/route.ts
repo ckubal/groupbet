@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
     
     console.log(`📊 Found ${betsSnapshot.docs.length} bets for settlement`);
     
-    const allBets = betsSnapshot.docs.map(doc => ({
+    const allBets = betsSnapshot.docs.map((doc: any) => ({
       id: doc.id,
       ...doc.data()
     })) as any[];
