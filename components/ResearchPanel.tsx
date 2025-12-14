@@ -495,101 +495,113 @@ function GameAnalysisCard({
             
             {/* Away Team */}
             {analysis.projectedAwayScore !== undefined && (
-              <div className="mb-3 pb-3 border-b border-gray-100">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-semibold text-sm text-gray-800">{analysis.awayTeam}</div>
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="font-bold text-base text-gray-900">{analysis.awayTeam}</div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
-                    <div className="text-xs text-gray-500">Predicted</div>
+                    <div className="text-2xl font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">Predicted</div>
                   </div>
                 </div>
                 
-                {/* Bovada Comparison */}
-                {analysis.spread !== undefined && analysis.spread > 0 && (
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-600">Bovada Spread: <span className="font-medium">+{analysis.spread}</span></span>
-                      {analysis.spreadOdds && (
-                        <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
-                      )}
-                    </div>
-                    {analysis.projectedHomeScore !== undefined && (
-                      <div className="text-xs">
-                        <span className="text-gray-600">Predicted Margin: </span>
-                        <span className={`font-medium ${
-                          (analysis.projectedAwayScore - analysis.projectedHomeScore) > analysis.spread 
-                            ? 'text-green-600' 
-                            : (analysis.projectedAwayScore - analysis.projectedHomeScore) < analysis.spread
-                            ? 'text-red-600'
-                            : 'text-gray-600'
-                        }`}>
-                          {(analysis.projectedAwayScore - analysis.projectedHomeScore) > 0 ? '+' : ''}
-                          {(analysis.projectedAwayScore - analysis.projectedHomeScore).toFixed(1)}
-                        </span>
-                        <span className="text-gray-500 ml-1">
-                          (vs Bovada +{analysis.spread})
-                        </span>
+                {/* Bovada Lines - Clearer Layout */}
+                <div className="bg-gray-50 rounded p-3 space-y-2">
+                  {analysis.spread !== undefined && analysis.spread > 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium text-gray-700">Spread</div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-gray-900">+{analysis.spread}</span>
+                        {analysis.spreadOdds && (
+                          <span className="text-sm text-gray-600">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-                
-                {analysis.awayMoneyline !== undefined && (
-                  <div className="flex items-center justify-between text-xs mt-1">
-                    <span className="text-gray-600">Moneyline</span>
-                    <span className="font-medium text-gray-800">{analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}</span>
-                  </div>
-                )}
+                    </div>
+                  )}
+                  
+                  {analysis.awayMoneyline !== undefined && (
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium text-gray-700">Moneyline</div>
+                      <span className="text-sm font-bold text-gray-900">{analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}</span>
+                    </div>
+                  )}
+                  
+                  {analysis.projectedHomeScore !== undefined && analysis.spread !== undefined && analysis.spread > 0 && (
+                    <div className="pt-2 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-600">Predicted Margin</div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${
+                            (analysis.projectedAwayScore - analysis.projectedHomeScore) > analysis.spread 
+                              ? 'text-green-600' 
+                              : (analysis.projectedAwayScore - analysis.projectedHomeScore) < analysis.spread
+                              ? 'text-red-600'
+                              : 'text-gray-600'
+                          }`}>
+                            {(analysis.projectedAwayScore - analysis.projectedHomeScore) > 0 ? '+' : ''}
+                            {(analysis.projectedAwayScore - analysis.projectedHomeScore).toFixed(1)}
+                          </span>
+                          <span className="text-xs text-gray-500">vs +{analysis.spread}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
             {/* Home Team */}
             {analysis.projectedHomeScore !== undefined && (
-              <div className="mb-3 pb-3 border-b border-gray-100 last:border-0">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="font-semibold text-sm text-gray-800">{analysis.homeTeam}</div>
+              <div className="mb-4 pb-4 border-b border-gray-200 last:border-0">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="font-bold text-base text-gray-900">{analysis.homeTeam}</div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
-                    <div className="text-xs text-gray-500">Predicted</div>
+                    <div className="text-2xl font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
+                    <div className="text-xs text-gray-500 mt-0.5">Predicted</div>
                   </div>
                 </div>
                 
-                {/* Bovada Comparison */}
-                {analysis.spread !== undefined && analysis.spread < 0 && (
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-gray-600">Bovada Spread: <span className="font-medium">{analysis.spread}</span></span>
-                      {analysis.spreadOdds && (
-                        <span className="text-gray-600">Odds: <span className="font-medium">{analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds}</span></span>
-                      )}
-                    </div>
-                    {analysis.projectedAwayScore !== undefined && (
-                      <div className="text-xs">
-                        <span className="text-gray-600">Predicted Margin: </span>
-                        <span className={`font-medium ${
-                          (analysis.projectedHomeScore - analysis.projectedAwayScore) > Math.abs(analysis.spread)
-                            ? 'text-green-600' 
-                            : (analysis.projectedHomeScore - analysis.projectedAwayScore) < Math.abs(analysis.spread)
-                            ? 'text-red-600'
-                            : 'text-gray-600'
-                        }`}>
-                          {(analysis.projectedHomeScore - analysis.projectedAwayScore) > 0 ? '+' : ''}
-                          {(analysis.projectedHomeScore - analysis.projectedAwayScore).toFixed(1)}
-                        </span>
-                        <span className="text-gray-500 ml-1">
-                          (vs Bovada {analysis.spread})
-                        </span>
+                {/* Bovada Lines - Clearer Layout */}
+                <div className="bg-gray-50 rounded p-3 space-y-2">
+                  {analysis.spread !== undefined && analysis.spread < 0 && (
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium text-gray-700">Spread</div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm font-bold text-gray-900">{analysis.spread}</span>
+                        {analysis.spreadOdds && (
+                          <span className="text-sm text-gray-600">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
+                        )}
                       </div>
-                    )}
-                  </div>
-                )}
-                
-                {analysis.homeMoneyline !== undefined && (
-                  <div className="flex items-center justify-between text-xs mt-1">
-                    <span className="text-gray-600">Moneyline</span>
-                    <span className="font-medium text-gray-800">{analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}</span>
-                  </div>
-                )}
+                    </div>
+                  )}
+                  
+                  {analysis.homeMoneyline !== undefined && (
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium text-gray-700">Moneyline</div>
+                      <span className="text-sm font-bold text-gray-900">{analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}</span>
+                    </div>
+                  )}
+                  
+                  {analysis.projectedAwayScore !== undefined && analysis.spread !== undefined && analysis.spread < 0 && (
+                    <div className="pt-2 border-t border-gray-200">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-600">Predicted Margin</div>
+                        <div className="flex items-center gap-2">
+                          <span className={`text-sm font-bold ${
+                            (analysis.projectedHomeScore - analysis.projectedAwayScore) > Math.abs(analysis.spread)
+                              ? 'text-green-600' 
+                              : (analysis.projectedHomeScore - analysis.projectedAwayScore) < Math.abs(analysis.spread)
+                              ? 'text-red-600'
+                              : 'text-gray-600'
+                          }`}>
+                            {(analysis.projectedHomeScore - analysis.projectedAwayScore) > 0 ? '+' : ''}
+                            {(analysis.projectedHomeScore - analysis.projectedAwayScore).toFixed(1)}
+                          </span>
+                          <span className="text-xs text-gray-500">vs {analysis.spread}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
