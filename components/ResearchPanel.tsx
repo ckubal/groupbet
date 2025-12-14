@@ -454,6 +454,118 @@ function GameAnalysisCard({
         </p>
       </div>
 
+      {/* Team Matchup with Bovada Lines */}
+      {analysis.spread !== undefined && (
+        <div className="bg-white rounded-lg p-5 mb-4 border border-gray-200">
+          {/* Centered Matchup Header */}
+          <div className="text-center mb-4">
+            <div className="text-xl font-bold text-gray-900 mb-4">
+              {analysis.awayTeam} at {analysis.homeTeam}
+            </div>
+            
+            {/* Bovada Lines - Centered */}
+            <div className="flex items-center justify-center gap-8 text-sm mb-4">
+              {/* Away Team Bovada Lines */}
+              <div className="text-center">
+                <div className="font-semibold text-gray-700 mb-2">{analysis.awayTeam}</div>
+                {analysis.spread > 0 && (
+                  <div className="text-gray-600 mb-1">
+                    <span className="font-bold text-gray-900 text-base">+{analysis.spread}</span>
+                    {analysis.spreadOdds && (
+                      <span className="ml-1">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
+                    )}
+                  </div>
+                )}
+                {analysis.awayMoneyline !== undefined && (
+                  <div className="text-gray-600">
+                    ML: <span className="font-bold text-gray-900">{analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Home Team Bovada Lines */}
+              <div className="text-center">
+                <div className="font-semibold text-gray-700 mb-2">{analysis.homeTeam}</div>
+                {analysis.spread < 0 && (
+                  <div className="text-gray-600 mb-1">
+                    <span className="font-bold text-gray-900 text-base">{analysis.spread}</span>
+                    {analysis.spreadOdds && (
+                      <span className="ml-1">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
+                    )}
+                  </div>
+                )}
+                {analysis.homeMoneyline !== undefined && (
+                  <div className="text-gray-600">
+                    ML: <span className="font-bold text-gray-900">{analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Group Bet Predictions */}
+          {(analysis.projectedAwayScore !== undefined || analysis.projectedHomeScore !== undefined) && (
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <div className="text-center">
+                <div className="text-sm font-bold text-blue-900 mb-3">Group Bet Prediction</div>
+                <div className="flex items-center justify-center gap-4">
+                  {analysis.projectedAwayScore !== undefined && (
+                    <div className="text-center">
+                      <div className="text-xs text-gray-600 mb-1">{analysis.awayTeam}</div>
+                      <div className="text-2xl font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
+                    </div>
+                  )}
+                  <div className="text-gray-400 text-xl">-</div>
+                  {analysis.projectedHomeScore !== undefined && (
+                    <div className="text-center">
+                      <div className="text-xs text-gray-600 mb-1">{analysis.homeTeam}</div>
+                      <div className="text-2xl font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Predicted Margin vs Bovada Spread */}
+              {analysis.projectedAwayScore !== undefined && analysis.projectedHomeScore !== undefined && analysis.spread !== undefined && (
+                <div className="text-center pt-3 border-t border-blue-200 mt-3">
+                  <div className="text-xs text-gray-600 mb-1">Predicted Margin</div>
+                  <div className="flex items-center justify-center gap-2">
+                    {(() => {
+                      const predictedMargin = analysis.projectedHomeScore - analysis.projectedAwayScore;
+                      const bovadaSpread = analysis.spread;
+                      // Calculate if prediction favors favorite more or less than Bovada
+                      // For home favorite (negative spread), predicted margin should be negative
+                      // For away favorite (positive spread), predicted margin should be less positive
+                      let isFavorable = false;
+                      if (bovadaSpread < 0) {
+                        // Home is favorite, predicted margin should be negative (favoring home)
+                        // More negative = better for home favorite
+                        isFavorable = predictedMargin < bovadaSpread;
+                      } else {
+                        // Away is favorite (positive spread), predicted margin should be less than spread
+                        // Less positive = better for away favorite
+                        isFavorable = predictedMargin < bovadaSpread;
+                      }
+                      
+                      return (
+                        <>
+                          <span className={`text-lg font-bold ${
+                            isFavorable ? 'text-green-600' : predictedMargin === bovadaSpread ? 'text-gray-600' : 'text-red-600'
+                          }`}>
+                            {predictedMargin > 0 ? '+' : ''}{predictedMargin.toFixed(1)}
+                          </span>
+                          <span className="text-sm text-gray-500">vs Bovada {bovadaSpread > 0 ? '+' : ''}{bovadaSpread}</span>
+                        </>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Over/Under Total - Paired Together */}
       {hasLine && (
         <div className="bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg p-5 mb-4 border-2 border-gray-300">
@@ -474,7 +586,7 @@ function GameAnalysisCard({
             </div>
             
             {/* Difference - Boldly Displayed */}
-            <div className="bg-white rounded-lg p-4 border-2 border-gray-300">
+            <div className="bg-white rounded-lg p-4 border-2 border-gray-300 mb-4">
               <div className="text-xs text-gray-600 mb-2">Difference</div>
               <div className={`text-4xl font-bold ${
                 Math.abs(analysis.difference) >= 3 
@@ -488,171 +600,60 @@ function GameAnalysisCard({
             </div>
           </div>
 
-        {/* Team Matchup with Bovada Lines */}
-        {analysis.spread !== undefined && (
-          <div className="border-t border-gray-200 pt-4 mb-4">
-            {/* Centered Matchup Header */}
-            <div className="text-center mb-4">
-              <div className="text-lg font-bold text-gray-900 mb-3">
-                {analysis.awayTeam} at {analysis.homeTeam}
-              </div>
-              
-              {/* Bovada Lines - Centered */}
-              <div className="flex items-center justify-center gap-6 text-sm">
-                {/* Away Team Bovada Lines */}
-                <div className="text-center">
-                  <div className="font-semibold text-gray-700 mb-1">{analysis.awayTeam}</div>
-                  {analysis.spread > 0 && (
-                    <div className="text-gray-600">
-                      <span className="font-bold text-gray-900">+{analysis.spread}</span>
-                      {analysis.spreadOdds && (
-                        <span className="ml-1">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
-                      )}
-                    </div>
-                  )}
-                  {analysis.awayMoneyline !== undefined && (
-                    <div className="text-gray-600 mt-1">
-                      ML: <span className="font-bold text-gray-900">{analysis.awayMoneyline > 0 ? '+' : ''}{analysis.awayMoneyline}</span>
-                    </div>
-                  )}
+          {/* Recommendation - Clear Call to Action */}
+          {analysis.recommendation !== 'neutral' && (
+            <div className="border-t-2 border-gray-300 pt-4">
+              <div className="text-center mb-3">
+                <div className="text-sm font-bold text-gray-700 mb-2">Recommendation</div>
+                <div className="text-2xl font-bold text-gray-900 mb-4">
+                  {analysis.recommendation.toUpperCase()} {analysis.bovadaOverUnder}
                 </div>
-                
-                {/* Home Team Bovada Lines */}
-                <div className="text-center">
-                  <div className="font-semibold text-gray-700 mb-1">{analysis.homeTeam}</div>
-                  {analysis.spread < 0 && (
-                    <div className="text-gray-600">
-                      <span className="font-bold text-gray-900">{analysis.spread}</span>
-                      {analysis.spreadOdds && (
-                        <span className="ml-1">({analysis.spreadOdds > 0 ? '+' : ''}{analysis.spreadOdds})</span>
-                      )}
-                    </div>
-                  )}
-                  {analysis.homeMoneyline !== undefined && (
-                    <div className="text-gray-600 mt-1">
-                      ML: <span className="font-bold text-gray-900">{analysis.homeMoneyline > 0 ? '+' : ''}{analysis.homeMoneyline}</span>
-                    </div>
-                  )}
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={async () => {
+                      await onMarkBetPlaced(analysis, 'over');
+                      onPlaceBet(analysis);
+                    }}
+                    disabled={isOverPlaced}
+                    className={`px-6 py-3 rounded-lg font-bold transition-colors text-base ${
+                      isOverPlaced
+                        ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                        : analysis.recommendation === 'over'
+                        ? 'bg-green-600 text-white hover:bg-green-700 shadow-lg'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {isOverPlaced ? '✓ OVER Placed' : 'Place OVER'}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      await onMarkBetPlaced(analysis, 'under');
+                      onPlaceBet(analysis);
+                    }}
+                    disabled={isUnderPlaced}
+                    className={`px-6 py-3 rounded-lg font-bold transition-colors text-base ${
+                      isUnderPlaced
+                        ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                        : analysis.recommendation === 'under'
+                        ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {isUnderPlaced ? '✓ UNDER Placed' : 'Place UNDER'}
+                  </button>
                 </div>
               </div>
             </div>
+          )}
 
-            {/* Group Bet Predictions */}
-            {(analysis.projectedAwayScore !== undefined || analysis.projectedHomeScore !== undefined) && (
-              <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                <div className="text-center mb-3">
-                  <div className="text-sm font-bold text-blue-900 mb-2">Group Bet Prediction</div>
-                  <div className="flex items-center justify-center gap-4">
-                    {analysis.projectedAwayScore !== undefined && (
-                      <div className="text-center">
-                        <div className="text-xs text-gray-600 mb-1">{analysis.awayTeam}</div>
-                        <div className="text-2xl font-bold text-blue-600">{analysis.projectedAwayScore.toFixed(1)}</div>
-                      </div>
-                    )}
-                    <div className="text-gray-400 text-xl">-</div>
-                    {analysis.projectedHomeScore !== undefined && (
-                      <div className="text-center">
-                        <div className="text-xs text-gray-600 mb-1">{analysis.homeTeam}</div>
-                        <div className="text-2xl font-bold text-red-600">{analysis.projectedHomeScore.toFixed(1)}</div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Predicted Margin vs Bovada Spread */}
-                {analysis.projectedAwayScore !== undefined && analysis.projectedHomeScore !== undefined && analysis.spread !== undefined && (
-                  <div className="text-center pt-3 border-t border-blue-200">
-                    <div className="text-xs text-gray-600 mb-1">Predicted Margin</div>
-                    <div className="flex items-center justify-center gap-2">
-                      {(() => {
-                        const predictedMargin = analysis.projectedHomeScore - analysis.projectedAwayScore;
-                        const bovadaSpread = analysis.spread;
-                        // Calculate if prediction favors favorite more or less than Bovada
-                        // For home favorite (negative spread), predicted margin should be negative
-                        // For away favorite (positive spread), predicted margin should be less positive
-                        let isFavorable = false;
-                        if (bovadaSpread < 0) {
-                          // Home is favorite, predicted margin should be negative (favoring home)
-                          // More negative = better for home favorite
-                          isFavorable = predictedMargin < bovadaSpread;
-                        } else {
-                          // Away is favorite (positive spread), predicted margin should be less than spread
-                          // Less positive = better for away favorite
-                          isFavorable = predictedMargin < bovadaSpread;
-                        }
-                        
-                        return (
-                          <>
-                            <span className={`text-lg font-bold ${
-                              isFavorable ? 'text-green-600' : predictedMargin === bovadaSpread ? 'text-gray-600' : 'text-red-600'
-                            }`}>
-                              {predictedMargin > 0 ? '+' : ''}{predictedMargin.toFixed(1)}
-                            </span>
-                            <span className="text-sm text-gray-500">vs Bovada {bovadaSpread > 0 ? '+' : ''}{bovadaSpread}</span>
-                          </>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Alpha Test Disclaimer - Subtle */}
+          <div className="mt-4 pt-3 border-t border-dashed border-gray-200">
+            <p className="text-xs text-gray-400 italic text-center">
+              ⚠️ Alpha Test: Experimental predictions. Use at your own discretion.
+            </p>
           </div>
-        )}
-
-        {/* Recommendation - Single Clear Display */}
-        {hasLine && analysis.recommendation !== 'neutral' && (
-          <div className="border-t border-gray-200 pt-4">
-            <div className="text-xs text-gray-500 mb-2">Recommendation</div>
-            <div className="flex items-center justify-between">
-              <div className="text-lg font-bold text-gray-900">
-                {analysis.recommendation.toUpperCase()} {analysis.bovadaOverUnder}
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={async () => {
-                    await onMarkBetPlaced(analysis, 'over');
-                    onPlaceBet(analysis);
-                  }}
-                  disabled={isOverPlaced}
-                  className={`px-4 py-2 rounded font-medium transition-colors text-sm ${
-                    isOverPlaced
-                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                      : analysis.recommendation === 'over'
-                      ? 'bg-green-600 text-white hover:bg-green-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {isOverPlaced ? '✓ Placed' : 'Place OVER'}
-                </button>
-                <button
-                  onClick={async () => {
-                    await onMarkBetPlaced(analysis, 'under');
-                    onPlaceBet(analysis);
-                  }}
-                  disabled={isUnderPlaced}
-                  className={`px-4 py-2 rounded font-medium transition-colors text-sm ${
-                    isUnderPlaced
-                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                      : analysis.recommendation === 'under'
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  {isUnderPlaced ? '✓ Placed' : 'Place UNDER'}
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Alpha Test Disclaimer - Subtle */}
-        <div className="mt-4 pt-3 border-t border-dashed border-gray-200">
-          <p className="text-xs text-gray-400 italic">
-            ⚠️ Alpha Test: Experimental predictions. Use at your own discretion.
-          </p>
         </div>
-      </div>
+      )}
 
       {/* Game Context & Adjustments - Show context with point effects */}
       {(analysis.gameContext && analysis.gameContext.length > 0) || (analysis.adjustments && analysis.adjustments.length > 0) ? (
