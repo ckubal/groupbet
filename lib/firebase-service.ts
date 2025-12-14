@@ -347,57 +347,113 @@ export const gameCacheService = {
   // Get cached games from Firebase
   async getCachedGames(weekendId: string): Promise<{ games: Game[], cachedAt: Date } | null> {
     try {
-      const q = query(
-        collection(db, COLLECTIONS.GAMES),
-        where('weekendId', '==', weekendId)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        return null;
-      }
-      
-      const games: Game[] = [];
-      let oldestCache = new Date();
-      
-      querySnapshot.forEach((doc: any) => {
-        const data = doc.data();
-        const cachedAt = data.cachedAt?.toDate() || new Date();
+      // Try Admin SDK first (for server-side API routes)
+      try {
+        const { getAdminDb } = await import('./firebase-admin');
+        const adminDb = await getAdminDb();
         
-        if (cachedAt < oldestCache) {
-          oldestCache = cachedAt;
+        const gamesRef = adminDb.collection(COLLECTIONS.GAMES);
+        const snapshot = await gamesRef.where('weekendId', '==', weekendId).get();
+        
+        if (snapshot.empty) {
+          return null;
         }
         
-        games.push({
-          id: data.id,
-          weekendId: data.weekendId,
-          week: data.week || 0,
-          homeTeam: data.homeTeam,
-          awayTeam: data.awayTeam,
-          gameTime: data.gameTime.toDate(),
-          timeSlot: data.timeSlot,
-          status: data.status,
-          homeScore: data.homeScore,
-          awayScore: data.awayScore,
-          spread: data.spread,
-          spreadOdds: data.spreadOdds,
-          overUnder: data.overUnder,
-          overUnderOdds: data.overUnderOdds,
-          homeMoneyline: data.homeMoneyline,
-          awayMoneyline: data.awayMoneyline,
-          playerProps: data.playerProps
+        const games: Game[] = [];
+        let oldestCache = new Date();
+        
+        snapshot.forEach((doc: any) => {
+          const data = doc.data();
+          const cachedAt = data.cachedAt?.toDate ? data.cachedAt.toDate() : (data.cachedAt || new Date());
+          
+          if (cachedAt < oldestCache) {
+            oldestCache = cachedAt;
+          }
+          
+          games.push({
+            id: data.id || doc.id,
+            weekendId: data.weekendId,
+            week: data.week || 0,
+            homeTeam: data.homeTeam,
+            awayTeam: data.awayTeam,
+            gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime,
+            timeSlot: data.timeSlot,
+            status: data.status,
+            homeScore: data.homeScore,
+            awayScore: data.awayScore,
+            spread: data.spread,
+            spreadOdds: data.spreadOdds,
+            overUnder: data.overUnder,
+            overUnderOdds: data.overUnderOdds,
+            homeMoneyline: data.homeMoneyline,
+            awayMoneyline: data.awayMoneyline,
+            playerProps: data.playerProps
+          });
         });
-      });
-      
-      console.log('📊 FIREBASE CACHE GAME MATCHING SUMMARY:');
-      console.log(`📦 Retrieved ${games.length} games from Firebase cache for ${weekendId}`);
-      console.log(`🕐 Cache age: ${Math.round((Date.now() - oldestCache.getTime()) / (1000 * 60))} minutes old`);
-      games.forEach((game, index) => {
-        console.log(`   ${index + 1}. ${game.awayTeam} @ ${game.homeTeam} | ${game.status} | ${game.gameTime.toISOString()} | ID: ${game.id}`);
-      });
-      
-      return { games, cachedAt: oldestCache };
+        
+        console.log('📊 FIREBASE CACHE GAME MATCHING SUMMARY (Admin SDK):');
+        console.log(`📦 Retrieved ${games.length} games from Firebase cache for ${weekendId}`);
+        console.log(`🕐 Cache age: ${Math.round((Date.now() - oldestCache.getTime()) / (1000 * 60))} minutes old`);
+        games.forEach((game, index) => {
+          console.log(`   ${index + 1}. ${game.awayTeam} @ ${game.homeTeam} | ${game.status} | ${game.gameTime?.toISOString()} | ID: ${game.id}`);
+        });
+        
+        return { games, cachedAt: oldestCache };
+      } catch (adminError) {
+        // Fallback to client SDK if Admin SDK not available
+        console.log('⚠️ Admin SDK not available, falling back to client SDK');
+        const q = query(
+          collection(db, COLLECTIONS.GAMES),
+          where('weekendId', '==', weekendId)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          return null;
+        }
+        
+        const games: Game[] = [];
+        let oldestCache = new Date();
+        
+        querySnapshot.forEach((doc: any) => {
+          const data = doc.data();
+          const cachedAt = data.cachedAt?.toDate() || new Date();
+          
+          if (cachedAt < oldestCache) {
+            oldestCache = cachedAt;
+          }
+          
+          games.push({
+            id: data.id,
+            weekendId: data.weekendId,
+            week: data.week || 0,
+            homeTeam: data.homeTeam,
+            awayTeam: data.awayTeam,
+            gameTime: data.gameTime.toDate(),
+            timeSlot: data.timeSlot,
+            status: data.status,
+            homeScore: data.homeScore,
+            awayScore: data.awayScore,
+            spread: data.spread,
+            spreadOdds: data.spreadOdds,
+            overUnder: data.overUnder,
+            overUnderOdds: data.overUnderOdds,
+            homeMoneyline: data.homeMoneyline,
+            awayMoneyline: data.awayMoneyline,
+            playerProps: data.playerProps
+          });
+        });
+        
+        console.log('📊 FIREBASE CACHE GAME MATCHING SUMMARY (Client SDK):');
+        console.log(`📦 Retrieved ${games.length} games from Firebase cache for ${weekendId}`);
+        console.log(`🕐 Cache age: ${Math.round((Date.now() - oldestCache.getTime()) / (1000 * 60))} minutes old`);
+        games.forEach((game, index) => {
+          console.log(`   ${index + 1}. ${game.awayTeam} @ ${game.homeTeam} | ${game.status} | ${game.gameTime.toISOString()} | ID: ${game.id}`);
+        });
+        
+        return { games, cachedAt: oldestCache };
+      }
     } catch (error) {
       console.error('❌ Error fetching cached games:', error);
       return null;
@@ -1028,29 +1084,57 @@ export const preGameOddsService = {
     playerProps?: PlayerProp[];
   } | null> {
     try {
-      const q = query(
-        collection(db, COLLECTIONS.PRE_GAME_ODDS),
-        where('gameId', '==', gameId)
-      );
+      // Try Admin SDK first (for server-side API routes)
+      try {
+        const { getAdminDb } = await import('./firebase-admin');
+        const adminDb = await getAdminDb();
+        
+        const snapshot = await adminDb.collection(COLLECTIONS.PRE_GAME_ODDS)
+          .where('gameId', '==', gameId)
+          .get();
+        
+        if (snapshot.empty) {
+          return null;
+        }
 
-      const querySnapshot = await getDocs(q);
-      
-      if (querySnapshot.empty) {
-        return null;
+        const doc = snapshot.docs[0];
+        const data = doc.data();
+        
+        return {
+          spread: data.spread,
+          spreadOdds: data.spreadOdds,
+          overUnder: data.overUnder,
+          overUnderOdds: data.overUnderOdds,
+          homeMoneyline: data.homeMoneyline,
+          awayMoneyline: data.awayMoneyline,
+          playerProps: data.playerProps || []
+        };
+      } catch (adminError) {
+        // Fallback to client SDK
+        const q = query(
+          collection(db, COLLECTIONS.PRE_GAME_ODDS),
+          where('gameId', '==', gameId)
+        );
+
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+          return null;
+        }
+
+        const doc = querySnapshot.docs[0];
+        const data = doc.data();
+        
+        return {
+          spread: data.spread,
+          spreadOdds: data.spreadOdds,
+          overUnder: data.overUnder,
+          overUnderOdds: data.overUnderOdds,
+          homeMoneyline: data.homeMoneyline,
+          awayMoneyline: data.awayMoneyline,
+          playerProps: data.playerProps || []
+        };
       }
-
-      const doc = querySnapshot.docs[0];
-      const data = doc.data();
-      
-      return {
-        spread: data.spread,
-        spreadOdds: data.spreadOdds,
-        overUnder: data.overUnder,
-        overUnderOdds: data.overUnderOdds,
-        homeMoneyline: data.homeMoneyline,
-        awayMoneyline: data.awayMoneyline,
-        playerProps: data.playerProps || []
-      };
     } catch (error) {
       console.error('❌ Error getting frozen odds:', error);
       return null;
@@ -1188,24 +1272,47 @@ export const predictionService = {
   }> {
     try {
       const weekendId = `2025-week-${week}`;
-      const q = query(
-        collection(db, COLLECTIONS.OVER_UNDER_PREDICTIONS),
-        where('weekendId', '==', weekendId)
-      );
-      
-      const querySnapshot = await getDocs(q);
       const predictions: any[] = [];
-      
-      querySnapshot.forEach((doc: any) => {
-        const data = doc.data();
-        predictions.push({
-          gameId: doc.id,
-          ...data,
-          gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime,
-          predictedAt: data.predictedAt?.toDate ? data.predictedAt.toDate() : data.predictedAt,
-          resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : data.resolvedAt,
+
+      // Try Admin SDK first (for server-side API routes)
+      try {
+        const { getAdminDb } = await import('./firebase-admin');
+        const adminDb = await getAdminDb();
+        
+        const snapshot = await adminDb.collection(COLLECTIONS.OVER_UNDER_PREDICTIONS)
+          .where('weekendId', '==', weekendId)
+          .get();
+
+        snapshot.forEach((doc: any) => {
+          const data = doc.data();
+          predictions.push({
+            gameId: doc.id,
+            ...data,
+            gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime,
+            predictedAt: data.predictedAt?.toDate ? data.predictedAt.toDate() : data.predictedAt,
+            resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : data.resolvedAt,
+          });
         });
-      });
+      } catch (adminError) {
+        // Fallback to client SDK
+        const q = query(
+          collection(db, COLLECTIONS.OVER_UNDER_PREDICTIONS),
+          where('weekendId', '==', weekendId)
+        );
+
+        const querySnapshot = await getDocs(q);
+
+        querySnapshot.forEach((doc: any) => {
+          const data = doc.data();
+          predictions.push({
+            gameId: doc.id,
+            ...data,
+            gameTime: data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime,
+            predictedAt: data.predictedAt?.toDate ? data.predictedAt.toDate() : data.predictedAt,
+            resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : data.resolvedAt,
+          });
+        });
+      }
       
       // Filter to only resolved predictions (have isCorrect value)
       const resolved = predictions.filter(p => p.isCorrect !== null && p.isCorrect !== undefined);

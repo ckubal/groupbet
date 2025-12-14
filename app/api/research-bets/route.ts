@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase';
-import { collection, doc, setDoc, getDoc, getDocs, query, where } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase-admin';
 
 interface ResearchBet {
   weekendId: string;
@@ -21,14 +20,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing weekendId or userId' }, { status: 400 });
     }
 
-    const researchBetsRef = collection(db, 'researchBets');
-    const q = query(
-      researchBetsRef,
-      where('weekendId', '==', weekendId),
-      where('userId', '==', userId)
-    );
+    // Use Admin SDK for server-side access
+    const adminDb = await getAdminDb();
+    const snapshot = await adminDb.collection('researchBets')
+      .where('weekendId', '==', weekendId)
+      .where('userId', '==', userId)
+      .get();
 
-    const snapshot = await getDocs(q);
     const bets: ResearchBet[] = [];
     snapshot.forEach((doc: any) => {
       bets.push(doc.data() as ResearchBet);
@@ -63,8 +61,9 @@ export async function POST(request: NextRequest) {
       placedAt: new Date().toISOString(),
     };
 
-    const docRef = doc(db, 'researchBets', betId);
-    await setDoc(docRef, researchBet);
+    // Use Admin SDK for server-side access
+    const adminDb = await getAdminDb();
+    await adminDb.collection('researchBets').doc(betId).set(researchBet);
 
     return NextResponse.json({ success: true, bet: researchBet });
   } catch (error) {

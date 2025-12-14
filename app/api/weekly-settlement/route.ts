@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { getAdminDb } from '@/lib/firebase-admin';
 import { calculatePayout } from '@/lib/betting-odds';
 import { getCurrentNFLWeek } from '@/lib/utils';
 
@@ -25,13 +24,12 @@ export async function GET(request: NextRequest) {
     const weekNumber = week ? parseInt(week) : getCurrentNFLWeek();
     const weekendId = searchParams.get('weekendId') || `2025-week-${weekNumber}`;
     
-    // Get all bets for the week
-    const betsQuery = query(
-      collection(db, 'bets'),
-      where('weekendId', '==', weekendId)
-    );
+    // Get all bets for the week using Admin SDK
+    const adminDb = await getAdminDb();
+    const betsSnapshot = await adminDb.collection('bets')
+      .where('weekendId', '==', weekendId)
+      .get();
     
-    const betsSnapshot = await getDocs(betsQuery);
     console.log(`📊 Found ${betsSnapshot.docs.length} bets for settlement`);
     
     const allBets = betsSnapshot.docs.map(doc => ({
