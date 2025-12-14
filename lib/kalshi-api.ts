@@ -557,8 +557,14 @@ class KalshiApiService {
       const allMarkets: KalshiMarket[] = [];
       
       // Based on Kalshi API docs, Pro Football series_ticker is "KXPROFOOTBALL"
-      // Also try "Football" (parent category) and filter client-side
-      const seriesTickersToTry = ['KXPROFOOTBALL', 'Football'];
+      // Also try variations and "Football" (parent category) with client-side filtering
+      const seriesTickersToTry = [
+        'KXPROFOOTBALL',  // From API docs
+        'PROFOOTBALL',    // Alternative format
+        'PRO-FOOTBALL',   // Hyphenated
+        'Pro Football',   // With space
+        'Football'        // Parent category (filter client-side)
+      ];
       
       console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
 
