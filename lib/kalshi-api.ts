@@ -557,16 +557,13 @@ class KalshiApiService {
       const allMarkets: KalshiMarket[] = [];
       
       // Based on Kalshi API docs, Pro Football series_ticker is "KXPROFOOTBALL"
-      // Also try variations and "Football" (parent category) with client-side filtering
+      // Prioritize this first, then fall back to "Football" with client-side filtering
       const seriesTickersToTry = [
-        'KXPROFOOTBALL',  // From API docs
-        'PROFOOTBALL',    // Alternative format
-        'PRO-FOOTBALL',   // Hyphenated
-        'Pro Football',   // With space
-        'Football'        // Parent category (filter client-side)
+        'KXPROFOOTBALL',  // Primary: From API docs - Pro Football specific
+        'Football'        // Fallback: Parent category (filter client-side for NFL)
       ];
       
-      console.log(`🔍 Trying series tickers: ${seriesTickersToTry.join(', ')}`);
+      console.log(`🔍 Trying series tickers (prioritized): ${seriesTickersToTry.join(', ')}`);
 
       const headers: HeadersInit = {
         'Accept': 'application/json',
@@ -578,37 +575,42 @@ class KalshiApiService {
         Object.assign(headers, authHeaders);
       }
 
-      // Strategy: Always fetch ALL active markets first (no date filter), then filter client-side
-      // This helps us see what markets actually exist and what dates they have
+      // Strategy: Try KXPROFOOTBALL first (most specific), then Football with filtering
+      // Only use 'active' status to minimize API calls and avoid rate limits
       for (const seriesTicker of seriesTickersToTry) {
-        // Try multiple status values - Kalshi might use different statuses
-        const statusesToTry = ['active', 'open', undefined]; // Try with and without status filter
+        const url1 = new URL(`${this.baseUrl}/markets`);
         
-        for (const status of statusesToTry) {
-          const url1 = new URL(`${this.baseUrl}/markets`);
-          
-          // Use the series_ticker directly
-          url1.searchParams.set('series_ticker', seriesTicker);
-          
-          if (status) {
-            url1.searchParams.set('status', status);
+        // Use the series_ticker directly
+        url1.searchParams.set('series_ticker', seriesTicker);
+        url1.searchParams.set('status', 'active'); // Only try 'active' to reduce calls
+        url1.searchParams.set('limit', '1000');
+        // NO DATE FILTERING - fetch all markets, filter client-side
+        
+        console.log(`📡 Fetching markets for series_ticker=${seriesTicker}, status=active...`);
+        console.log(`🔗 URL: ${url1.toString()}`);
+        
+        // Add small delay between requests to avoid rate limits
+        if (allMarkets.length > 0) {
+          await new Promise(resolve => setTimeout(resolve, 500)); // 500ms delay
+        }
+        
+        const response1 = await fetch(url1.toString(), { headers });
+        
+        // Handle rate limiting with better messaging
+        if (response1.status === 429) {
+          const retryAfter = response1.headers.get('Retry-After');
+          const waitSeconds = retryAfter ? parseInt(retryAfter) : 60;
+          console.warn(`⚠️ Rate limited (429). Retry after: ${waitSeconds} seconds`);
+          console.warn(`⚠️ URL that hit rate limit: ${url1.toString()}`);
+          console.warn(`⚠️ Skipping remaining requests to avoid further rate limits`);
+          // Return what we have so far rather than continuing and hitting more rate limits
+          if (allMarkets.length > 0) {
+            console.log(`✅ Returning ${allMarkets.length} markets found before rate limit`);
+            return allMarkets;
           }
-          url1.searchParams.set('limit', '1000');
-          // NO DATE FILTERING - fetch all markets
-          
-          console.log(`📡 Fetching markets for series_ticker=${seriesTicker}, status=${status || 'none'}...`);
-          console.log(`🔗 URL: ${url1.toString()}`);
-          
-          const response1 = await fetch(url1.toString(), { headers });
-          
-          // Handle rate limiting
-          if (response1.status === 429) {
-            const retryAfter = response1.headers.get('Retry-After');
-            console.warn(`⚠️ Rate limited (429). Retry after: ${retryAfter || 'unknown'} seconds`);
-            console.warn(`⚠️ URL that hit rate limit: ${url1.toString()}`);
-            // Don't throw - just log and continue to next status/ticker
-            continue;
-          }
+          // If we got rate limited on first request, return empty array
+          return [];
+        }
           
           if (response1.ok) {
             const responseText = await response1.text();
@@ -722,7 +724,8 @@ class KalshiApiService {
                 
                 console.log(`📅 Filtering for Week ${week}: ${start.toISOString()} to ${extendedEnd.toISOString()}`);
                 
-                const weekMarkets = data1.markets.filter(m => {
+                // Filter NFL markets by week date range
+                const weekMarkets = nflMarkets.filter(m => {
                   if (!m.close_time) return false;
                   const closeTime = new Date(m.close_time).getTime();
                   const inRange = closeTime >= start.getTime() && closeTime <= extendedEnd.getTime();
@@ -736,75 +739,104 @@ class KalshiApiService {
                 
                 if (weekMarkets.length > 0) {
                   allMarkets.push(...weekMarkets);
-                  return allMarkets; // Found markets, return immediately
+                  // Found markets for this series ticker, return immediately
+                  const uniqueMarkets = Array.from(
+                    new Map(allMarkets.map(m => [m.ticker, m])).values()
+                  );
+                  console.log(`✅ Found ${uniqueMarkets.length} unique NFL markets for Week ${week}`);
+                  return uniqueMarkets;
                 } else {
-                  console.warn(`⚠️ No NFL markets found for Week ${week}. Available dates shown above.`);
-                  // Still add all NFL markets to see what's available (for debugging)
-                  allMarkets.push(...nflMarkets);
-                  return allMarkets;
+                  console.warn(`⚠️ No NFL markets found for Week ${week} with series_ticker=${seriesTicker}`);
+                  // Continue to next series ticker
                 }
               } else {
                 // No week filter - return all NFL markets
                 console.log(`📊 No week filter - returning all ${nflMarkets.length} NFL markets`);
                 allMarkets.push(...nflMarkets);
-                return allMarkets; // Found markets, return immediately
+                // Found markets, return immediately
+                const uniqueMarkets = Array.from(
+                  new Map(allMarkets.map(m => [m.ticker, m])).values()
+                );
+                console.log(`✅ Found ${uniqueMarkets.length} unique NFL markets`);
+                return uniqueMarkets;
               }
             }
           } else {
             const errorText = await response1.text();
-            console.warn(`⚠️ series_ticker=${seriesTicker}, status=${status || 'none'} failed: ${response1.status} ${response1.statusText}`);
+            console.warn(`⚠️ series_ticker=${seriesTicker} failed: ${response1.status} ${response1.statusText}`);
             if (errorText) {
               console.warn(`⚠️ Error response:`, errorText.substring(0, 500));
             }
+            // Continue to next series ticker
           }
         }
-      }
       
-      // Approach 3: Try without series filter, then filter by title keywords
+      // Only try unfiltered approach if we haven't found any markets yet
+      // This avoids unnecessary API calls and rate limits
       if (allMarkets.length === 0) {
-        console.log(`🔄 Trying Approach 3: Fetch all active markets and filter by NFL keywords...`);
+        console.log(`🔄 No markets found with series_ticker filters. Trying unfiltered approach (may hit rate limits)...`);
+        
+        // Add delay before this request
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         const url3 = new URL(`${this.baseUrl}/markets`);
         url3.searchParams.set('status', 'active');
-        url3.searchParams.set('limit', '1000');
+        url3.searchParams.set('limit', '500'); // Reduced limit to avoid rate limits
         
-        // Don't filter by date - get all and filter client-side
-
         const response3 = await fetch(url3.toString(), { headers });
+        
+        // Check for rate limit before processing
+        if (response3.status === 429) {
+          console.warn(`⚠️ Rate limited (429) on unfiltered request. Returning empty results.`);
+          return [];
+        }
         
         if (response3.ok) {
           const data3: KalshiMarketsResponse = await response3.json();
-          console.log(`✅ Approach 3: Fetched ${data3.markets.length} total markets`);
+          console.log(`✅ Unfiltered approach: Fetched ${data3.markets.length} total markets`);
           
           // Log all unique series_tickers found for debugging
           const uniqueSeries = [...new Set(data3.markets.map(m => m.series_ticker).filter(Boolean))];
           console.log(`📊 Found series_tickers in results:`, uniqueSeries);
           
-          // Filter for NFL-related markets by checking titles and series_tickers
-          const nflKeywords = ['nfl', 'football', 'ravens', 'bills', 'chiefs', 'packers', 'cowboys', 
-            'patriots', 'jets', 'giants', 'eagles', 'steelers', 'browns', 'bengals', 'dolphins',
-            'jaguars', 'titans', 'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams',
-            '49ers', 'seahawks', 'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers',
-            'lions', 'vikings', 'bears', 'commanders'];
+          // Use the same NFL filtering logic as above
+          const nflTeams = [
+            'ravens', 'bills', 'chiefs', 'packers', 'cowboys', 'patriots', 'jets', 'giants',
+            'eagles', 'steelers', 'browns', 'bengals', 'dolphins', 'jaguars', 'titans',
+            'colts', 'texans', 'broncos', 'raiders', 'chargers', 'rams', '49ers', 'seahawks',
+            'cardinals', 'falcons', 'panthers', 'saints', 'buccaneers', 'lions', 'vikings',
+            'bears', 'commanders', 'baltimore', 'buffalo', 'kansas city', 'green bay',
+            'dallas', 'new england', 'new york jets', 'new york giants', 'philadelphia',
+            'pittsburgh', 'cleveland', 'cincinnati', 'miami', 'jacksonville', 'tennessee',
+            'indianapolis', 'houston', 'denver', 'las vegas', 'oakland', 'los angeles chargers',
+            'san diego', 'los angeles rams', 'san francisco', 'seattle', 'arizona', 'atlanta',
+            'carolina', 'new orleans', 'tampa bay', 'detroit', 'minnesota', 'chicago', 'washington'
+          ];
           
           let nflMarkets = data3.markets.filter(m => {
-            // Check series_ticker first
-            if (m.series_ticker) {
-              const seriesLower = m.series_ticker.toLowerCase();
-              if (seriesLower.includes('football') || seriesLower.includes('nfl') || seriesLower.includes('pro')) {
-                return true;
-              }
-            }
-            
-            // Then check titles
             const titleLower = (m.title || '').toLowerCase();
             const subtitleLower = (m.subtitle || '').toLowerCase();
-            return nflKeywords.some(keyword => 
-              titleLower.includes(keyword) || subtitleLower.includes(keyword)
-            );
+            const eventTickerLower = (m.event_ticker || '').toLowerCase();
+            const yesSubTitleLower = (m.yes_sub_title || '').toLowerCase();
+            const noSubTitleLower = (m.no_sub_title || '').toLowerCase();
+            
+            const fullText = `${titleLower} ${subtitleLower} ${eventTickerLower} ${yesSubTitleLower} ${noSubTitleLower}`;
+            
+            // Check if it contains NFL team names
+            const hasNflTeam = nflTeams.some(team => fullText.includes(team));
+            
+            // Exclude college football indicators
+            const isCollege = fullText.includes('college') || 
+                             fullText.includes('ncaa') || 
+                             fullText.includes('cfp') ||
+                             eventTickerLower.includes('college') ||
+                             eventTickerLower.includes('ncaa');
+            
+            return hasNflTeam && !isCollege;
           });
           
           // If week specified, also filter by date
-          if (week) {
+          if (week !== undefined) {
             const { start, end } = getNFLWeekBoundaries(week, 2025);
             const extendedEnd = new Date(end);
             extendedEnd.setDate(extendedEnd.getDate() + 2);
@@ -822,7 +854,7 @@ class KalshiApiService {
           allMarkets.push(...nflMarkets);
         } else {
           const errorText = await response3.text();
-          console.warn(`⚠️ Approach 3 failed: ${response3.status} ${response3.statusText}`, errorText);
+          console.warn(`⚠️ Unfiltered approach failed: ${response3.status} ${response3.statusText}`, errorText.substring(0, 500));
         }
       }
 
