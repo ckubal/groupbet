@@ -15,7 +15,7 @@ import ExperimentalPanel from '@/components/ExperimentalPanel';
 import ImageBetUpload from '@/components/ImageBetUpload';
 import { format } from 'date-fns';
 import { getCurrentNFLWeek } from '@/lib/utils';
-import { betService } from '@/lib/firebase-service';
+// Removed direct import of betService - using API routes instead to avoid bundling firebase-admin
 import { calculatePayout, formatOdds } from '@/lib/betting-odds';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getTimeSlot } from '@/lib/time-slot-utils';
@@ -689,8 +689,19 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
 
       console.log('🎰 Creating parlay bet with cleaned data:', betPayload);
       
-      // Create the parlay bet using the bet service
-      const betId = await betService.createBet(betPayload);
+      // Create the parlay bet using API route
+      const response = await fetch('/api/add-bet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(betPayload),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to create parlay bet');
+      }
+      
+      const data = await response.json();
+      const betId = data.betId;
       
       console.log('✅ Parlay bet created with ID:', betId);
       
@@ -967,10 +978,18 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               <ImageBetUpload
                 onBetExtracted={async (betData) => {
                   try {
-                    await betService.createBet({
-                      ...betData,
-                      bettingMode: 'group',
+                    const response = await fetch('/api/add-bet', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        ...betData,
+                        bettingMode: 'group',
+                      }),
                     });
+                    
+                    if (!response.ok) {
+                      throw new Error('Failed to create bet');
+                    }
                     
                     // Refresh bets (same logic as BetPopup)
                     if (currentUser) {
@@ -1630,7 +1649,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
         }}
         onPlaceBet={async (betData) => {
           try {
-            await betService.createBet(betData);
+            const response = await fetch('/api/add-bet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(betData),
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to create bet');
+            }
+            
             setIsBetPopupOpen(false);
             
             // Refresh user bets and all week bets when a new bet is placed
@@ -1728,7 +1756,16 @@ export default function GamesPage({ initialGames, initialWeek }: GamesPageProps)
               bettingMode: 'group' as const
             };
             
-            await betService.createBet(parlayBet);
+            const response = await fetch('/api/add-bet', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(parlayBet),
+            });
+            
+            if (!response.ok) {
+              throw new Error('Failed to create parlay bet');
+            }
+            
             setIsParlayBuilderOpen(false);
             
             // Refresh user bets
