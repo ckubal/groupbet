@@ -627,8 +627,21 @@ class KalshiApiService {
             
             // Log response structure if no markets
             if (!data1.markets || data1.markets.length === 0) {
-              console.warn(`⚠️ No markets returned. Response structure:`, Object.keys(data1));
-              console.warn(`⚠️ Full response:`, JSON.stringify(data1).substring(0, 1000));
+              console.warn(`⚠️ No markets returned for series_ticker=${seriesTicker}, status=${status || 'none'}`);
+              console.warn(`⚠️ Response structure:`, Object.keys(data1));
+              console.warn(`⚠️ Full response (first 2000 chars):`, JSON.stringify(data1).substring(0, 2000));
+              
+              // Check if there's an error message in the response
+              if (data1.error) {
+                console.error(`❌ API Error:`, data1.error);
+              }
+              if (data1.message) {
+                console.warn(`⚠️ API Message:`, data1.message);
+              }
+            } else {
+              // Log sample market series_tickers to see what we're actually getting
+              const sampleSeriesTickers = [...new Set(data1.markets.slice(0, 10).map((m: any) => m.series_ticker).filter(Boolean))];
+              console.log(`📊 Sample series_tickers in markets:`, sampleSeriesTickers);
             }
           
             if (data1.markets.length > 0) {
