@@ -564,26 +564,34 @@ function GameAnalysisCard({
                   <div className="text-center pt-3 border-t border-blue-200">
                     <div className="text-xs text-gray-600 mb-1">Predicted Margin</div>
                     <div className="flex items-center justify-center gap-2">
-                      <span className={`text-lg font-bold ${
-                        (() => {
-                          const predictedMargin = analysis.projectedHomeScore - analysis.projectedAwayScore;
-                          const bovadaSpread = analysis.spread;
-                          // For favorite (negative spread), predicted should be more negative (favoring favorite more)
-                          // For underdog (positive spread), predicted should be more positive (favoring underdog more)
-                          if (bovadaSpread < 0) {
-                            // Home is favorite, predicted margin should be negative
-                            return predictedMargin < bovadaSpread ? 'text-green-600' : predictedMargin > bovadaSpread ? 'text-red-600' : 'text-gray-600';
-                          } else {
-                            // Away is favorite (positive spread means home is underdog)
-                            // Predicted margin (home - away) should be less than the spread
-                            return predictedMargin < bovadaSpread ? 'text-green-600' : predictedMargin > bovadaSpread ? 'text-red-600' : 'text-gray-600';
-                          }
-                        })()
-                      }`}>
-                        {(analysis.projectedHomeScore - analysis.projectedAwayScore) > 0 ? '+' : ''}
-                        {(analysis.projectedHomeScore - analysis.projectedAwayScore).toFixed(1)}
-                      </span>
-                      <span className="text-sm text-gray-500">vs Bovada {analysis.spread > 0 ? '+' : ''}{analysis.spread}</span>
+                      {(() => {
+                        const predictedMargin = analysis.projectedHomeScore - analysis.projectedAwayScore;
+                        const bovadaSpread = analysis.spread;
+                        // Calculate if prediction favors favorite more or less than Bovada
+                        // For home favorite (negative spread), predicted margin should be negative
+                        // For away favorite (positive spread), predicted margin should be less positive
+                        let isFavorable = false;
+                        if (bovadaSpread < 0) {
+                          // Home is favorite, predicted margin should be negative (favoring home)
+                          // More negative = better for home favorite
+                          isFavorable = predictedMargin < bovadaSpread;
+                        } else {
+                          // Away is favorite (positive spread), predicted margin should be less than spread
+                          // Less positive = better for away favorite
+                          isFavorable = predictedMargin < bovadaSpread;
+                        }
+                        
+                        return (
+                          <>
+                            <span className={`text-lg font-bold ${
+                              isFavorable ? 'text-green-600' : predictedMargin === bovadaSpread ? 'text-gray-600' : 'text-red-600'
+                            }`}>
+                              {predictedMargin > 0 ? '+' : ''}{predictedMargin.toFixed(1)}
+                            </span>
+                            <span className="text-sm text-gray-500">vs Bovada {bovadaSpread > 0 ? '+' : ''}{bovadaSpread}</span>
+                          </>
+                        );
+                      })()}
                     </div>
                   </div>
                 )}
