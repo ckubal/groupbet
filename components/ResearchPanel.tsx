@@ -720,55 +720,6 @@ function GameAnalysisCard({
           </div>
         </div>
       )}
-                  {pointEffect && (
-                    <span className={`text-xs font-bold ${
-                      parseFloat(pointEffect) < 0 ? 'text-red-600' : 'text-green-600'
-                    }`}>
-                      {parseFloat(pointEffect) > 0 ? '+' : ''}{pointEffect} pts
-                    </span>
-                  )}
-                  {!pointEffect && (
-                    <span className="text-xs text-gray-400">No adjustment</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-          
-          {/* Show other adjustments that don't match context */}
-          {analysis.adjustments && analysis.adjustments.length > 0 && (
-            <div className="mt-2 pt-2 border-t border-gray-200">
-              {analysis.adjustments
-                .filter(adj => {
-                  // Filter out adjustments already shown in context
-                  return !adj.includes('Thursday Night') && 
-                         !adj.includes('Monday Night') && 
-                         !adj.includes('Sunday Night');
-                })
-                .map((adj, idx) => {
-                  const match = adj.match(/([+-]?\d+\.?\d*)/);
-                  const pointEffect = match ? match[1] : null;
-                  const reason = adj.split(':')[0] || adj;
-                  
-                  return (
-                    <div key={idx} className="mb-1 last:mb-0">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-600">{reason}</span>
-                        {pointEffect && (
-                          <span className={`text-xs font-bold ${
-                            parseFloat(pointEffect) < 0 ? 'text-red-600' : 'text-green-600'
-                          }`}>
-                            {parseFloat(pointEffect) > 0 ? '+' : ''}{pointEffect} pts
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-        </div>
-      ) : null}
 
       {!hasLine && (
         <div className="text-center text-gray-500 text-sm py-2 bg-white rounded p-3">
