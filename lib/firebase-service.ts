@@ -92,30 +92,59 @@ export const betService = {
   // Get bets for a specific user
   async getBetsForUser(userId: string, weekendId?: string): Promise<Bet[]> {
     try {
-      // Simplified query without orderBy to avoid index requirements for now
-      let q = query(
-        collection(db, COLLECTIONS.BETS),
-        where('participants', 'array-contains', userId)
-      );
+      // Try Admin SDK first (for server-side API routes)
+      try {
+        const { getAdminDb } = await import('./firebase-admin');
+        const adminDb = await getAdminDb();
+        
+        let query = adminDb.collection(COLLECTIONS.BETS)
+          .where('participants', 'array-contains', userId);
+        
+        if (weekendId) {
+          query = query.where('weekendId', '==', weekendId);
+        }
+        
+        const snapshot = await query.get();
+        const bets: Bet[] = [];
+        
+        snapshot.forEach((doc: any) => {
+          const data = doc.data();
+          bets.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt,
+            resolvedAt: data.resolvedAt?.toDate ? data.resolvedAt.toDate() : data.resolvedAt
+          } as Bet);
+        });
+        
+        return bets;
+      } catch (adminError) {
+        // Fallback to client SDK
+        // Simplified query without orderBy to avoid index requirements for now
+        let q = query(
+          collection(db, COLLECTIONS.BETS),
+          where('participants', 'array-contains', userId)
+        );
 
-      if (weekendId) {
-        q = query(q, where('weekendId', '==', weekendId));
+        if (weekendId) {
+          q = query(q, where('weekendId', '==', weekendId));
+        }
+        
+        const querySnapshot = await getDocs(q);
+        const bets: Bet[] = [];
+        
+        querySnapshot.forEach((doc: any) => {
+          const data = doc.data();
+          bets.push({
+            id: doc.id,
+            ...data,
+            createdAt: data.createdAt.toDate(),
+            resolvedAt: data.resolvedAt?.toDate()
+          } as Bet);
+        });
+        
+        return bets;
       }
-      
-      const querySnapshot = await getDocs(q);
-      const bets: Bet[] = [];
-      
-      querySnapshot.forEach((doc: any) => {
-        const data = doc.data();
-        bets.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt.toDate(),
-          resolvedAt: data.resolvedAt?.toDate()
-        } as Bet);
-      });
-      
-      return bets;
     } catch (error) {
       console.error('❌ Error fetching user bets:', error);
       return [];
@@ -691,42 +720,84 @@ export const finalGameService = {
   // Get all final games for a specific week
   async getFinalGamesForWeek(weekendId: string): Promise<Game[]> {
     try {
-      const q = query(
-        collection(db, COLLECTIONS.FINAL_GAMES),
-        where('weekendId', '==', weekendId)
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const games: Game[] = [];
-      
-      querySnapshot.forEach((doc: any) => {
-        const data = doc.data();
+      // Try Admin SDK first (for server-side API routes)
+      try {
+        const { getAdminDb } = await import('./firebase-admin');
+        const adminDb = await getAdminDb();
         
-        const gameTime = data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime;
-        games.push({
-          id: data.gameId,
-          weekendId: data.weekendId,
-          week: data.week || 0,
-          homeTeam: data.homeTeam,
-          awayTeam: data.awayTeam,
-          gameTime: gameTime,
-          timeSlot: getTimeSlot(gameTime, true), // Calculate correct timeSlot with logging
-          status: 'final',
-          homeScore: data.homeScore,
-          awayScore: data.awayScore,
-          spread: data.spread,
-          spreadOdds: -110,
-          overUnder: data.overUnder,
-          overUnderOdds: -110,
-          homeMoneyline: data.homeMoneyline,
-          awayMoneyline: data.awayMoneyline,
-          playerProps: [],
-          playerStats: data.playerStats || []
+        const snapshot = await adminDb.collection(COLLECTIONS.FINAL_GAMES)
+          .where('weekendId', '==', weekendId)
+          .get();
+        
+        const games: Game[] = [];
+        
+        snapshot.forEach((doc: any) => {
+          const data = doc.data();
+          
+          const gameTime = data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime;
+          games.push({
+            id: data.gameId,
+            weekendId: data.weekendId,
+            week: data.week || 0,
+            homeTeam: data.homeTeam,
+            awayTeam: data.awayTeam,
+            gameTime: gameTime,
+            timeSlot: getTimeSlot(gameTime, true), // Calculate correct timeSlot with logging
+            status: 'final',
+            homeScore: data.homeScore,
+            awayScore: data.awayScore,
+            spread: data.spread,
+            spreadOdds: -110,
+            overUnder: data.overUnder,
+            overUnderOdds: -110,
+            homeMoneyline: data.homeMoneyline,
+            awayMoneyline: data.awayMoneyline,
+            playerProps: [],
+            playerStats: data.playerStats || []
+          });
         });
-      });
-      
-      console.log(`📊 Retrieved ${games.length} final games for ${weekendId} from Firebase`);
-      return games;
+        
+        console.log(`📊 Retrieved ${games.length} final games for ${weekendId} from Firebase (Admin SDK)`);
+        return games;
+      } catch (adminError) {
+        // Fallback to client SDK
+        const q = query(
+          collection(db, COLLECTIONS.FINAL_GAMES),
+          where('weekendId', '==', weekendId)
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const games: Game[] = [];
+        
+        querySnapshot.forEach((doc: any) => {
+          const data = doc.data();
+          
+          const gameTime = data.gameTime?.toDate ? data.gameTime.toDate() : data.gameTime;
+          games.push({
+            id: data.gameId,
+            weekendId: data.weekendId,
+            week: data.week || 0,
+            homeTeam: data.homeTeam,
+            awayTeam: data.awayTeam,
+            gameTime: gameTime,
+            timeSlot: getTimeSlot(gameTime, true), // Calculate correct timeSlot with logging
+            status: 'final',
+            homeScore: data.homeScore,
+            awayScore: data.awayScore,
+            spread: data.spread,
+            spreadOdds: -110,
+            overUnder: data.overUnder,
+            overUnderOdds: -110,
+            homeMoneyline: data.homeMoneyline,
+            awayMoneyline: data.awayMoneyline,
+            playerProps: [],
+            playerStats: data.playerStats || []
+          });
+        });
+        
+        console.log(`📊 Retrieved ${games.length} final games for ${weekendId} from Firebase (Client SDK)`);
+        return games;
+      }
     } catch (error) {
       console.error('❌ Error retrieving final games for week:', error);
       return [];
