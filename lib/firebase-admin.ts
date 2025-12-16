@@ -16,25 +16,40 @@ async function getAdmin() {
       // Initialize Firebase Admin SDK if not already initialized
       if (!adminModule.apps.length) {
         // Try to use service account credentials from environment variables
-        const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+        const privateKeyRaw = process.env.FIREBASE_PRIVATE_KEY;
+        const privateKey = privateKeyRaw?.replace(/\\n/g, '\n');
+        const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+        const projectId = (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)?.trim();
         
-        if (privateKey && process.env.FIREBASE_CLIENT_EMAIL) {
+        // Log what we have (without exposing sensitive values)
+        console.log('🔍 Admin SDK Init Check:', {
+          hasPrivateKey: !!privateKeyRaw,
+          privateKeyLength: privateKeyRaw?.length || 0,
+          hasClientEmail: !!clientEmail,
+          clientEmailLength: clientEmail?.length || 0,
+          hasProjectId: !!projectId,
+          projectId: projectId || 'NOT SET',
+        });
+        
+        if (privateKey && clientEmail) {
           // Use service account credentials
-          // Use FIREBASE_PROJECT_ID if set, otherwise fall back to NEXT_PUBLIC_FIREBASE_PROJECT_ID
-          const projectId = (process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID)?.trim();
-          
           if (!projectId) {
             throw new Error('FIREBASE_PROJECT_ID or NEXT_PUBLIC_FIREBASE_PROJECT_ID must be set');
           }
           
-          adminModule.initializeApp({
-            credential: adminModule.credential.cert({
-              projectId,
-              clientEmail: process.env.FIREBASE_CLIENT_EMAIL.trim(),
-              privateKey,
-            }),
-          });
-          console.log('✅ Firebase Admin SDK initialized with service account');
+          try {
+            adminModule.initializeApp({
+              credential: adminModule.credential.cert({
+                projectId,
+                clientEmail: clientEmail.trim(),
+                privateKey,
+              }),
+            });
+            console.log('✅ Firebase Admin SDK initialized with service account');
+          } catch (initError) {
+            console.error('❌ Failed to initialize Admin SDK with service account:', initError);
+            throw initError;
+          }
         } else {
           // Fallback: Use application default credentials (for local development or if service account not configured)
           // This will work if FIREBASE_PROJECT_ID is set and we're using default credentials
