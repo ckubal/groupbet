@@ -381,6 +381,11 @@ export const gameCacheService = {
         const { getAdminDb } = await import('./firebase-admin');
         const adminDb = await getAdminDb();
         
+        // Check if adminDb is actually Admin SDK (has collection method) vs client SDK
+        if (!adminDb || typeof adminDb.collection !== 'function') {
+          throw new Error('Admin SDK not properly initialized');
+        }
+        
         const gamesRef = adminDb.collection(COLLECTIONS.GAMES);
         const snapshot = await gamesRef.where('weekendId', '==', weekendId).get();
         
@@ -430,7 +435,7 @@ export const gameCacheService = {
         return { games, cachedAt: oldestCache };
       } catch (adminError) {
         // Fallback to client SDK if Admin SDK not available
-        console.log('⚠️ Admin SDK not available, falling back to client SDK');
+        console.warn('⚠️ Admin SDK not available, falling back to client SDK:', adminError instanceof Error ? adminError.message : String(adminError));
         const q = query(
           collection(db, COLLECTIONS.GAMES),
           where('weekendId', '==', weekendId)
@@ -725,6 +730,11 @@ export const finalGameService = {
         const { getAdminDb } = await import('./firebase-admin');
         const adminDb = await getAdminDb();
         
+        // Check if adminDb is actually Admin SDK (has collection method) vs client SDK
+        if (!adminDb || typeof adminDb.collection !== 'function') {
+          throw new Error('Admin SDK not properly initialized');
+        }
+        
         const snapshot = await adminDb.collection(COLLECTIONS.FINAL_GAMES)
           .where('weekendId', '==', weekendId)
           .get();
@@ -761,6 +771,7 @@ export const finalGameService = {
         return games;
       } catch (adminError) {
         // Fallback to client SDK
+        console.warn('⚠️ Admin SDK failed for getFinalGamesForWeek, falling back to client SDK:', adminError instanceof Error ? adminError.message : String(adminError));
         const q = query(
           collection(db, COLLECTIONS.FINAL_GAMES),
           where('weekendId', '==', weekendId)
