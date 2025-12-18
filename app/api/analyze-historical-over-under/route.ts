@@ -569,7 +569,8 @@ export async function GET(request: NextRequest) {
       const readableId = generateReadableGameId(gameTime, awayTeam, homeTeam);
 
       // Find matching historical odds
-      const matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
+      // Try with strict time check first, then relax if no match found
+      let matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
         const oddsGame = entry.game;
         return doGamesMatch(
           {
@@ -582,9 +583,45 @@ export async function GET(request: NextRequest) {
             awayTeam: oddsGame.away_team,
             homeTeam: oddsGame.home_team,
           },
-          true
+          true, // strict time check
+          false // debug off for performance
         );
       });
+      
+      // If no match with strict time check, try with relaxed time check (6 hours)
+      if (!matchingOddsEntry) {
+        matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
+          const oddsGame = entry.game;
+          return doGamesMatch(
+            {
+              gameTime,
+              awayTeam,
+              homeTeam,
+            },
+            {
+              gameTime: oddsGame.commence_time,
+              awayTeam: oddsGame.away_team,
+              homeTeam: oddsGame.home_team,
+            },
+            false // relaxed time check - only check same day
+          );
+        });
+        
+        if (matchingOddsEntry) {
+          console.log(`⚠️ Matched with relaxed time check: ${awayTeam} @ ${homeTeam}`);
+        }
+      }
+      
+      // Log sample of unmatched games for debugging
+      if (!matchingOddsEntry && unmatchedEspnGames.length < 3) {
+        const sampleOdds = historicalOddsWithTimestamps.slice(0, 3).map(e => ({
+          away: e.game.away_team,
+          home: e.game.home_team,
+          time: e.game.commence_time
+        }));
+        console.log(`🔍 Sample Odds API games:`, sampleOdds);
+        console.log(`🔍 ESPN game trying to match: ${awayTeam} @ ${homeTeam} at ${gameTime.toISOString()}`);
+      }
 
       if (!matchingOddsEntry) {
         unmatchedEspnGames.push({

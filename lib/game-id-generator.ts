@@ -162,7 +162,8 @@ export function generateReadableGameId(gameTime: Date | string, awayTeam: string
 export function doGamesMatch(
   game1: { gameTime: Date | string; awayTeam: string; homeTeam: string },
   game2: { gameTime: Date | string; awayTeam: string; homeTeam: string },
-  strictTimeCheck: boolean = true
+  strictTimeCheck: boolean = true,
+  debug: boolean = false
 ): boolean {
   // Check if teams match (normalized)
   const away1 = normalizeTeamName(game1.awayTeam);
@@ -170,7 +171,18 @@ export function doGamesMatch(
   const away2 = normalizeTeamName(game2.awayTeam);
   const home2 = normalizeTeamName(game2.homeTeam);
   
+  if (debug) {
+    console.log(`🔍 Team matching:`, {
+      game1: { away: game1.awayTeam, home: game1.homeTeam, awayNorm: away1, homeNorm: home1 },
+      game2: { away: game2.awayTeam, home: game2.homeTeam, awayNorm: away2, homeNorm: home2 },
+      teamsMatch: away1 === away2 && home1 === home2
+    });
+  }
+  
   if (away1 !== away2 || home1 !== home2) {
+    if (debug) {
+      console.log(`❌ Teams don't match: ${away1} !== ${away2} or ${home1} !== ${home2}`);
+    }
     return false;
   }
   
@@ -184,7 +196,18 @@ export function doGamesMatch(
     date1.getDate() === date2.getDate()
   );
   
+  if (debug) {
+    console.log(`🔍 Date matching:`, {
+      date1: date1.toISOString(),
+      date2: date2.toISOString(),
+      sameDay
+    });
+  }
+  
   if (!sameDay) {
+    if (debug) {
+      console.log(`❌ Dates don't match`);
+    }
     return false;
   }
   
@@ -194,13 +217,23 @@ export function doGamesMatch(
     const timeDiff = Math.abs(date1.getTime() - date2.getTime());
     const hoursDiff = timeDiff / (1000 * 60 * 60);
     
+    if (debug) {
+      console.log(`🔍 Time check: ${hoursDiff.toFixed(2)} hours difference`);
+    }
+    
     if (hoursDiff > 2) {
-      console.warn(`⚠️ Games match teams/date but times differ by ${hoursDiff.toFixed(1)} hours:`, {
-        game1: `${game1.awayTeam} @ ${game1.homeTeam} at ${date1.toISOString()}`,
-        game2: `${game2.awayTeam} @ ${game2.homeTeam} at ${date2.toISOString()}`
-      });
+      if (debug || hoursDiff < 3) { // Only log if close (within 3 hours)
+        console.warn(`⚠️ Games match teams/date but times differ by ${hoursDiff.toFixed(1)} hours:`, {
+          game1: `${game1.awayTeam} @ ${game1.homeTeam} at ${date1.toISOString()}`,
+          game2: `${game2.awayTeam} @ ${game2.homeTeam} at ${date2.toISOString()}`
+        });
+      }
       return false;
     }
+  }
+  
+  if (debug) {
+    console.log(`✅ Games match!`);
   }
   
   return true;
