@@ -157,7 +157,7 @@ class ESPNApiService {
 
   async getScoreboard(week?: number, year?: number): Promise<ESPNScoreboardResponse | null> {
     const yearParam = year || 2025; // Default to 2025 if not specified
-    const params = week ? { week: String(week), year: String(yearParam) } : { year: String(yearParam) };
+    const params: Record<string, string> = week ? { week: String(week), year: String(yearParam) } : { year: String(yearParam) };
     const cacheKey = this.getCacheKey('scoreboard', params);
     const cached = this.getFromCache<ESPNScoreboardResponse>(cacheKey);
     
