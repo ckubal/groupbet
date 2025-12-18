@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getNFLWeekBoundaries } from '@/lib/utils';
-import { generateGameId, generateReadableGameId, doGamesMatch } from '@/lib/game-id-generator';
+import { generateGameId, generateReadableGameId, doGamesMatch, normalizeTeamName } from '@/lib/game-id-generator';
 import { getTimeSlot } from '@/lib/time-slot-utils';
 import { historicalOverUnderService, gameIdMappingService } from '@/lib/firebase-service';
 import { espnApi } from '@/lib/espn-api';
@@ -512,13 +512,22 @@ export async function GET(request: NextRequest) {
 
     console.log(`✅ Found ${espnData.events.length} ESPN games`);
 
-    // Extract unique dates from week boundaries
-    const dates: string[] = [];
+    // Extract unique dates from actual ESPN game dates (more accurate than week boundaries)
+    const gameDates = new Set<string>();
+    espnData.events.forEach(event => {
+      const gameDate = new Date(event.date);
+      gameDates.add(gameDate.toISOString().split('T')[0]);
+    });
+    
+    // Also add dates from week boundaries to catch any odds that might be on different days
     const currentDate = new Date(start);
     while (currentDate <= end) {
-      dates.push(currentDate.toISOString().split('T')[0]);
+      gameDates.add(currentDate.toISOString().split('T')[0]);
       currentDate.setDate(currentDate.getDate() + 1);
     }
+    
+    const dates = Array.from(gameDates).sort();
+    console.log(`📅 Extracted ${dates.length} unique dates from games and week boundaries:`, dates);
 
     // Fetch historical odds
     const apiKey = process.env.NEXT_PUBLIC_ODDS_API_KEY;
@@ -531,6 +540,17 @@ export async function GET(request: NextRequest) {
     console.log(`📜 Fetching historical odds for ${dates.length} dates...`);
     const historicalOddsWithTimestamps = await fetchHistoricalOddsForDateRange(dates, apiKey);
     console.log(`✅ Found ${historicalOddsWithTimestamps.length} historical odds games`);
+    
+    // Log sample of odds games for debugging
+    if (historicalOddsWithTimestamps.length > 0) {
+      const sample = historicalOddsWithTimestamps.slice(0, 3).map(e => ({
+        away: e.game.away_team,
+        home: e.game.home_team,
+        time: e.game.commence_time,
+        date: new Date(e.game.commence_time).toISOString().split('T')[0],
+      }));
+      console.log(`📊 Sample Odds API games:`, sample);
+    }
 
     // Match games and build analysis
     const matchedGames: any[] = [];
@@ -569,10 +589,10 @@ export async function GET(request: NextRequest) {
       const readableId = generateReadableGameId(gameTime, awayTeam, homeTeam);
 
       // Find matching historical odds
-      // Try with strict time check first, then relax if no match found
+      // Try with strict time check first (2 hours), then relaxed (same day only)
       let matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
         const oddsGame = entry.game;
-        return doGamesMatch(
+        const matches = doGamesMatch(
           {
             gameTime,
             awayTeam,
@@ -583,12 +603,13 @@ export async function GET(request: NextRequest) {
             awayTeam: oddsGame.away_team,
             homeTeam: oddsGame.home_team,
           },
-          true, // strict time check
+          true, // strict time check (2 hours)
           false // debug off for performance
         );
+        return matches;
       });
       
-      // If no match with strict time check, try with relaxed time check (6 hours)
+      // If no match with strict time check, try with relaxed time check (same day only)
       if (!matchingOddsEntry) {
         matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
           const oddsGame = entry.game;
@@ -608,19 +629,39 @@ export async function GET(request: NextRequest) {
         });
         
         if (matchingOddsEntry) {
-          console.log(`⚠️ Matched with relaxed time check: ${awayTeam} @ ${homeTeam}`);
+          const oddsGame = matchingOddsEntry.game;
+          const espnTime = new Date(gameTime);
+          const oddsTime = new Date(oddsGame.commence_time);
+          const hoursDiff = Math.abs(espnTime.getTime() - oddsTime.getTime()) / (1000 * 60 * 60);
+          console.log(`⚠️ Matched with relaxed time check (${hoursDiff.toFixed(1)}h diff): ${awayTeam} @ ${homeTeam}`);
         }
       }
       
-      // Log sample of unmatched games for debugging
-      if (!matchingOddsEntry && unmatchedEspnGames.length < 3) {
-        const sampleOdds = historicalOddsWithTimestamps.slice(0, 3).map(e => ({
-          away: e.game.away_team,
-          home: e.game.home_team,
-          time: e.game.commence_time
-        }));
-        console.log(`🔍 Sample Odds API games:`, sampleOdds);
-        console.log(`🔍 ESPN game trying to match: ${awayTeam} @ ${homeTeam} at ${gameTime.toISOString()}`);
+      // Log detailed info for first few unmatched games
+      if (!matchingOddsEntry && unmatchedEspnGames.length < 5) {
+        // Try to find closest match by team names only
+        const teamNameMatches = historicalOddsWithTimestamps.filter((entry: any) => {
+          const oddsGame = entry.game;
+          const away1 = normalizeTeamName(awayTeam);
+          const home1 = normalizeTeamName(homeTeam);
+          const away2 = normalizeTeamName(oddsGame.away_team);
+          const home2 = normalizeTeamName(oddsGame.home_team);
+          return (away1 === away2 && home1 === home2) || (away1 === home2 && home1 === away2);
+        });
+        
+        console.log(`🔍 ESPN: ${awayTeam} @ ${homeTeam} at ${gameTime.toISOString()}`);
+        console.log(`   Found ${teamNameMatches.length} potential team name matches`);
+        if (teamNameMatches.length > 0) {
+          teamNameMatches.slice(0, 3).forEach((entry: any) => {
+            const oddsGame = entry.game;
+            const espnTime = new Date(gameTime);
+            const oddsTime = new Date(oddsGame.commence_time);
+            const hoursDiff = Math.abs(espnTime.getTime() - oddsTime.getTime()) / (1000 * 60 * 60);
+            const sameDay = espnTime.toISOString().split('T')[0] === oddsTime.toISOString().split('T')[0];
+            console.log(`   - Odds: ${oddsGame.away_team} @ ${oddsGame.home_team} at ${oddsGame.commence_time}`);
+            console.log(`     Time diff: ${hoursDiff.toFixed(1)}h, Same day: ${sameDay}`);
+          });
+        }
       }
 
       if (!matchingOddsEntry) {
