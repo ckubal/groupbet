@@ -157,10 +157,32 @@ export default function Exp2Page() {
       }
 
       const analysisData = await response.json();
-      setData(analysisData);
+      
+      // Ensure data structure is properly initialized
+      if (analysisData.error) {
+        throw new Error(analysisData.error);
+      }
+      
+      // Normalize the data structure to ensure all arrays exist
+      const normalizedData: AnalysisData = {
+        ...analysisData,
+        matchedGames: analysisData.matchedGames || [],
+        unmatchedEspnGames: analysisData.unmatchedEspnGames || [],
+        unmatchedOddsGames: analysisData.unmatchedOddsGames || [],
+        summary: analysisData.summary || {
+          totalGames: 0,
+          matchedGames: 0,
+          overCount: 0,
+          underCount: 0,
+          pushCount: 0,
+        },
+      };
+      
+      setData(normalizedData);
     } catch (err) {
       console.error('Error loading analysis:', err);
       setError(err instanceof Error ? err.message : 'Failed to load data');
+      setData(null);
     } finally {
       setIsLoading(false);
     }
@@ -256,30 +278,30 @@ export default function Exp2Page() {
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Total Games</div>
-                <div className="text-2xl font-bold">{data.summary.totalGames}</div>
+                <div className="text-2xl font-bold">{data.summary?.totalGames || 0}</div>
               </div>
               <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Matched</div>
-                <div className="text-2xl font-bold text-blue-400">{data.summary.matchedGames}</div>
+                <div className="text-2xl font-bold text-blue-400">{data.summary?.matchedGames || 0}</div>
               </div>
               <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Over</div>
-                <div className="text-2xl font-bold text-green-400">{data.summary.overCount}</div>
+                <div className="text-2xl font-bold text-green-400">{data.summary?.overCount || 0}</div>
               </div>
               <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Under</div>
-                <div className="text-2xl font-bold text-red-400">{data.summary.underCount}</div>
+                <div className="text-2xl font-bold text-red-400">{data.summary?.underCount || 0}</div>
               </div>
               <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg p-4">
                 <div className="text-gray-400 text-sm mb-1">Push</div>
-                <div className="text-2xl font-bold text-yellow-400">{data.summary.pushCount}</div>
+                <div className="text-2xl font-bold text-yellow-400">{data.summary?.pushCount || 0}</div>
               </div>
             </div>
 
             {/* Games Table */}
             <div className="bg-[#1a1a1a] border border-[#383838] rounded-lg overflow-hidden">
               <div className="p-4 border-b border-[#383838]">
-                <h2 className="text-xl font-bold">Matched Games ({data.matchedGames.length})</h2>
+                <h2 className="text-xl font-bold">Matched Games ({(data.matchedGames || []).length})</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -298,7 +320,7 @@ export default function Exp2Page() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.matchedGames.map((game) => (
+                    {(data.matchedGames || []).map((game) => (
                       <tr
                         key={game.gameId}
                         className="border-t border-[#383838] hover:bg-[#2a2a2a] cursor-pointer"
@@ -673,20 +695,20 @@ export default function Exp2Page() {
             )}
 
             {/* Unmatched Games */}
-            {(data.unmatchedEspnGames.length > 0 || data.unmatchedOddsGames.length > 0) && (
+            {((data.unmatchedEspnGames || []).length > 0 || (data.unmatchedOddsGames || []).length > 0) && (
               <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4">
                 <div className="font-semibold text-yellow-400 mb-2">
                   ⚠️ Unmatched Games
                 </div>
                 <div className="text-sm text-gray-300 space-y-1">
-                  {data.unmatchedEspnGames.length > 0 && (
+                  {(data.unmatchedEspnGames || []).length > 0 && (
                     <div>
-                      {data.unmatchedEspnGames.length} ESPN game(s) without matching odds
+                      {(data.unmatchedEspnGames || []).length} ESPN game(s) without matching odds
                     </div>
                   )}
-                  {data.unmatchedOddsGames.length > 0 && (
+                  {(data.unmatchedOddsGames || []).length > 0 && (
                     <div>
-                      {data.unmatchedOddsGames.length} Odds API game(s) without matching ESPN data
+                      {(data.unmatchedOddsGames || []).length} Odds API game(s) without matching ESPN data
                     </div>
                   )}
                 </div>
