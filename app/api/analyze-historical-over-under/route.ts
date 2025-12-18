@@ -601,7 +601,30 @@ export async function GET(request: NextRequest) {
     // Match games and build analysis
     const matchedGames: any[] = [];
     const unmatchedEspnGames: any[] = [];
-    const unmatchedOddsGames: any[] = [...historicalOddsWithTimestamps];
+    const unmatchedOddsGames: any[] = [];
+    
+    // Filter unmatched odds games to only include those within reasonable range
+    // (we fetched adjacent weeks for Thursday games, so filter those out if they don't match)
+    historicalOddsWithTimestamps.forEach((entry: any) => {
+      const oddsGame = entry.game;
+      const oddsGameTime = new Date(oddsGame.commence_time);
+      
+      // Check if this game is within the target week boundaries
+      const isInTargetWeek = oddsGameTime >= start && oddsGameTime <= end;
+      
+      // Also check if it's within 3 days of week boundaries (for Thursday games that might be on edges)
+      const daysBeforeWeek = (start.getTime() - oddsGameTime.getTime()) / (1000 * 60 * 60 * 24);
+      const daysAfterWeek = (oddsGameTime.getTime() - end.getTime()) / (1000 * 60 * 60 * 24);
+      const isNearWeek = daysBeforeWeek >= 0 && daysBeforeWeek <= 3 || daysAfterWeek >= 0 && daysAfterWeek <= 3;
+      
+      // Only include in unmatched list if it's in or near the target week
+      // (games from far outside the week are expected and not interesting)
+      if (isInTargetWeek || isNearWeek) {
+        unmatchedOddsGames.push(entry);
+      }
+    });
+    
+    console.log(`📊 Filtered unmatched Odds API games: ${unmatchedOddsGames.length} within/near week (out of ${historicalOddsWithTimestamps.length} total)`);
 
     for (const event of espnData.events) {
       const competition = event.competitions?.[0];
@@ -987,12 +1010,26 @@ export async function GET(request: NextRequest) {
       games: matchedGames,
       summary,
       unmatchedEspnGames,
-      unmatchedOddsGames: unmatchedOddsGames.map((entry: any) => ({
-        oddsApiId: entry.game.id,
-        awayTeam: entry.game.away_team,
-        homeTeam: entry.game.home_team,
-        commenceTime: entry.game.commence_time,
-      })),
+      unmatchedOddsGames: unmatchedOddsGames.map((entry: any) => {
+        const gameTime = new Date(entry.game.commence_time);
+        const gameDate = gameTime.toISOString().split('T')[0];
+        const isInWeek = gameTime >= start && gameTime <= end;
+        const daysFromWeekStart = Math.floor((gameTime.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+        
+        return {
+          oddsApiId: entry.game.id,
+          awayTeam: entry.game.away_team,
+          homeTeam: entry.game.home_team,
+          commenceTime: entry.game.commence_time,
+          gameDate,
+          isInWeek,
+          daysFromWeekStart,
+          weekBoundaries: {
+            start: start.toISOString(),
+            end: end.toISOString(),
+          },
+        };
+      }),
     };
 
     // Save to Firebase

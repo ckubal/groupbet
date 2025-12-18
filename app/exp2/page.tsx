@@ -747,9 +747,85 @@ export default function Exp2Page() {
                     <div className="text-sm font-semibold text-yellow-300 mb-2">
                       {(data.unmatchedOddsGames || []).length} Odds API game(s) without matching ESPN data
                     </div>
-                    <div className="text-xs text-gray-400">
-                      (These are likely games from other weeks or dates outside the analysis window)
-                    </div>
+                    
+                    {/* Analyze unmatched Odds API games */}
+                    {(() => {
+                      const unmatched = data.unmatchedOddsGames || [];
+                      const inWeek = unmatched.filter((g: any) => g.isInWeek);
+                      const outOfWeek = unmatched.filter((g: any) => !g.isInWeek);
+                      const dateGroups: Record<string, number> = {};
+                      unmatched.forEach((g: any) => {
+                        const date = g.gameDate || new Date(g.commenceTime).toISOString().split('T')[0];
+                        dateGroups[date] = (dateGroups[date] || 0) + 1;
+                      });
+                      
+                      return (
+                        <div className="space-y-2 text-xs text-gray-300 mt-2">
+                          <div>
+                            <strong>Breakdown:</strong>
+                            <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
+                              <li>{inWeek.length} game(s) within Week {data.week} boundaries</li>
+                              <li>{outOfWeek.length} game(s) outside Week {data.week} boundaries</li>
+                            </ul>
+                          </div>
+                          
+                          {outOfWeek.length > 0 && (
+                            <div className="mt-2">
+                              <strong>Games outside week boundaries:</strong>
+                              <div className="bg-[#2a2a2a] rounded p-2 mt-1 max-h-40 overflow-y-auto">
+                                {outOfWeek.slice(0, 10).map((game: any, idx: number) => (
+                                  <div key={idx} className="text-xs py-1">
+                                    {game.awayTeam} @ {game.homeTeam} - {game.gameDate || new Date(game.commenceTime).toISOString().split('T')[0]}
+                                    {game.daysFromWeekStart !== undefined && (
+                                      <span className="text-gray-500 ml-2">
+                                        ({game.daysFromWeekStart > 0 ? '+' : ''}{game.daysFromWeekStart} days from week start)
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                {outOfWeek.length > 10 && (
+                                  <div className="text-gray-500 italic mt-1">
+                                    +{outOfWeek.length - 10} more games outside week boundaries
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          {inWeek.length > 0 && (
+                            <div className="mt-2">
+                              <strong>Games within week but unmatched ({inWeek.length}):</strong>
+                              <div className="bg-[#2a2a2a] rounded p-2 mt-1 max-h-40 overflow-y-auto">
+                                {inWeek.slice(0, 10).map((game: any, idx: number) => (
+                                  <div key={idx} className="text-xs py-1">
+                                    {game.awayTeam} @ {game.homeTeam} - {game.gameDate || new Date(game.commenceTime).toISOString().split('T')[0]}
+                                  </div>
+                                ))}
+                                {inWeek.length > 10 && (
+                                  <div className="text-gray-500 italic mt-1">
+                                    +{inWeek.length - 10} more games
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                          
+                          <div className="mt-2">
+                            <strong>Date distribution:</strong>
+                            <div className="text-gray-400 text-xs mt-1">
+                              {Object.entries(dateGroups)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 5)
+                                .map(([date, count]) => (
+                                  <div key={date}>
+                                    {date}: {count} game(s)
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
                 )}
               </div>
