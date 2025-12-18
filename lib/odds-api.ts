@@ -634,20 +634,46 @@ class OddsApiService {
 
   /**
    * Fetch historical odds for a specific date
+   * @param dateStr - Date string in YYYY-MM-DD format or ISO 8601 timestamp
    */
   private async fetchHistoricalOdds(dateStr: string): Promise<OddsApiGame[] | null> {
     try {
       console.log(`📜 Fetching historical odds for ${dateStr}...`);
       
-      // The Odds API historical endpoint
+      if (!this.apiKey) {
+        console.warn('⚠️ No Odds API key found, cannot fetch historical odds');
+        return null;
+      }
+      
+      // Convert date string to ISO 8601 timestamp if needed
+      // API requires format: 2023-09-10T18:00:00Z (UTC timestamp, no milliseconds)
+      // Snapshots are available at 5-minute intervals, so round to nearest 5 minutes
+      let timestamp: string;
+      if (dateStr.includes('T')) {
+        // Already a timestamp - remove milliseconds if present
+        timestamp = dateStr.replace(/\.\d{3}Z$/, 'Z');
+      } else {
+        // Convert YYYY-MM-DD to ISO 8601 timestamp
+        // Use 18:00 UTC (noon Eastern) which is a common game time
+        // Round to nearest 5-minute interval (snapshots are at 5-min intervals)
+        const date = new Date(`${dateStr}T18:00:00Z`);
+        const minutes = date.getMinutes();
+        const roundedMinutes = Math.floor(minutes / 5) * 5;
+        date.setMinutes(roundedMinutes);
+        date.setSeconds(0);
+        date.setMilliseconds(0);
+        timestamp = date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+      }
+      
+      // The Odds API historical endpoint (correct format: /v4/historical/sports/{sport}/odds)
       const response = await fetch(
-        `https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds-history?${new URLSearchParams({
+        `https://api.the-odds-api.com/v4/historical/sports/americanfootball_nfl/odds?${new URLSearchParams({
           apiKey: this.apiKey,
           regions: 'us',
           markets: 'spreads,totals,h2h',
           oddsFormat: 'american',
           bookmakers: 'bovada,draftkings,fanduel',
-          date: dateStr, // Historical data for this specific date
+          date: timestamp, // Historical data timestamp (ISO 8601 format)
         })}`
       );
 
@@ -656,12 +682,23 @@ class OddsApiService {
           console.log(`📜 No historical odds available for ${dateStr} (404)`);
           return null;
         }
-        throw new Error(`Historical odds API failed: ${response.status}`);
+        if (response.status === 422) {
+          const errorText = await response.text().catch(() => 'Unknown error');
+          console.log(`📜 Historical odds API returned 422 for ${dateStr} - ${errorText}`);
+          return null;
+        }
+        const errorText = await response.text().catch(() => 'Unknown error');
+        throw new Error(`Historical odds API failed: ${response.status} - ${errorText}`);
       }
 
-      const data: OddsApiGame[] = await response.json();
-      console.log(`📜 Successfully fetched ${data.length} historical odds for ${dateStr}`);
-      return data;
+      const responseData = await response.json();
+      
+      // Response structure: { data: [...], timestamp: ..., previous_timestamp: ..., next_timestamp: ... }
+      const data: OddsApiGame[] = responseData.data || responseData; // Handle both structures
+      const snapshotTimestamp = responseData.timestamp || timestamp;
+      
+      console.log(`📜 Successfully fetched ${data.length} historical odds for ${dateStr} (snapshot: ${snapshotTimestamp})`);
+      return Array.isArray(data) ? data : null;
     } catch (error) {
       console.warn(`⚠️ Failed to fetch historical odds for ${dateStr}:`, error);
       return null;

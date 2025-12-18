@@ -28,7 +28,8 @@ const COLLECTIONS = {
   PLAYER_PROPS: 'player_props', // Cache player props separately
   GAME_ID_MAPPINGS: 'game_id_mappings', // Map between internal IDs and external API IDs
   PRE_GAME_ODDS: 'pre_game_odds', // Freeze betting lines before games start - NEVER overwrite
-  OVER_UNDER_PREDICTIONS: 'over_under_predictions' // Store over/under predictions and track accuracy
+  OVER_UNDER_PREDICTIONS: 'over_under_predictions', // Store over/under predictions and track accuracy
+  HISTORICAL_OVER_UNDER_ANALYSIS: 'historical_over_under_analysis' // Store historical over/under analysis with contextual data
 };
 
 // Bet Management
@@ -1445,6 +1446,93 @@ export const predictionService = {
   },
 };
 
+// Historical Over/Under Analysis Service
+export const historicalOverUnderService = {
+  /**
+   * Retrieve cached analysis from Firebase
+   */
+  async getAnalysisForWeek(week: number, year: number): Promise<any | null> {
+    try {
+      const docId = `${year}-week-${week}`;
+      const docRef = doc(db, COLLECTIONS.HISTORICAL_OVER_UNDER_ANALYSIS, docId);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        console.log(`💾 Found cached historical over/under analysis for ${year} Week ${week}`);
+        return data;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('❌ Error getting historical over/under analysis:', error);
+      return null;
+    }
+  },
+
+  /**
+   * Save analysis results to Firebase
+   */
+  async saveAnalysisForWeek(week: number, year: number, analysisData: any): Promise<void> {
+    try {
+      const docId = `${year}-week-${week}`;
+      const docRef = doc(db, COLLECTIONS.HISTORICAL_OVER_UNDER_ANALYSIS, docId);
+      
+      const data = {
+        ...analysisData,
+        week,
+        year,
+        analyzedAt: Timestamp.now(),
+        // Convert Date objects to Timestamps
+        weekBoundaries: {
+          start: analysisData.weekBoundaries?.start instanceof Date 
+            ? Timestamp.fromDate(analysisData.weekBoundaries.start)
+            : analysisData.weekBoundaries?.start,
+          end: analysisData.weekBoundaries?.end instanceof Date
+            ? Timestamp.fromDate(analysisData.weekBoundaries.end)
+            : analysisData.weekBoundaries?.end,
+        },
+        // Convert game times to Timestamps
+        games: analysisData.games?.map((game: any) => ({
+          ...game,
+          gameTime: game.gameTime instanceof Date 
+            ? Timestamp.fromDate(game.gameTime)
+            : game.gameTime,
+          context: {
+            ...game.context,
+            teamPerformance: {
+              ...game.context?.teamPerformance,
+              awayTeam: {
+                ...game.context?.teamPerformance?.awayTeam,
+                recentGames: game.context?.teamPerformance?.awayTeam?.recentGames?.map((g: any) => ({
+                  ...g,
+                  // Keep as is - already serialized
+                })),
+              },
+              homeTeam: {
+                ...game.context?.teamPerformance?.homeTeam,
+                recentGames: game.context?.teamPerformance?.homeTeam?.recentGames?.map((g: any) => ({
+                  ...g,
+                  // Keep as is - already serialized
+                })),
+              },
+            },
+          },
+        })),
+      };
+      
+      // Remove undefined values
+      const cleanData = JSON.parse(JSON.stringify(data));
+      
+      await setDoc(docRef, cleanData, { merge: true });
+      console.log(`💾 Saved historical over/under analysis for ${year} Week ${week} (${analysisData.games?.length || 0} games)`);
+    } catch (error) {
+      console.error('❌ Error saving historical over/under analysis:', error);
+      throw error;
+    }
+  },
+};
+
 export default {
   bet: betService,
   weekend: weekendService,
@@ -1454,5 +1542,6 @@ export default {
   playerProps: playerPropsService,
   gameIdMapping: gameIdMappingService,
   preGameOdds: preGameOddsService,
-  prediction: predictionService
+  prediction: predictionService,
+  historicalOverUnder: historicalOverUnderService
 };

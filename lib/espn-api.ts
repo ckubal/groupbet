@@ -155,26 +155,27 @@ class ESPNApiService {
     });
   }
 
-  async getScoreboard(week?: number): Promise<ESPNScoreboardResponse | null> {
-    const params = week ? { week: String(week) } : undefined;
+  async getScoreboard(week?: number, year?: number): Promise<ESPNScoreboardResponse | null> {
+    const yearParam = year || 2025; // Default to 2025 if not specified
+    const params = week ? { week: String(week), year: String(yearParam) } : { year: String(yearParam) };
     const cacheKey = this.getCacheKey('scoreboard', params);
     const cached = this.getFromCache<ESPNScoreboardResponse>(cacheKey);
     
     if (cached) {
-      console.log('📦 Returning cached ESPN scoreboard');
+      console.log(`📦 Returning cached ESPN scoreboard for ${yearParam}`);
       return cached;
     }
 
     try {
-      // Use proper parameters for all weeks in the 2025 season
+      // Use proper parameters for the specified year
       let url = `${this.baseUrl}/scoreboard`;
       if (week) {
-        url += `?week=${week}&seasontype=2&year=2025`;
-        console.log(`📺 Fetching ESPN Week ${week} 2025 with specific parameters`);
+        url += `?week=${week}&seasontype=2&year=${yearParam}`;
+        console.log(`📺 Fetching ESPN Week ${week} ${yearParam} with specific parameters`);
       } else {
         // Default to current week if no week specified
-        url += `?seasontype=2&year=2025`;
-        console.log('📺 Fetching ESPN current week 2025');
+        url += `?seasontype=2&year=${yearParam}`;
+        console.log(`📺 Fetching ESPN current week ${yearParam}`);
       }
 
       console.log(`📡 ESPN API call: ${url}`);

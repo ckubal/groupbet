@@ -106,6 +106,28 @@ export default function ExperimentalPanel({ week }: ExperimentalPanelProps) {
         </p>
       </div>
 
+      {/* Link to Historical Over/Under Analysis */}
+      <div className="bg-blue-900/20 border border-blue-500/50 rounded-lg p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="font-semibold text-blue-400 mb-1">
+              📊 Historical Over/Under Analysis
+            </div>
+            <div className="text-sm text-gray-300">
+              Analyze historical betting odds vs actual outcomes to discover predictive patterns
+            </div>
+          </div>
+          <a
+            href="/exp2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-sm font-medium"
+          >
+            Open Analysis →
+          </a>
+        </div>
+      </div>
+
       {/* Arbitrage Summary */}
       {arbitrageOpportunities.length > 0 && (
         <div className="bg-green-900/20 border border-green-500/50 rounded-lg p-4">
