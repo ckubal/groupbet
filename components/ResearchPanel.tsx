@@ -676,31 +676,33 @@ function GameAnalysisCard({
                     const bovadaSpread = analysis.spread;
                     
                     // Predicted margin should match the sign convention of Bovada spread
-                    // If home is favorite (negative spread), predicted margin should be negative
-                    // If away is favorite (positive spread), predicted margin should be positive
-                    let predictedMargin: number;
-                    if (bovadaSpread < 0) {
-                      // Home is favorite (e.g., -12 means home favored by 12)
-                      // If home wins, margin should be negative: -(homeScore - awayScore)
-                      // Example: Eagles 22, Raiders 19 → -(22-19) = -3
-                      predictedMargin = -rawMargin;
-                    } else {
-                      // Away is favorite (e.g., +7 means away favored by 7)
-                      // If away wins, margin should be positive: (homeScore - awayScore) is negative, so flip it
-                      // Example: Away 22, Home 19 → (19-22) = -3, but we want +3 for away favorite
-                      predictedMargin = rawMargin;
-                    }
+                    // Spread convention: negative = home favored, positive = away favored
+                    // rawMargin = homeScore - awayScore (positive when home wins, negative when away wins)
+                    // 
+                    // Examples:
+                    // - Spread = -10.5 (home favored), home wins by 8: rawMargin = +8, predictedMargin = -8 ✓
+                    // - Spread = +10.5 (away favored), away wins by 8: rawMargin = -8, predictedMargin = +8 ✓
+                    // - Spread = -10.5 (home favored), away wins by 8: rawMargin = -8, predictedMargin = +8 (upset)
+                    // - Spread = +10.5 (away favored), home wins by 8: rawMargin = +8, predictedMargin = -8 (upset)
+                    //
+                    // The predicted margin should always be: -rawMargin to match spread convention
+                    const predictedMargin = -rawMargin;
                     
                     // Calculate if prediction favors favorite more or less than Bovada
+                    // For negative spreads (home favored): more negative = better for home
+                    // For positive spreads (away favored): more positive = better for away
                     let isFavorable = false;
                     if (bovadaSpread < 0) {
-                      // Home favorite: more negative = better for home (favorite wins by more)
-                      // Example: -3 vs -12 means favorite wins by less than expected
+                      // Home favorite: predictedMargin should be negative, more negative = better
+                      // Example: predictedMargin = -8 vs spread = -10.5 means home wins by less than expected
                       isFavorable = predictedMargin < bovadaSpread;
-                    } else {
-                      // Away favorite: more positive = better for away (favorite wins by more)
-                      // Example: +3 vs +7 means favorite wins by less than expected
+                    } else if (bovadaSpread > 0) {
+                      // Away favorite: predictedMargin should be positive, more positive = better
+                      // Example: predictedMargin = +8 vs spread = +10.5 means away wins by less than expected
                       isFavorable = predictedMargin > bovadaSpread;
+                    } else {
+                      // Spread is 0 (pick'em), any margin favors the winning team
+                      isFavorable = Math.abs(predictedMargin) > 0;
                     }
                     
                     return (
