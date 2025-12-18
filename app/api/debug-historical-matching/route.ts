@@ -119,6 +119,33 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Show all unique team names from both sources
+    const espnTeamNames = new Set<string>();
+    espnData.events.forEach(event => {
+      const competition = event.competitions?.[0];
+      const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home');
+      const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away');
+      if (homeCompetitor?.team.displayName) espnTeamNames.add(homeCompetitor.team.displayName);
+      if (awayCompetitor?.team.displayName) espnTeamNames.add(awayCompetitor.team.displayName);
+    });
+
+    const oddsTeamNames = new Set<string>();
+    oddsGames.forEach((game: any) => {
+      if (game.away_team) oddsTeamNames.add(game.away_team);
+      if (game.home_team) oddsTeamNames.add(game.home_team);
+    });
+
+    // Show normalization examples for all teams found
+    const normalizationExamples = Array.from(espnTeamNames).slice(0, 10).map(team => ({
+      espnName: team,
+      normalized: normalizeTeamName(team),
+    }));
+
+    const oddsNormalizationExamples = Array.from(oddsTeamNames).slice(0, 10).map(team => ({
+      oddsApiName: team,
+      normalized: normalizeTeamName(team),
+    }));
+
     return NextResponse.json({
       week,
       year,
@@ -127,19 +154,25 @@ export async function GET(request: NextRequest) {
       espnGames: {
         total: espnData.events.length,
         samples: espnSamples,
+        allTeamNames: Array.from(espnTeamNames).sort(),
+        teamNameCount: espnTeamNames.size,
       },
       oddsGames: {
         total: oddsGames.length,
         samples: oddsSamples,
+        allTeamNames: Array.from(oddsTeamNames).sort(),
+        teamNameCount: oddsTeamNames.size,
       },
       matchingAttempts,
       teamNameNormalizations: {
         note: 'This shows how team names are normalized for matching',
-        examples: [
-          { original: 'New York Jets', normalized: normalizeTeamName('New York Jets') },
-          { original: 'Kansas City Chiefs', normalized: normalizeTeamName('Kansas City Chiefs') },
-          { original: 'NY Jets', normalized: normalizeTeamName('NY Jets') },
-        ],
+        espnExamples: normalizationExamples,
+        oddsApiExamples: oddsNormalizationExamples,
+        commonTeams: {
+          inBoth: Array.from(espnTeamNames).filter(t => oddsTeamNames.has(t)),
+          onlyInESPN: Array.from(espnTeamNames).filter(t => !oddsTeamNames.has(t)),
+          onlyInOdds: Array.from(oddsTeamNames).filter(t => !espnTeamNames.has(t)),
+        },
       },
     });
 
