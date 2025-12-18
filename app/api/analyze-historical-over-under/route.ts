@@ -511,12 +511,38 @@ export async function GET(request: NextRequest) {
     }
 
     console.log(`✅ Found ${espnData.events.length} ESPN games`);
+    
+    // Filter ESPN games to only include those from the requested year
+    // (ESPN API sometimes returns games from wrong year)
+    const filteredEspnEvents = espnData.events.filter((event: any) => {
+      const gameDate = new Date(event.date);
+      const gameYear = gameDate.getFullYear();
+      const matchesYear = gameYear === year;
+      
+      if (!matchesYear) {
+        console.warn(`⚠️ Filtering out ESPN game from wrong year: ${event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'away')?.team?.displayName} @ ${event.competitions?.[0]?.competitors?.find((c: any) => c.homeAway === 'home')?.team?.displayName} on ${event.date} (Year: ${gameYear}, Expected: ${year})`);
+      }
+      
+      return matchesYear;
+    });
+    
+    console.log(`✅ Filtered to ${filteredEspnEvents.length} ESPN games from ${year} (removed ${espnData.events.length - filteredEspnEvents.length} from wrong year)`);
+    
+    if (filteredEspnEvents.length === 0) {
+      return NextResponse.json({
+        error: `No ESPN games found for ${year} Week ${week} after filtering by year`,
+        week,
+        year,
+        totalEspnGames: espnData.events.length,
+        filteredEspnGames: 0,
+      }, { status: 404 });
+    }
 
     // Extract unique dates from actual ESPN game dates (more accurate than week boundaries)
     const gameDates = new Set<string>();
     const thursdayGames: Array<{ date: Date; awayTeam: string; homeTeam: string }> = [];
     
-    espnData.events.forEach(event => {
+    filteredEspnEvents.forEach(event => {
       const gameDate = new Date(event.date);
       gameDates.add(gameDate.toISOString().split('T')[0]);
       
@@ -603,11 +629,17 @@ export async function GET(request: NextRequest) {
     const unmatchedEspnGames: any[] = [];
     const unmatchedOddsGames: any[] = [];
     
-    // Filter unmatched odds games to only include those within reasonable range
+    // Filter unmatched odds games to only include those within reasonable range AND correct year
     // (we fetched adjacent weeks for Thursday games, so filter those out if they don't match)
     historicalOddsWithTimestamps.forEach((entry: any) => {
       const oddsGame = entry.game;
       const oddsGameTime = new Date(oddsGame.commence_time);
+      const oddsGameYear = oddsGameTime.getFullYear();
+      
+      // First check year - must match requested year
+      if (oddsGameYear !== year) {
+        return; // Skip games from wrong year
+      }
       
       // Check if this game is within the target week boundaries
       const isInTargetWeek = oddsGameTime >= start && oddsGameTime <= end;
@@ -624,9 +656,9 @@ export async function GET(request: NextRequest) {
       }
     });
     
-    console.log(`📊 Filtered unmatched Odds API games: ${unmatchedOddsGames.length} within/near week (out of ${historicalOddsWithTimestamps.length} total)`);
+    console.log(`📊 Filtered unmatched Odds API games: ${unmatchedOddsGames.length} within/near week and year ${year} (out of ${historicalOddsWithTimestamps.length} total)`);
 
-    for (const event of espnData.events) {
+    for (const event of filteredEspnEvents) {
       const competition = event.competitions?.[0];
       if (!competition) continue;
 
@@ -996,11 +1028,12 @@ export async function GET(request: NextRequest) {
 
     // Calculate summary
     const summary = {
-      totalGames: espnData.events.length,
+      totalGames: filteredEspnEvents.length,
       matchedGames: matchedGames.length,
       overCount: matchedGames.filter(g => g.result.wentOver).length,
       underCount: matchedGames.filter(g => g.result.wentUnder).length,
       pushCount: matchedGames.filter(g => g.result.isPush).length,
+      filteredOutWrongYear: espnData.events.length - filteredEspnEvents.length,
     };
 
     const analysisData = {
