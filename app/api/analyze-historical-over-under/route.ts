@@ -514,9 +514,26 @@ export async function GET(request: NextRequest) {
 
     // Extract unique dates from actual ESPN game dates (more accurate than week boundaries)
     const gameDates = new Set<string>();
+    const thursdayGames: Array<{ date: Date; awayTeam: string; homeTeam: string }> = [];
+    
     espnData.events.forEach(event => {
       const gameDate = new Date(event.date);
       gameDates.add(gameDate.toISOString().split('T')[0]);
+      
+      // Track Thursday games - they might be in a different week in Odds API
+      const timeSlot = getTimeSlot(gameDate, false);
+      if (timeSlot === 'thursday') {
+        const competition = event.competitions?.[0];
+        const homeCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'home');
+        const awayCompetitor = competition?.competitors?.find((c: any) => c.homeAway === 'away');
+        if (homeCompetitor && awayCompetitor) {
+          thursdayGames.push({
+            date: gameDate,
+            awayTeam: awayCompetitor.team.displayName,
+            homeTeam: homeCompetitor.team.displayName,
+          });
+        }
+      }
     });
     
     // Also add dates from week boundaries to catch any odds that might be on different days
@@ -524,6 +541,35 @@ export async function GET(request: NextRequest) {
     while (currentDate <= end) {
       gameDates.add(currentDate.toISOString().split('T')[0]);
       currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // For Thursday games, also check previous and next week's dates
+    // (Thursday games can be assigned to different weeks in different systems)
+    if (thursdayGames.length > 0) {
+      console.log(`📅 Found ${thursdayGames.length} Thursday game(s) - will also check adjacent weeks`);
+      thursdayGames.forEach(tg => {
+        // Add dates from previous week (in case Thursday is actually Week N-1)
+        const prevWeekStart = new Date(start);
+        prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+        const prevWeekEnd = new Date(end);
+        prevWeekEnd.setDate(prevWeekEnd.getDate() - 7);
+        let prevDate = new Date(prevWeekStart);
+        while (prevDate <= prevWeekEnd) {
+          gameDates.add(prevDate.toISOString().split('T')[0]);
+          prevDate.setDate(prevDate.getDate() + 1);
+        }
+        
+        // Add dates from next week (in case Thursday is actually Week N+1)
+        const nextWeekStart = new Date(start);
+        nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+        const nextWeekEnd = new Date(end);
+        nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+        let nextDate = new Date(nextWeekStart);
+        while (nextDate <= nextWeekEnd) {
+          gameDates.add(nextDate.toISOString().split('T')[0]);
+          nextDate.setDate(nextDate.getDate() + 1);
+        }
+      });
     }
     
     const dates = Array.from(gameDates).sort();
@@ -588,6 +634,10 @@ export async function GET(request: NextRequest) {
       const gameId = generateGameId(gameTime, awayTeam, homeTeam);
       const readableId = generateReadableGameId(gameTime, awayTeam, homeTeam);
 
+      // Check if this is a Thursday game (might be in different week in Odds API)
+      const timeSlot = getTimeSlot(gameTime, false);
+      const isThursday = timeSlot === 'thursday';
+      
       // Find matching historical odds
       // Try with strict time check first (2 hours), then relaxed (same day only)
       let matchingOddsEntry = historicalOddsWithTimestamps.find((entry: any) => {
@@ -634,6 +684,63 @@ export async function GET(request: NextRequest) {
           const oddsTime = new Date(oddsGame.commence_time);
           const hoursDiff = Math.abs(espnTime.getTime() - oddsTime.getTime()) / (1000 * 60 * 60);
           console.log(`⚠️ Matched with relaxed time check (${hoursDiff.toFixed(1)}h diff): ${awayTeam} @ ${homeTeam}`);
+        }
+      }
+      
+      // Special handling for Thursday games: if still no match, try fetching from adjacent weeks
+      if (!matchingOddsEntry && isThursday) {
+        console.log(`🔍 Thursday game not matched in current week - checking adjacent weeks for ${awayTeam} @ ${homeTeam}`);
+        
+        // Try previous week
+        const prevWeekStart = new Date(start);
+        prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+        const prevWeekEnd = new Date(end);
+        prevWeekEnd.setDate(prevWeekEnd.getDate() - 7);
+        const prevWeekDates: string[] = [];
+        let prevDate = new Date(prevWeekStart);
+        while (prevDate <= prevWeekEnd) {
+          prevWeekDates.push(prevDate.toISOString().split('T')[0]);
+          prevDate.setDate(prevDate.getDate() + 1);
+        }
+        
+        // Try next week
+        const nextWeekStart = new Date(start);
+        nextWeekStart.setDate(nextWeekStart.getDate() + 7);
+        const nextWeekEnd = new Date(end);
+        nextWeekEnd.setDate(nextWeekEnd.getDate() + 7);
+        const nextWeekDates: string[] = [];
+        let nextDate = new Date(nextWeekStart);
+        while (nextDate <= nextWeekEnd) {
+          nextWeekDates.push(nextDate.toISOString().split('T')[0]);
+          nextDate.setDate(nextDate.getDate() + 1);
+        }
+        
+        // Fetch odds for adjacent weeks
+        const adjacentWeekOdds = await fetchHistoricalOddsForDateRange([...prevWeekDates, ...nextWeekDates], apiKey);
+        console.log(`📜 Found ${adjacentWeekOdds.length} odds games in adjacent weeks for Thursday game`);
+        
+        // Try matching against adjacent week odds
+        matchingOddsEntry = adjacentWeekOdds.find((entry: any) => {
+          const oddsGame = entry.game;
+          return doGamesMatch(
+            {
+              gameTime,
+              awayTeam,
+              homeTeam,
+            },
+            {
+              gameTime: oddsGame.commence_time,
+              awayTeam: oddsGame.away_team,
+              homeTeam: oddsGame.home_team,
+            },
+            false // relaxed time check for cross-week matching
+          );
+        });
+        
+        if (matchingOddsEntry) {
+          console.log(`✅ Matched Thursday game from adjacent week: ${awayTeam} @ ${homeTeam}`);
+          // Add to our main odds list so it's included
+          historicalOddsWithTimestamps.push(matchingOddsEntry);
         }
       }
       
