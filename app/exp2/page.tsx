@@ -694,24 +694,64 @@ export default function Exp2Page() {
               </div>
             )}
 
-            {/* Unmatched Games */}
+            {/* Unmatched Games - Detailed */}
             {((data.unmatchedEspnGames || []).length > 0 || (data.unmatchedOddsGames || []).length > 0) && (
-              <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4">
+              <div className="bg-yellow-900/20 border border-yellow-500/50 rounded-lg p-4 space-y-4">
                 <div className="font-semibold text-yellow-400 mb-2">
                   ⚠️ Unmatched Games
                 </div>
-                <div className="text-sm text-gray-300 space-y-1">
-                  {(data.unmatchedEspnGames || []).length > 0 && (
-                    <div>
-                      {(data.unmatchedEspnGames || []).length} ESPN game(s) without matching odds
+                
+                {/* Unmatched ESPN Games with Details */}
+                {(data.unmatchedEspnGames || []).length > 0 && (
+                  <div>
+                    <div className="text-sm font-semibold text-yellow-300 mb-2">
+                      {(data.unmatchedEspnGames || []).length} ESPN game(s) without matching odds:
                     </div>
-                  )}
-                  {(data.unmatchedOddsGames || []).length > 0 && (
-                    <div>
+                    <div className="space-y-3">
+                      {(data.unmatchedEspnGames || []).map((game: any, idx: number) => (
+                        <div key={idx} className="bg-[#2a2a2a] rounded p-3 text-sm">
+                          <div className="font-medium text-white mb-1">
+                            {game.awayTeam} @ {game.homeTeam}
+                          </div>
+                          <div className="text-gray-400 text-xs mb-2">
+                            {formatDate(game.gameTime)} {game.isMonday && '(Monday)'} {game.isThursday && '(Thursday)'}
+                            {game.awayScore !== undefined && ` | Score: ${game.awayScore}-${game.homeScore}`}
+                          </div>
+                          <div className="text-yellow-300 text-xs">
+                            <div><strong>Reason:</strong> {game.matchFailureReason?.replace(/_/g, ' ').replace(/time difference (\d+\.\d+)h/g, 'Time difference: $1 hours')}</div>
+                            {game.closestMatch && (
+                              <div className="mt-1 text-gray-400">
+                                <strong>Closest match found:</strong> {game.closestMatch.awayTeam} @ {game.closestMatch.homeTeam}
+                                <br />
+                                <span className="text-xs">Odds API time: {formatDate(game.closestMatch.commenceTime)}</span>
+                                {game.closestMatch.timeDifference && (
+                                  <span className="text-xs"> | Time diff: {game.closestMatch.timeDifference}</span>
+                                )}
+                              </div>
+                            )}
+                            {game.teamNameMatchesCount !== undefined && game.teamNameMatchesCount > 0 && (
+                              <div className="mt-1 text-gray-400 text-xs">
+                                Found {game.teamNameMatchesCount} potential match(es) by team name
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Unmatched Odds API Games */}
+                {(data.unmatchedOddsGames || []).length > 0 && (
+                  <div>
+                    <div className="text-sm font-semibold text-yellow-300 mb-2">
                       {(data.unmatchedOddsGames || []).length} Odds API game(s) without matching ESPN data
                     </div>
-                  )}
-                </div>
+                    <div className="text-xs text-gray-400">
+                      (These are likely games from other weeks or dates outside the analysis window)
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </>

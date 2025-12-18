@@ -637,8 +637,8 @@ export async function GET(request: NextRequest) {
         }
       }
       
-      // Log detailed info for first few unmatched games
-      if (!matchingOddsEntry && unmatchedEspnGames.length < 5) {
+      // Analyze why game didn't match and store details
+      if (!matchingOddsEntry) {
         // Try to find closest match by team names only
         const teamNameMatches = historicalOddsWithTimestamps.filter((entry: any) => {
           const oddsGame = entry.game;
@@ -649,22 +649,35 @@ export async function GET(request: NextRequest) {
           return (away1 === away2 && home1 === home2) || (away1 === home2 && home1 === away2);
         });
         
-        console.log(`🔍 ESPN: ${awayTeam} @ ${homeTeam} at ${gameTime.toISOString()}`);
-        console.log(`   Found ${teamNameMatches.length} potential team name matches`);
+        // Determine why it didn't match
+        let matchFailureReason = 'unknown';
+        let closestMatch: any = null;
+        
         if (teamNameMatches.length > 0) {
-          teamNameMatches.slice(0, 3).forEach((entry: any) => {
-            const oddsGame = entry.game;
-            const espnTime = new Date(gameTime);
-            const oddsTime = new Date(oddsGame.commence_time);
-            const hoursDiff = Math.abs(espnTime.getTime() - oddsTime.getTime()) / (1000 * 60 * 60);
-            const sameDay = espnTime.toISOString().split('T')[0] === oddsTime.toISOString().split('T')[0];
-            console.log(`   - Odds: ${oddsGame.away_team} @ ${oddsGame.home_team} at ${oddsGame.commence_time}`);
-            console.log(`     Time diff: ${hoursDiff.toFixed(1)}h, Same day: ${sameDay}`);
-          });
+          // Teams match but time doesn't
+          closestMatch = teamNameMatches[0];
+          const espnTime = new Date(gameTime);
+          const oddsTime = new Date(closestMatch.game.commence_time);
+          const hoursDiff = Math.abs(espnTime.getTime() - oddsTime.getTime()) / (1000 * 60 * 60);
+          const sameDay = espnTime.toISOString().split('T')[0] === oddsTime.toISOString().split('T')[0];
+          
+          if (!sameDay) {
+            matchFailureReason = 'different_day';
+          } else if (hoursDiff > 2) {
+            matchFailureReason = `time_difference_${hoursDiff.toFixed(1)}h`;
+          } else {
+            matchFailureReason = 'time_zone_or_other';
+          }
+        } else {
+          // Teams don't match
+          matchFailureReason = 'team_name_mismatch';
         }
-      }
-
-      if (!matchingOddsEntry) {
+        
+        // Get time slot info
+        const timeSlot = getTimeSlot(gameTime, false);
+        const isMonday = timeSlot === 'monday';
+        const isThursday = timeSlot === 'thursday';
+        
         unmatchedEspnGames.push({
           espnId: event.id,
           awayTeam,
@@ -672,8 +685,22 @@ export async function GET(request: NextRequest) {
           gameTime: event.date,
           awayScore,
           homeScore,
+          matchFailureReason,
+          closestMatch: closestMatch ? {
+            awayTeam: closestMatch.game.away_team,
+            homeTeam: closestMatch.game.home_team,
+            commenceTime: closestMatch.game.commence_time,
+            timeDifference: closestMatch ? (Math.abs(new Date(gameTime).getTime() - new Date(closestMatch.game.commence_time).getTime()) / (1000 * 60 * 60)).toFixed(1) + 'h' : null,
+          } : null,
+          timeSlot,
+          isMonday,
+          isThursday,
+          teamNameMatchesCount: teamNameMatches.length,
         });
-        continue;
+      }
+
+      if (!matchingOddsEntry) {
+        continue; // Already added to unmatchedEspnGames above with detailed analysis
       }
 
       const matchingOdds = matchingOddsEntry.game;
@@ -698,7 +725,8 @@ export async function GET(request: NextRequest) {
           gameTime: event.date,
           awayScore,
           homeScore,
-          reason: 'no_bookmaker',
+          matchFailureReason: 'no_bookmaker',
+          timeSlot: getTimeSlot(gameTime, false),
         });
         continue;
       }
@@ -716,7 +744,8 @@ export async function GET(request: NextRequest) {
           gameTime: event.date,
           awayScore,
           homeScore,
-          reason: 'no_over_under',
+          matchFailureReason: 'no_over_under',
+          timeSlot: getTimeSlot(gameTime, false),
         });
         continue;
       }
